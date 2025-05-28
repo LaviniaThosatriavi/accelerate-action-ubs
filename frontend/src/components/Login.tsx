@@ -1,15 +1,17 @@
+import { useState, type FormEvent, type ChangeEvent } from "react";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 const LoginContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 100vw; /* Full width */
-  height: calc(100vh - 10vh); 
-  background-color: white; 
+  width: 100vw;
+  height: calc(100vh - 10vh);
+  background-color: white;
 `;
 
-const FormWrapper = styled.fieldset`
+const FormWrapper = styled.form`
   border: 1px solid #ddd;
   border-radius: 10px;
   padding: 2rem;
@@ -33,6 +35,7 @@ const Input = styled.input`
   border-radius: 5px;
   font-size: 1rem;
   background-color: white;
+  color: black;
 `;
 
 const Button = styled.button`
@@ -50,22 +53,80 @@ const Button = styled.button`
   }
 `;
 
+const ErrorText = styled.div`
+  color: #ff0000;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+`;
+
+const NavigationText = styled.div`
+  margin-top: 1rem;
+  font-size: 0.875rem;
+  color: black;
+  text-align: left;
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+`;
+
+const StyledLink = styled.span`
+  color: #ff0000;
+  text-decoration: underline;
+  cursor: pointer;
+  /* Remove float property */
+
+  &:hover {
+    color: #cc0000;
+  }
+`;
+
 const Login = () => {
+  const [username, setUsername] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
+
+  const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    try {
+      const response = await fetch('http://localhost:8080/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
+
+      if (!response.ok) throw new Error();
+      
+      const token = await response.text();
+      localStorage.setItem('jwtToken', token);
+      navigate('/home');
+    } catch {
+      setError('Invalid username or password');
+    }
+  };
+
   return (
     <LoginContainer>
-      <FormWrapper>
+      <FormWrapper onSubmit={handleLogin}>
         <Legend>Login</Legend>
-        <Input type="text" placeholder="Enter Email" />
-        <Input type="password" placeholder="Enter Password" />
-        <Button>Login</Button>
-        <Button
-          style={{
-            backgroundColor: "#DB2B45",
-            marginTop: "0.5rem",
-          }}
-        >
-          Register
-        </Button>
+        {error && <ErrorText>{error}</ErrorText>}
+        <Input 
+          type="text" 
+          placeholder="Enter Username" 
+          value={username}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => setUsername(e.target.value)}
+        />
+        <Input 
+          type="password" 
+          placeholder="Enter Password" 
+          value={password}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
+        />
+        <Button type="submit">Login</Button>
+        <NavigationText>
+          Don't have an account yet?
+          <StyledLink onClick={() => navigate('/register')}>Register</StyledLink>
+        </NavigationText>
       </FormWrapper>
     </LoginContainer>
   );
