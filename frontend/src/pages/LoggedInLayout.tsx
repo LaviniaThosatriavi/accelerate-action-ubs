@@ -10,15 +10,17 @@ const StyledAppBar = styled(AppBar)`
 
 const LayoutContainer = styled.div`
   display: flex;
-  height: calc(100vh - 10vh); /* Full height minus the navbar height */
-  margin-top: 10vh; /* Offset for the navbar */
+  position: fixed;
+  top: 10vh;
+  left: 0;
+  right: 0;
+  bottom: 0;
 `;
 
 const ContentWrapper = styled.div<{ sidebarWidth: number }>`
   flex: 1; /* Take up remaining space */
   width: calc(100% - ${(props) => props.sidebarWidth}px); /* Adjust width dynamically */
   transition: width 0.3s ease; /* Smooth transition when sidebar opens/closes */
-  padding: 1rem;
   overflow-y: auto; /* Allow scrolling if content overflows */
 `;
 
