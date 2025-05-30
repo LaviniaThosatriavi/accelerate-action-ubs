@@ -10,17 +10,17 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import com.backend.TTP.service.CustomUserDetailsService;
+import com.backend.TTP.service.CustomUserDetailsServiceImpl;
 import java.io.IOException;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
-    private final CustomUserDetailsService customUserDetailsService;
+    private final CustomUserDetailsServiceImpl customUserDetailsService;
 
     public JwtAuthenticationFilter(JwtUtil jwtUtil,
-                                  CustomUserDetailsService customUserDetailsService) {
+                                  CustomUserDetailsServiceImpl customUserDetailsService) {
         this.jwtUtil = jwtUtil;
         this.customUserDetailsService = customUserDetailsService;
     }

@@ -40,9 +40,13 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@RequestBody AuthRequest request) {
         try {
+            if (request.getUsername() == null || request.getPassword() == null) {
+                throw new IllegalArgumentException("Username and password are required");
+            }
+            
             User user = new User();
             user.setUsername(request.getUsername());
-            user.setPassword(request.getPassword());  // Will be encoded in service
+            user.setPassword(request.getPassword());  
             
             User registeredUser = authService.register(user);
             String token = jwtUtil.generateToken(registeredUser.getUsername());
@@ -50,6 +54,7 @@ public class AuthController {
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         } catch (Exception e) {
+            e.printStackTrace(); // Log the full stack trace
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Registration failed: " + e.getMessage());
         }
     }
@@ -57,6 +62,10 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
         try {
+            if (request.getUsername() == null || request.getPassword() == null) {
+                throw new IllegalArgumentException("Username and password are required");
+            }
+            
             Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                     request.getUsername(), 
@@ -74,7 +83,10 @@ public class AuthController {
             
         } catch (BadCredentialsException e) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         } catch (Exception e) {
+            e.printStackTrace(); // Log the full stack trace
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Login failed: " + e.getMessage());
         }
     }

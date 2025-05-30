@@ -2,11 +2,12 @@ package com.backend.TTP.service;
 
 import com.backend.TTP.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
-public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
+public class CustomUserDetailsServiceImpl implements UserDetailsService {
     private final UserRepository userRepository;
     
     public CustomUserDetailsServiceImpl(UserRepository userRepository) {

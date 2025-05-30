@@ -1,0 +1,344 @@
+{
+    "skills": [
+        {
+            "name": "java",
+            "description": "A general-purpose programming language that is class-based, object-oriented, and designed to have as few implementation dependencies as possible.",
+            "tags": [
+                "programming",
+                "backend",
+                "jvm"
+            ],
+            "difficulty": 4,
+            "relatedSkills": [
+                "spring",
+                "hibernate",
+                "maven",
+                "jpa"
+            ]
+        },
+        {
+            "name": "spring",
+            "description": "An application framework for Java that provides infrastructure support for developing Java applications.",
+            "tags": [
+                "java",
+                "framework",
+                "backend"
+            ],
+            "difficulty": 4,
+            "relatedSkills": [
+                "spring boot",
+                "spring security",
+                "spring data",
+                "hibernate"
+            ]
+        },
+        {
+            "name": "sql",
+            "description": "A domain-specific language used in programming for managing data held in relational database management systems.",
+            "tags": [
+                "database",
+                "query",
+                "data"
+            ],
+            "difficulty": 3,
+            "relatedSkills": [
+                "postgresql",
+                "mysql",
+                "database design",
+                "jpa"
+            ]
+        },
+        {
+            "name": "javascript",
+            "description": "A programming language that conforms to the ECMAScript specification and is a core technology of the World Wide Web.",
+            "tags": [
+                "programming",
+                "frontend",
+                "web"
+            ],
+            "difficulty": 3,
+            "relatedSkills": [
+                "typescript",
+                "react",
+                "node.js",
+                "vue.js",
+                "angular"
+            ]
+        },
+        {
+            "name": "react",
+            "description": "A JavaScript library for building user interfaces, particularly single-page applications.",
+            "tags": [
+                "javascript",
+                "frontend",
+                "ui",
+                "library"
+            ],
+            "difficulty": 3,
+            "relatedSkills": [
+                "redux",
+                "javascript",
+                "jsx",
+                "react hooks"
+            ]
+        },
+        {
+            "name": "python",
+            "description": "An interpreted high-level general-purpose programming language with an emphasis on code readability.",
+            "tags": [
+                "programming",
+                "data science",
+                "scripting"
+            ],
+            "difficulty": 2,
+            "relatedSkills": [
+                "django",
+                "flask",
+                "pandas",
+                "numpy",
+                "tensorflow"
+            ]
+        },
+        {
+            "name": "docker",
+            "description": "A set of platform as a service products that use OS-level virtualization to deliver software in packages called containers.",
+            "tags": [
+                "container",
+                "devops",
+                "deployment"
+            ],
+            "difficulty": 3,
+            "relatedSkills": [
+                "kubernetes",
+                "docker-compose",
+                "containerization"
+            ]
+        },
+        {
+            "name": "git",
+            "description": "A distributed version control system for tracking changes in source code during software development.",
+            "tags": [
+                "version control",
+                "collaboration",
+                "development"
+            ],
+            "difficulty": 2,
+            "relatedSkills": [
+                "github",
+                "gitlab",
+                "version control"
+            ]
+        },
+        {
+            "name": "rest api",
+            "description": "Representational State Transfer (REST) is a software architectural style that defines a set of constraints for creating web services.",
+            "tags": [
+                "api",
+                "backend",
+                "http"
+            ],
+            "difficulty": 3,
+            "relatedSkills": [
+                "http",
+                "json",
+                "api design",
+                "backend"
+            ]
+        },
+        {
+            "name": "html",
+            "description": "The standard markup language for documents designed to be displayed in a web browser.",
+            "tags": [
+                "frontend",
+                "web",
+                "markup"
+            ],
+            "difficulty": 1,
+            "relatedSkills": [
+                "css",
+                "javascript",
+                "web development"
+            ]
+        },
+        {
+            "name": "css",
+            "description": "A style sheet language used for describing the presentation of a document written in HTML.",
+            "tags": [
+                "frontend",
+                "web",
+                "design"
+            ],
+            "difficulty": 2,
+            "relatedSkills": [
+                "html",
+                "sass",
+                "less",
+                "responsive design"
+            ]
+        },
+        {
+            "name": "typescript",
+            "description": "A strict syntactical superset of JavaScript that adds static typing.",
+            "tags": [
+                "programming",
+                "javascript",
+                "frontend"
+            ],
+            "difficulty": 3,
+            "relatedSkills": [
+                "javascript",
+                "angular",
+                "react"
+            ]
+        },
+        {
+            "name": "node.js",
+            "description": "An open-source, cross-platform, JavaScript runtime environment that executes JavaScript code outside a web browser.",
+            "tags": [
+                "javascript",
+                "backend",
+                "runtime"
+            ],
+            "difficulty": 3,
+            "relatedSkills": [
+                "express",
+                "npm",
+                "javascript",
+                "mongodb"
+            ]
+        },
+        {
+            "name": "microservices",
+            "description": "An architectural style that structures an application as a collection of services that are highly maintainable and testable.",
+            "tags": [
+                "architecture",
+                "backend",
+                "design"
+            ],
+            "difficulty": 4,
+            "relatedSkills": [
+                "docker",
+                "kubernetes",
+                "api gateway",
+                "service discovery"
+            ]
+        },
+        {
+            "name": "design patterns",
+            "description": "Reusable solutions to common problems in software design.",
+            "tags": [
+                "architecture",
+                "development",
+                "best practices"
+            ],
+            "difficulty": 4,
+            "relatedSkills": [
+                "object-oriented design",
+                "java",
+                "software architecture"
+            ]
+        }
+    ],
+    "careerPaths": [
+        {
+            "name": "junior backend developer",
+            "skills": [
+                "java",
+                "spring",
+                "sql",
+                "git",
+                "rest api"
+            ]
+        },
+        {
+            "name": "mid-level backend developer",
+            "skills": [
+                "design patterns",
+                "microservices",
+                "spring security",
+                "docker",
+                "jpa"
+            ]
+        },
+        {
+            "name": "senior backend developer",
+            "skills": [
+                "system design",
+                "kubernetes",
+                "ci/cd",
+                "performance optimization",
+                "architecture"
+            ]
+        },
+        {
+            "name": "junior frontend developer",
+            "skills": [
+                "html",
+                "css",
+                "javascript",
+                "react",
+                "responsive design"
+            ]
+        },
+        {
+            "name": "mid-level frontend developer",
+            "skills": [
+                "typescript",
+                "redux",
+                "testing",
+                "webpack",
+                "sass"
+            ]
+        },
+        {
+            "name": "junior full-stack developer",
+            "skills": [
+                "javascript",
+                "react",
+                "node.js",
+                "express",
+                "mongodb"
+            ]
+        },
+        {
+            "name": "devops engineer",
+            "skills": [
+                "linux",
+                "docker",
+                "kubernetes",
+                "ci/cd",
+                "monitoring"
+            ]
+        },
+        {
+            "name": "data scientist",
+            "skills": [
+                "python",
+                "pandas",
+                "sklearn",
+                "tensorflow",
+                "statistics"
+            ]
+        },
+        {
+            "name": "mobile developer",
+            "skills": [
+                "kotlin",
+                "swift",
+                "react native",
+                "android",
+                "ios"
+            ]
+        },
+        {
+            "name": "cloud architect",
+            "skills": [
+                "aws",
+                "azure",
+                "cloud architecture",
+                "security",
+                "networking"
+            ]
+        }
+    ]
+}

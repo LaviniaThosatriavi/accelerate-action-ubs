@@ -4,24 +4,23 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
-import java.security.Key;
 import java.util.Date;
 import java.util.function.Function;
-import javax.crypto.SecretKey; 
+import javax.crypto.SecretKey;
 
 @Component
 public class JwtUtil {
-    private final SecretKey SECRET_KEY = Jwts.SIG.HS256.key().build();
+    private final SecretKey SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
     private static final long EXPIRATION_TIME = 864_000_000; // 10 days
 
     public String generateToken(String username) {
-            return Jwts.builder()
-                    .subject(username)
-                    .issuedAt(new Date())
-                    .expiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
-                    .signWith(SECRET_KEY, Jwts.SIG.HS256)
-                    .compact();
-        }
+        return Jwts.builder()
+                .subject(username)
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                .signWith(SECRET_KEY)
+                .compact();
+    }
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -39,10 +38,10 @@ public class JwtUtil {
 
     private Claims extractAllClaims(String token) {
         return Jwts.parser()
-                .verifyWith(SECRET_KEY)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
+            .verifyWith(SECRET_KEY)
+            .build()
+            .parseSignedClaims(token)
+            .getPayload();
     }
 
     private boolean isTokenExpired(String token) {
