@@ -7,9 +7,12 @@ import org.springframework.stereotype.Component;
 import java.util.Date;
 import java.util.function.Function;
 import javax.crypto.SecretKey;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Component
 public class JwtUtil {
+    private static final Logger logger = LoggerFactory.getLogger(JwtUtil.class);
     private final SecretKey SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
     private static final long EXPIRATION_TIME = 864_000_000; // 10 days
 
@@ -23,12 +26,22 @@ public class JwtUtil {
     }
 
     public String extractUsername(String token) {
-        return extractClaim(token, Claims::getSubject);
+        try {
+            return extractClaim(token, Claims::getSubject);
+        } catch (Exception e) {
+            logger.error("Failed to extract username from token", e);
+            return null;
+        }
     }
 
     public boolean validateToken(String token, UserDetails userDetails) {
-        final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+        try {
+            final String username = extractUsername(token);
+            return (username != null && username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+        } catch (Exception e) {
+            logger.error("Token validation failed", e);
+            return false;
+        }
     }
 
     private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
@@ -37,15 +50,25 @@ public class JwtUtil {
     }
 
     private Claims extractAllClaims(String token) {
-        return Jwts.parser()
-            .verifyWith(SECRET_KEY)
-            .build()
-            .parseSignedClaims(token)
-            .getPayload();
+        try {
+            return Jwts.parser()
+                .verifyWith(SECRET_KEY)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+        } catch (Exception e) {
+            logger.error("Failed to extract claims from token", e);
+            throw e;
+        }
     }
 
     private boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
+        try {
+            return extractExpiration(token).before(new Date());
+        } catch (Exception e) {
+            logger.error("Failed to check token expiration", e);
+            return true;
+        }
     }
 
     private Date extractExpiration(String token) {

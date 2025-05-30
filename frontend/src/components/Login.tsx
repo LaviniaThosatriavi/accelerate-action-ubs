@@ -93,15 +93,38 @@ const Login = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
+        credentials: 'include' // Important for CORS with authentication
       });
 
-      if (!response.ok) throw new Error();
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        console.error('Login failed:', response.status, errorData);
+        throw new Error(errorData?.message || 'Login failed');
+      }
       
-      const token = await response.text();
+      // Parse the JSON response
+      const data = await response.json();
+      
+      // Extract the token from the response (adjust based on your API response structure)
+      const token = data.token;
+      
+      if (!token) {
+        console.error('No token in response', data);
+        throw new Error('No token received');
+      }
+      
+      console.log('Login successful, saving token');
+      
+      // Save as 'token' to be consistent with how you're retrieving it elsewhere
+      localStorage.setItem('token', token);
+      
+      // For backward compatibility, also save as jwtToken if needed
       localStorage.setItem('jwtToken', token);
+      
       navigate('/home');
-    } catch {
-      setError('Invalid username or password');
+    } catch (err) {
+      console.error('Login error:', err);
+      setError(err instanceof Error ? err.message : 'Invalid username or password');
     }
   };
 
