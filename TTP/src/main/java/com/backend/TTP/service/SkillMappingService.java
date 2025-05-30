@@ -27,7 +27,7 @@ public class SkillMappingService {
 
     public SkillMappingService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
-        this.youtubeApiKey = "AIzaSyCpzC5khNPGXTYgOxysP7if2uloHNft8ds";
+        this.youtubeApiKey = "api key here"; // insert api key
         
         // Initialize the skill database and career paths
         initializeSkillDatabase();
