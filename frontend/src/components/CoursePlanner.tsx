@@ -4,7 +4,6 @@ import axios from 'axios';
 import { FaUser, FaRoad, FaEdit, FaPlusCircle, FaCode, FaGithub, FaDatabase } from 'react-icons/fa';
 import ReactMarkdown from 'react-markdown';
 
-// Types
 interface Profile {
   id?: number;
   careerStage: string;
@@ -54,6 +53,7 @@ const LeftSection = styled(Section)`
   flex-direction: column;
   gap: 1.5rem;
   min-height: 0;
+  padding: 2.5rem 2rem;
 `;
 
 const EmptySection = styled(Section)`
@@ -66,6 +66,7 @@ const EmptySection = styled(Section)`
 
 const ActionButton = styled.button`
   padding: 0.75rem 1.25rem;
+  margin: 0 auto;
   background-color: #db2b45;
   color: white;
   border: none;
@@ -249,7 +250,8 @@ const TabContainer = styled.div`
 const TabHeader = styled.div`
   display: flex;
   border-bottom: 1px solid #ddd;
-  margin-bottom: 1rem;
+  margin-bottom: 2vh;
+  gap: 1vw;
   position: sticky;
   top: 0;
   background-color: white;
@@ -295,14 +297,15 @@ const TabButton = styled.button<TabButtonProps>`
 const TabContent = styled.div`
   flex: 1;
   overflow: auto;
-  padding: 1rem;
 `;
 
 const ProfileCard = styled.div`
   background-color: #f9f9f9;
   border-radius: 8px;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
+  padding: 1.2rem;
+  height: 70%;
+  margin-top: 2vh;
+  margin-bottom: 4vh;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 `;
 
@@ -329,6 +332,8 @@ const ProfileLabel = styled.span`
 
 const ProfileValue = styled.span`
   margin-left: 0.5rem;
+  color: black;
+ line-height: 2rem;
 `;
 
 const SkillsList = styled.div`
@@ -379,24 +384,22 @@ const LearningPathContent = styled.div`
   }
   
   h1 {
-    font-size: 2rem;
-    margin-top: 0;
-    border-bottom: 2px solid #db2b45;
-    padding-bottom: 0.5rem;
+  display: none;
   }
   
   h2 {
-    font-size: 1.5rem;
-    margin-top: 2rem;
+    font-size: 1rem;
     border-bottom: 1px solid #eee;
-    padding-bottom: 0.5rem;
   }
   
   h3 {
     font-size: 1.25rem;
-    margin-top: 1.5rem;
+    margin-bottom: -2rem;
+    
   }
   
+  h5 {
+  color: blue;}
   a {
     color: #db2b45;
     text-decoration: none;
@@ -407,12 +410,11 @@ const LearningPathContent = styled.div`
   }
   
   ul {
-    margin-top: 0.5rem;
     padding-left: 1.5rem;
   }
   
   li {
-    margin-bottom: 0.5rem;
+  color: black;
   }
   
   strong {
@@ -422,7 +424,7 @@ const LearningPathContent = styled.div`
   hr {
     border: none;
     border-top: 1px solid #eee;
-    margin: 2rem 0;
+    margin: 1rem 0;
   }
   
   @media (max-width: 768px) {
@@ -675,7 +677,6 @@ const CoursePlanner = () => {
     <CoursePlannerContainer>
       {/* Left Section - Personalized Learning Path */}
       <LeftSection>
-        <h2>Personalized Learning Path</h2>
         
         <TabContainer>
           <TabHeader>
