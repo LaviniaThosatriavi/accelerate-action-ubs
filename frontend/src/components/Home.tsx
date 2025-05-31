@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import axios, { AxiosError } from 'axios';
 import styled from 'styled-components';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import type { NewsItem } from '../types/NewsItem';
 
 const HomeContainer = styled.div`
@@ -15,18 +15,19 @@ const HomeContainer = styled.div`
 const SearchContainer = styled.form`
   display: flex;
   justify-content: center;
-  padding: 20px;
-  background-color: #ff0000;
+  padding: 5px;
+  color: white;
   margin-bottom: 30px;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 `;
 
 const SearchInput = styled.input`
   padding: 12px 20px;
-  width: 60%;
-  max-width: 600px;
-  border: 2px solid black;
+  width: 95%;
+  background-color: white;
+  border:none;
+  color: black;
   border-radius: 25px;
   font-size: 16px;
   outline: none;
@@ -126,26 +127,103 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const location = useLocation();
 
+  // Helper function with proper type checking
+  const isErrorWithMessage = (error: unknown): error is { message: string } => {
+    return (
+      typeof error === 'object' &&
+      error !== null &&
+      'message' in error &&
+      typeof (error as Record<string, unknown>).message === 'string'
+    );
+  };
+
+  // Fetch trending news when on homepage
   useEffect(() => {
-    const fetchTrendingNews = async () => {
-      try {
-        const response = await axios.get<NewsItem[]>('/api/news/trending');
-        setNews(response.data.slice(0, 9));
-      } catch (err) {
-        const error = err as AxiosError;
-        setError(error.message || 'Failed to fetch trending news. Please try again later.');
-      } finally {
-        setLoading(false);
+    if (location.pathname === '/home') {
+      const fetchTrendingNews = async () => {
+        setLoading(true);
+        try {
+          console.log('Fetching trending news...');
+          const response = await axios.get<NewsItem[]>('/api/news/trending');
+          console.log('Trending news response:', response.data);
+          setNews(response.data.slice(0, 9));
+          setError('');
+        } catch (err) {
+          console.error('Error fetching trending news:', err);
+          const error = err as AxiosError;
+          let errorMessage = 'Failed to fetch trending news';
+          
+          if (error.response?.data) {
+            if (typeof error.response.data === 'string') {
+              errorMessage = error.response.data;
+            } else if (isErrorWithMessage(error.response.data)) {
+              errorMessage = error.response.data.message;
+            }
+          }
+          
+          setError(errorMessage);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchTrendingNews();
+    }
+  }, [location.pathname]);
+
+  // Handle search queries
+  useEffect(() => {
+    const fetchSearchResults = async () => {
+      const searchParams = new URLSearchParams(location.search);
+      const query = searchParams.get('q');
+      
+      if (query) {
+        setSearchQuery(query); // Update the search input with the current query
+        setLoading(true);
+        try {
+          console.log(`Searching for "${query}"...`);
+          const response = await axios.get<NewsItem[]>(
+            `/api/news/search?q=${encodeURIComponent(query)}`
+          );
+          console.log('Search results:', response.data);
+          setNews(response.data);
+          setError('');
+        } catch (err) {
+          console.error('Error searching news:', err);
+          const error = err as AxiosError;
+          let errorMessage = 'Failed to search news';
+          
+          if (error.response?.data) {
+            if (typeof error.response.data === 'string') {
+              errorMessage = error.response.data;
+            } else if (isErrorWithMessage(error.response.data)) {
+              errorMessage = error.response.data.message;
+            } else {
+              errorMessage = JSON.stringify(error.response.data);
+            }
+          } else {
+            errorMessage = error.message || 'Unknown error occurred';
+          }
+          
+          setError(errorMessage);
+        } finally {
+          setLoading(false);
+        }
       }
     };
 
-    fetchTrendingNews();
-  }, []);
+    // Always call fetchSearchResults when on search page, regardless of initial load or subsequent updates
+    if (location.pathname === '/search') {
+      fetchSearchResults();
+    }
+  }, [location.pathname, location.search]); // Added location.search as a dependency
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
+      console.log(`Navigating to search with query: ${searchQuery}`);
       navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
     }
   };
@@ -154,8 +232,19 @@ const Home = () => {
     window.open(url, '_blank', 'noopener,noreferrer');
   };
 
-  if (loading) return <LoadingMessage>Loading trending tech news...</LoadingMessage>;
-  if (error) return <ErrorMessage>{error}</ErrorMessage>;
+  if (loading) {
+    return (
+      <LoadingMessage>
+        {location.pathname === '/search' 
+          ? `Searching for "${searchQuery}"...` 
+          : 'Loading trending tech news...'}
+      </LoadingMessage>
+    );
+  }
+
+  if (error) {
+    return <ErrorMessage>Error: {error}</ErrorMessage>;
+  }
 
   return (
     <HomeContainer>
@@ -170,26 +259,33 @@ const Home = () => {
       </SearchContainer>
 
       <NewsGrid>
-        {news.map((item, index) => (
-          <NewsCard key={index} onClick={() => handleNewsClick(item.link)}>
-            {item.image_url && (
-              <NewsImage 
-                src={item.image_url} 
-                alt={item.title}
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = 'none';
-                }}
-              />
-            )}
-            <NewsTitle>{item.title}</NewsTitle>
-            {item.description && (
-              <NewsDescription>{item.description}</NewsDescription>
-            )}
-            <ReadMore aria-label={`Read more about ${item.title}`}>
-              Read More
-            </ReadMore>
-          </NewsCard>
-        ))}
+        {news.length > 0 ? (
+          news.map((item, index) => (
+            <NewsCard key={index} onClick={() => handleNewsClick(item.link)}>
+              {item.image_url && (
+                <NewsImage 
+                  src={item.image_url} 
+                  alt={item.title}
+                  onError={(e) => {
+                    // Replace with a placeholder instead of hiding
+                    (e.target as HTMLImageElement).src = '/placeholder-news-image.jpg';
+                  }}
+                />
+              )}
+              <NewsTitle>{item.title}</NewsTitle>
+              {item.description && (
+                <NewsDescription>{item.description}</NewsDescription>
+              )}
+              <ReadMore aria-label={`Read more about ${item.title}`}>
+                Read More
+              </ReadMore>
+            </NewsCard>
+          ))
+        ) : (
+          <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '40px' }}>
+            No news articles found. Try a different search term.
+          </div>
+        )}
       </NewsGrid>
     </HomeContainer>
   );

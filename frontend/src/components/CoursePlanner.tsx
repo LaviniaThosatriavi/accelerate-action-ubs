@@ -98,7 +98,7 @@ const ActionButton = styled.button`
 
 const ProfileModal = styled.div`
   position: fixed;
-  top: 50%;
+  top: 54%;
   left: 50%;
   transform: translate(-50%, -50%);
   background-color: white;
