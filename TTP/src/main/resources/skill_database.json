@@ -1,6 +1,31 @@
 {
     "skills": [
         {
+            "name": "Solidity",
+            "description": "Smart contract programming language",
+            "difficulty": 4,
+            "relatedSkills": [
+                "Ethereum",
+                "Smart Contracts",
+                "Blockchain"
+            ]
+        },
+        {
+            "name": "Ethereum",
+            "description": "Blockchain platform for decentralized applications",
+            "tags": [
+                "blockchain",
+                "dapps",
+                "smart contracts"
+            ],
+            "difficulty": 4,
+            "relatedSkills": [
+                "solidity",
+                "web3.js",
+                "ipfs"
+            ]
+        },
+        {
             "name": "java",
             "description": "A general-purpose programming language that is class-based, object-oriented, and designed to have as few implementation dependencies as possible.",
             "tags": [
@@ -240,6 +265,16 @@
         }
     ],
     "careerPaths": [
+        {
+            "name": "Blockchain Developer",
+            "skills": [
+                "solidity",
+                "ethereum",
+                "javascript",
+                "smart contracts",
+                "web3.js"
+            ]
+        },
         {
             "name": "junior backend developer",
             "skills": [

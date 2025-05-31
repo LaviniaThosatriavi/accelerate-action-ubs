@@ -53,7 +53,7 @@ const LeftSection = styled(Section)`
   flex-direction: column;
   gap: 1.5rem;
   min-height: 0;
-  padding: 2.5rem 2rem;
+  padding: 1.5rem;
 `;
 
 const EmptySection = styled(Section)`
@@ -394,12 +394,10 @@ const LearningPathContent = styled.div`
   
   h3 {
     font-size: 1.25rem;
-    margin-bottom: -2rem;
     
   }
   
-  h5 {
-  color: blue;}
+  color: black ;}
   a {
     color: #db2b45;
     text-decoration: none;

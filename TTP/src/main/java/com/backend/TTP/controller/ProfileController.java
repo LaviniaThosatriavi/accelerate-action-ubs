@@ -40,14 +40,48 @@ public class ProfileController {
                 );
             }
 
+            // Log the incoming request for debugging
             logger.info("Creating/updating profile for user: {}", user.getUsername());
-            logger.debug("Profile request: {}", request);
+            logger.debug("Request body: {}", request);
+            
+            // Validate request fields with detailed error messages
+            if (request == null) {
+                logger.error("Request body is null");
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "Request body is required"
+                );
+            }
+            
+            // Add default values if fields are missing
+            if (request.getCareerStage() == null) {
+                logger.warn("Career stage is null, defaulting to 'beginner'");
+                request.setCareerStage("beginner");
+            }
+            
+            if (request.getSkills() == null) {
+                logger.warn("Skills list is null, initializing empty list");
+                request.setSkills(java.util.Collections.emptyList());
+            }
+            
+            if (request.getGoals() == null) {
+                logger.warn("Goals is null, defaulting to 'improve skills'");
+                request.setGoals("improve skills");
+            }
+            
+            if (request.getHoursPerWeek() == null) {
+                logger.warn("Hours per week is null, defaulting to 5");
+                request.setHoursPerWeek(5);
+            }
 
             ProfileResponse response = profileService.createOrUpdateProfile(request, user.getUsername());
             logger.info("Profile created/updated successfully for user: {}", user.getUsername());
 
             return ResponseEntity.ok(response);
 
+        } catch (ResponseStatusException e) {
+            // Just rethrow response status exceptions
+            throw e;
         } catch (Exception e) {
             logger.error("Error creating profile: {}", e.getMessage(), e);
             throw new ResponseStatusException(
@@ -111,6 +145,23 @@ public class ProfileController {
 
             logger.info("Updating profile for user: {}", user.getUsername());
             logger.debug("Profile request: {}", request);
+
+            // Add default values if fields are missing
+            if (request.getCareerStage() == null) {
+                request.setCareerStage("beginner");
+            }
+            
+            if (request.getSkills() == null) {
+                request.setSkills(java.util.Collections.emptyList());
+            }
+            
+            if (request.getGoals() == null) {
+                request.setGoals("improve skills");
+            }
+            
+            if (request.getHoursPerWeek() == null) {
+                request.setHoursPerWeek(5);
+            }
 
             ProfileResponse response = profileService.createOrUpdateProfile(request, user.getUsername());
             logger.info("Profile updated successfully for user: {}", user.getUsername());
