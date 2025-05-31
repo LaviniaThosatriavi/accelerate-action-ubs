@@ -397,7 +397,7 @@ const LearningPathContent = styled.div`
     
   }
   
-  color: black ;}
+  color: #8B0000;}
   a {
     color: #db2b45;
     text-decoration: none;
