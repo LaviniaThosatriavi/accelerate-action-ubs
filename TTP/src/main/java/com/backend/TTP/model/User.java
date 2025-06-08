@@ -8,7 +8,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 @Entity
-@Table(name = "app_user") // Changed from "user" to "app_user"
+@Table(name = "app_user") 
 @Data
 public class User implements UserDetails {
     @Id

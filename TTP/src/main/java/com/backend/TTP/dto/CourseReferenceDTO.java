@@ -8,7 +8,6 @@ public class CourseReferenceDTO {
     private String freeCodeCampPlaylistUrl;
     private List<String> suggestedVideos;
     
-    // Getters and Setters
     public String getCategory() {
         return category;
     }

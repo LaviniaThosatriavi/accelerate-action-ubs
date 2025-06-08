@@ -1,8 +1,11 @@
-import React from 'react'
+import ToDo from '../components/ToDo'
+import LoggedInLayout from './LoggedInLayout'
 
 const ToDoPage = () => {
   return (
-    <div>ToDoPage</div>
+    <LoggedInLayout>
+        <ToDo />
+    </LoggedInLayout>
   )
 }
 

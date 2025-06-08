@@ -31,7 +31,7 @@ public class DailyGoal {
     
     @ManyToOne
     @JoinColumn(name = "enrolled_course_id")
-    private EnrolledCourse enrolledCourse; // Optional - if goal is related to a course
+    private EnrolledCourse enrolledCourse; 
     
     private String resourceUrl; // YouTube URL, article URL, etc.
     private String resourceType; // "VIDEO", "COURSE", "ARTICLE", etc.
