@@ -1,8 +1,7 @@
-// src/components/Calendar.tsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
-import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay } from 'date-fns';
-import type { CalendarEvent } from '../types/ToDosTypes';
+import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, startOfWeek, endOfWeek } from 'date-fns';
+import axios from 'axios';
 
 const CalendarContainer = styled.div`
   background-color: white;
@@ -134,104 +133,203 @@ const NoEventsMessage = styled.p`
   font-style: italic;
 `;
 
-interface CalendarProps {
-  onDateSelect: (date: Date) => void;
-  events: CalendarEvent[];
+interface CalendarEvent {
+  eventDate: string;
+  title: string;
+  description: string;
+  eventType: string;
+  enrolledCourseId: number;
+  courseTitle: string;
 }
 
-const Calendar: React.FC<CalendarProps> = ({ onDateSelect, events }) => {
+interface CalendarMonthData {
+  year: number;
+  month: number;
+  events: { [key: string]: CalendarEvent[] };
+}
+
+interface CalendarProps {
+  onDateSelect?: (date: Date) => void;
+  events?: CalendarEvent[];
+}
+
+const Calendar: React.FC<CalendarProps> = ({ onDateSelect, events: propEvents }) => {
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
   const [calendarDays, setCalendarDays] = useState<Date[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  
+  const [adjacentMonthsData, setAdjacentMonthsData] = useState<{ [key: string]: CalendarMonthData }>({});
+
+  const getAuthHeader = useCallback(() => {
+    const token = localStorage.getItem('token');
+    return {
+      Authorization: `Bearer ${token}`
+    };
+  }, []);
+
+  const fetchCalendarData = useCallback(async (date: Date): Promise<CalendarMonthData | null> => {
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const url = `/api/calendar/month?year=${year}&month=${month}`;
+    
+    const headers = getAuthHeader();
+    
+    try {
+      const response = await axios.get<CalendarMonthData>(url, { headers });
+      return response.data;
+    } catch {
+      return null;
+    }
+  }, [getAuthHeader]);
+
+  const fetchAllRelevantData = useCallback(async (date: Date) => {
+    const currentMonth = date;
+    const prevMonth = subMonths(date, 1);
+    const nextMonth = addMonths(date, 1);
+
+    try {
+      const [currentData, prevData, nextData] = await Promise.all([
+        fetchCalendarData(currentMonth),
+        fetchCalendarData(prevMonth),
+        fetchCalendarData(nextMonth)
+      ]);
+
+      const allMonthsData: { [key: string]: CalendarMonthData } = {};
+      const successfulFetches = [prevData, currentData, nextData].filter(Boolean);
+      
+      successfulFetches.forEach(data => {
+        if (data) {
+          const key = `${data.year}-${data.month.toString().padStart(2, '0')}`;
+          allMonthsData[key] = data;
+        }
+      });
+      
+      setAdjacentMonthsData(allMonthsData);
+    } catch {
+      // Handle error silently or add proper error handling
+    }
+  }, [fetchCalendarData]);
+
   useEffect(() => {
-    const monthStart = startOfMonth(currentDate);
-    const monthEnd = endOfMonth(currentDate);
-    const daysInMonth = eachDayOfInterval({ start: monthStart, end: monthEnd });
-    setCalendarDays(daysInMonth);
+    fetchAllRelevantData(currentDate);
+  }, [currentDate, fetchAllRelevantData]);
+
+  useEffect(() => {
+    const generateCalendarGrid = () => {
+      const monthStart = startOfMonth(currentDate);
+      const monthEnd = endOfMonth(currentDate);
+      const calendarStart = startOfWeek(monthStart);
+      const calendarEnd = endOfWeek(monthEnd);
+      
+      const daysInCalendar = eachDayOfInterval({ start: calendarStart, end: calendarEnd });
+      setCalendarDays(daysInCalendar);
+    };
+
+    generateCalendarGrid();
   }, [currentDate]);
-  
-  const nextMonth = (): void => {
-    setCurrentDate(prevDate => addMonths(prevDate, 1));
-  };
-  
-  const prevMonth = (): void => {
-    setCurrentDate(prevDate => subMonths(prevDate, 1));
-  };
-  
-  const handleDateClick = (date: Date): void => {
+
+  const handleMonthChange = useCallback(async (direction: 'next' | 'prev') => {
+    const newDate = direction === 'next' ? addMonths(currentDate, 1) : subMonths(currentDate, 1);
+    setCurrentDate(newDate);
+    await fetchAllRelevantData(newDate);
+  }, [currentDate, fetchAllRelevantData]);
+
+  const handleDateClick = useCallback((date: Date) => {
     setSelectedDate(date);
-    onDateSelect(date);
-  };
-  
-  const hasEventsOnDate = (date: Date): boolean => {
+    onDateSelect?.(date);
+  }, [onDateSelect]);
+
+  const hasEventsOnDate = useCallback((date: Date): boolean => {
     const dateString = format(date, 'yyyy-MM-dd');
-    return events.some(event => event.eventDate === dateString);
-  };
-  
-  const getEventsForSelectedDate = (): CalendarEvent[] => {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const monthKey = `${year}-${month}`;
+
+    // Check API data first (always available after fetch)
+    const monthData = adjacentMonthsData[monthKey];
+    const apiEvents = monthData?.events?.[dateString]?.length || 0;
+    
+    // Check prop events (if any) for the same date
+    const propEventMatches = propEvents ? propEvents.filter(e => e.eventDate === dateString).length : 0;
+    
+    // Combine both sources
+    const totalEvents = apiEvents + propEventMatches;
+    return totalEvents > 0;
+  }, [propEvents, adjacentMonthsData]);
+
+  const getEventsForSelectedDate = useCallback((): CalendarEvent[] => {
     const dateString = format(selectedDate, 'yyyy-MM-dd');
-    return events.filter(event => event.eventDate === dateString);
-  };
-  
+    
+    // Get API events
+    const year = selectedDate.getFullYear();
+    const month = (selectedDate.getMonth() + 1).toString().padStart(2, '0');
+    const monthKey = `${year}-${month}`;
+    const monthData = adjacentMonthsData[monthKey];
+    const apiEvents = monthData?.events?.[dateString] || [];
+    
+    // Get prop events
+    const propEventMatches = propEvents ? propEvents.filter(event => event.eventDate === dateString) : [];
+    
+    // Combine both sources
+    const allEvents = [...apiEvents, ...propEventMatches];
+    return allEvents;
+  }, [selectedDate, propEvents, adjacentMonthsData]);
+
   const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const selectedDateEvents = getEventsForSelectedDate();
-  
+
   return (
     <CalendarContainer>
       <div>
         <CalendarHeader>
-          <NavigationButton onClick={prevMonth}>
+          <NavigationButton onClick={() => handleMonthChange('prev')}>
             &lt;
           </NavigationButton>
           <MonthTitle>{format(currentDate, 'MMMM yyyy')}</MonthTitle>
-          <NavigationButton onClick={nextMonth}>
+          <NavigationButton onClick={() => handleMonthChange('next')}>
             &gt;
           </NavigationButton>
         </CalendarHeader>
-        
+
         <WeekdaysRow>
           {weekdays.map(day => (
             <Weekday key={day}>{day}</Weekday>
           ))}
         </WeekdaysRow>
-        
+
         <DaysGrid>
           {calendarDays.map(day => {
             const hasEvents = hasEventsOnDate(day);
+            const isCurrentMonth = isSameMonth(day, currentDate);
+            
             return (
-              <Day 
+              <Day
                 key={day.toString()}
-                $isCurrentMonth={isSameMonth(day, currentDate)}
+                $isCurrentMonth={isCurrentMonth}
                 $isToday={isSameDay(day, new Date())}
                 $hasEvents={hasEvents}
                 $isSelected={isSameDay(day, selectedDate)}
                 onClick={() => handleDateClick(day)}
               >
                 {format(day, 'd')}
-                {hasEvents && <EventMarker>*</EventMarker>}
+                {hasEvents && <EventMarker>•</EventMarker>}
               </Day>
             );
           })}
         </DaysGrid>
       </div>
-      
+
       <EventsDetails>
-        <h3>Events for {format(selectedDate, 'MMMM d, yyyy')}</h3>
-        
+        <h3>Course Deadlines for {format(selectedDate, 'MMMM d, yyyy')}</h3>
         {selectedDateEvents.length > 0 ? (
-          selectedDateEvents.map(event => (
-            <EventItem key={event.id}>
-              <h4>{event.title}</h4>
+          selectedDateEvents.map((event, index) => (
+            <EventItem key={`${event.enrolledCourseId}-${index}`}>
+              <h4>{event.courseTitle}</h4>
               <p>{event.description}</p>
-              <p><strong>Type:</strong> {event.eventType}</p>
-              {event.courseTitle && (
-                <p><strong>Course:</strong> {event.courseTitle}</p>
-              )}
+              <p><strong>Status:</strong> {event.eventType}</p>
             </EventItem>
           ))
         ) : (
-          <NoEventsMessage>No events scheduled for this date</NoEventsMessage>
+          <NoEventsMessage>No course deadlines for this date</NoEventsMessage>
         )}
       </EventsDetails>
     </CalendarContainer>

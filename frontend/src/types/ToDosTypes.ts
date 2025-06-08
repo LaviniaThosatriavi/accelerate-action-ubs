@@ -2,13 +2,15 @@ export type EventType = 'DEADLINE' | 'MILESTONE' | 'REMINDER';
 export type ResourceType = 'DOCUMENTATION' | 'COURSE' | 'VIDEO' | 'ARTICLE' | 'OTHER';
 
 export interface CalendarEvent {
-    id: number;
+    id?: number;
     eventDate: string;
     title: string;
     description: string;
     eventType: string;
-    enrolledCourseId?: number;
-    courseTitle?: string;
+    enrolledCourseId: number;
+    courseTitle: string;
+    completed?: boolean;
+    dueTime?: string;
 }
 
 export interface Goal {
