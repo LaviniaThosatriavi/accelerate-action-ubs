@@ -269,7 +269,7 @@ public class SkillMappingService {
     }
 
     // YouTube API integration
-    private List<VideoResource> searchYouTubeVideos(String skill, String context, int maxResults) {
+    public List<VideoResource> searchYouTubeVideos(String skill, String context, int maxResults) {
         String cacheKey = skill.toLowerCase() + ":" + context.toLowerCase();
         
         // Check cache first
