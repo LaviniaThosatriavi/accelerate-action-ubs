@@ -291,427 +291,434 @@ const Modal = styled.div`
 
 const ModalContent = styled.div`
   background-color: white;
-  padding: 2rem;
+  padding: 1rem 2.5rem 2rem 2rem;
   border-radius: 8px;
-  width: 90%;
+  width: 40vw;
   max-width: 500px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 `;
 
+const ModalTitle = styled.h2`
+    color: black;
+`;
+
+
 const FormGroup = styled.div`
-  margin-bottom: 1rem;
+    margin-bottom: 1rem;
 `;
 
 const Label = styled.label`
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-  color: black;
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: black;
 `;
 
 const Input = styled.input`
-  width: 100%;
-  padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #34a853;
+    border-radius: 4px;
+    background-color: white;
+    color: black;
 `;
 
 const ButtonGroup = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
-  margin-top: 1.5rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
 `;
 
 const SubmitButton = styled.button`
-  padding: 0.5rem 1rem;
-  background-color: #34a853;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  
-  &:hover {
-    background-color: #2d9249;
-  }
+    padding: 0.5rem 1rem;
+    background-color: #34a853;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    
+    &:hover {
+        background-color: #2d9249;
+    }
 `;
 
 const CancelButton = styled.button`
-  padding: 0.5rem 1rem;
-  background-color: #f1f1f1;
-  color: #333;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  
-  &:hover {
-    background-color: #e1e1e1;
-  }
+    padding: 0.5rem 1rem;
+    background-color: #f1f1f1;
+    color: #333;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    
+    &:hover {
+        background-color: #e1e1e1;
+    }
 `;
 
 const EmptyState = styled.div`
-  text-align: center;
-  padding: 2rem;
-  color: #666;
+    text-align: center;
+    padding: 2rem;
+    color: #666;
 `;
 
 interface EnrolledCourse {
-  id: number;
-  courseId: number;
-  courseTitle: string;
-  platform: string;
-  url: string;
-  enrollmentDate: string;
-  targetCompletionDate: string;
-  actualCompletionDate: string | null;
-  progressPercentage: number;
-  status: 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED';
-  hoursSpent: number;
-  estimatedHours: number;
-  category: string;
+    id: number;
+    courseId: number;
+    courseTitle: string;
+    platform: string;
+    url: string;
+    enrollmentDate: string;
+    targetCompletionDate: string;
+    actualCompletionDate: string | null;
+    progressPercentage: number;
+    status: 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED';
+    hoursSpent: number;
+    estimatedHours: number;
+    category: string;
 }
 
 interface EnrollmentStats {
-  totalCourses: number;
-  completedCourses: number;
-  inProgressCourses: number;
-  notStartedCourses: number;
-  totalHoursSpent: number;
-  overallProgress: number;
+    totalCourses: number;
+    completedCourses: number;
+    inProgressCourses: number;
+    notStartedCourses: number;
+    totalHoursSpent: number;
+    overallProgress: number;
 }
 
 interface ProgressUpdateData {
-  enrolledCourseId: number;
-  progressPercentage: number;
-  additionalHoursSpent: number;
+    enrolledCourseId: number;
+    progressPercentage: number;
+    additionalHoursSpent: number;
 }
 
 const MiddleSection: React.FC = () => {
-  const [enrolledCourses, setEnrolledCourses] = useState<EnrolledCourse[]>([]);
-  const [filteredCourses, setFilteredCourses] = useState<EnrolledCourse[]>([]);
-  const [activeTab, setActiveTab] = useState<string>('ALL');
-  const [stats, setStats] = useState<EnrollmentStats | null>(null);
-  const [hasAvailableTime, setHasAvailableTime] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string>('');
-  const [showProgressModal, setShowProgressModal] = useState<boolean>(false);
-  const [, setSelectedCourseId] = useState<number | null>(null);
-  const [progressData, setProgressData] = useState<ProgressUpdateData>({
-    enrolledCourseId: 0,
-    progressPercentage: 0,
-    additionalHoursSpent: 0
-  });
+    const [enrolledCourses, setEnrolledCourses] = useState<EnrolledCourse[]>([]);
+    const [filteredCourses, setFilteredCourses] = useState<EnrolledCourse[]>([]);
+    const [activeTab, setActiveTab] = useState<string>('ALL');
+    const [stats, setStats] = useState<EnrollmentStats | null>(null);
+    const [hasAvailableTime, setHasAvailableTime] = useState<boolean>(false);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [error, setError] = useState<string>('');
+    const [showProgressModal, setShowProgressModal] = useState<boolean>(false);
+    const [, setSelectedCourseId] = useState<number | null>(null);
+    const [progressData, setProgressData] = useState<ProgressUpdateData>({
+        enrolledCourseId: 0,
+        progressPercentage: 0,
+        additionalHoursSpent: 0
+    });
 
-  // Fetch all data on component mount
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const token = localStorage.getItem('token');
-        
-        if (!token) {
-          setError('You must be logged in to view enrolled courses');
-          setLoading(false);
-          return;
+    // Fetch all data on component mount
+    useEffect(() => {
+        const fetchData = async () => {
+        try {
+            setLoading(true);
+            const token = localStorage.getItem('token');
+            
+            if (!token) {
+            setError('You must be logged in to view enrolled courses');
+            setLoading(false);
+            return;
+            }
+            
+            const headers = {
+            Authorization: `Bearer ${token}`
+            };
+            
+            // Fetch enrolled courses
+            const coursesResponse = await axios.get('/api/enrolled-courses', { headers });
+            setEnrolledCourses(coursesResponse.data);
+            setFilteredCourses(coursesResponse.data);
+            
+            // Fetch stats
+            const statsResponse = await axios.get('/api/enrolled-courses/stats', { headers });
+            setStats(statsResponse.data);
+            
+            // Check if user has available time
+            const timeResponse = await axios.get('/api/enrolled-courses/has-available-time', { headers });
+            setHasAvailableTime(timeResponse.data);
+            
+        } catch (err) {
+            console.error('Error fetching data:', err);
+            setError('Failed to load your courses. Please try again later.');
+        } finally {
+            setLoading(false);
         }
-        
-        const headers = {
-          Authorization: `Bearer ${token}`
         };
         
-        // Fetch enrolled courses
-        const coursesResponse = await axios.get('/api/enrolled-courses', { headers });
-        setEnrolledCourses(coursesResponse.data);
-        setFilteredCourses(coursesResponse.data);
+        fetchData();
+    }, []);
+
+    // Filter courses when tab changes
+    useEffect(() => {
+        if (activeTab === 'ALL') {
+        setFilteredCourses(enrolledCourses);
+        } else {
+        setFilteredCourses(
+            enrolledCourses.filter(course => course.status === activeTab)
+        );
+        }
+    }, [activeTab, enrolledCourses]);
+
+    const handleTabChange = (tab: string) => {
+        setActiveTab(tab);
+    };
+
+    const handleUpdateProgress = (courseId: number) => {
+        const course = enrolledCourses.find(c => c.id === courseId);
+        if (course) {
+        setSelectedCourseId(courseId);
+        setProgressData({
+            enrolledCourseId: courseId,
+            progressPercentage: course.progressPercentage,
+            additionalHoursSpent: 0
+        });
+        setShowProgressModal(true);
+        }
+    };
+
+    const handleProgressInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setProgressData({
+        ...progressData,
+        [name]: name === 'progressPercentage' 
+            ? Math.min(100, Math.max(0, parseInt(value)))
+            : parseInt(value)
+        });
+    };
+
+    const handleProgressSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+        const token = localStorage.getItem('token');
+        const response = await axios.put('/api/enrolled-courses/progress', progressData, {
+            headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+            }
+        });
         
-        // Fetch stats
-        const statsResponse = await axios.get('/api/enrolled-courses/stats', { headers });
+        // Update the course in the state
+        const updatedCourse = response.data;
+        setEnrolledCourses(prevCourses => 
+            prevCourses.map(course => 
+            course.id === updatedCourse.id ? updatedCourse : course
+            )
+        );
+        
+        // Refresh stats
+        const statsResponse = await axios.get('/api/enrolled-courses/stats', {
+            headers: { Authorization: `Bearer ${token}` }
+        });
         setStats(statsResponse.data);
         
-        // Check if user has available time
-        const timeResponse = await axios.get('/api/enrolled-courses/has-available-time', { headers });
+        // Check if user still has available time
+        const timeResponse = await axios.get('/api/enrolled-courses/has-available-time', {
+            headers: { Authorization: `Bearer ${token}` }
+        });
         setHasAvailableTime(timeResponse.data);
         
-      } catch (err) {
-        console.error('Error fetching data:', err);
-        setError('Failed to load your courses. Please try again later.');
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    fetchData();
-  }, []);
-
-  // Filter courses when tab changes
-  useEffect(() => {
-    if (activeTab === 'ALL') {
-      setFilteredCourses(enrolledCourses);
-    } else {
-      setFilteredCourses(
-        enrolledCourses.filter(course => course.status === activeTab)
-      );
-    }
-  }, [activeTab, enrolledCourses]);
-
-  const handleTabChange = (tab: string) => {
-    setActiveTab(tab);
-  };
-
-  const handleUpdateProgress = (courseId: number) => {
-    const course = enrolledCourses.find(c => c.id === courseId);
-    if (course) {
-      setSelectedCourseId(courseId);
-      setProgressData({
-        enrolledCourseId: courseId,
-        progressPercentage: course.progressPercentage,
-        additionalHoursSpent: 0
-      });
-      setShowProgressModal(true);
-    }
-  };
-
-  const handleProgressInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setProgressData({
-      ...progressData,
-      [name]: name === 'progressPercentage' 
-        ? Math.min(100, Math.max(0, parseInt(value)))
-        : parseInt(value)
-    });
-  };
-
-  const handleProgressSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const token = localStorage.getItem('token');
-      const response = await axios.put('/api/enrolled-courses/progress', progressData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
+        // Close modal
+        setShowProgressModal(false);
+        
+        } catch (err) {
+        console.error('Error updating progress:', err);
+        alert('Failed to update course progress. Please try again.');
         }
-      });
-      
-      // Update the course in the state
-      const updatedCourse = response.data;
-      setEnrolledCourses(prevCourses => 
-        prevCourses.map(course => 
-          course.id === updatedCourse.id ? updatedCourse : course
-        )
-      );
-      
-      // Refresh stats
-      const statsResponse = await axios.get('/api/enrolled-courses/stats', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setStats(statsResponse.data);
-      
-      // Check if user still has available time
-      const timeResponse = await axios.get('/api/enrolled-courses/has-available-time', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setHasAvailableTime(timeResponse.data);
-      
-      // Close modal
-      setShowProgressModal(false);
-      
-    } catch (err) {
-      console.error('Error updating progress:', err);
-      alert('Failed to update course progress. Please try again.');
+    };
+
+    const formatDate = (dateString: string) => {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+        });
+    };
+
+    if (loading) {
+        return <Section>Loading your courses...</Section>;
     }
-  };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  };
+    if (error) {
+        return <Section>{error}</Section>;
+    }
 
-  if (loading) {
-    return <Section>Loading your courses...</Section>;
-  }
-
-  if (error) {
-    return <Section>{error}</Section>;
-  }
-
-  return (
-    <Section>
-      <Title>My Learning Journey</Title>
-      
-      {stats && (
-        <StatsContainer>
-          <StatCard>
-            <StatValue>{stats.totalCourses}</StatValue>
-            <StatLabel>Total Courses</StatLabel>
-          </StatCard>
-          <StatCard>
-            <StatValue>{stats.completedCourses}</StatValue>
-            <StatLabel>Completed</StatLabel>
-          </StatCard>
-          <StatCard>
-            <StatValue>{stats.totalHoursSpent}</StatValue>
-            <StatLabel>Hours Spent</StatLabel>
-          </StatCard>
-        </StatsContainer>
-      )}
-      
-      {stats && (
-        <ProgressContainer>
-          <ProgressTitle>Overall Learning Progress: {stats.overallProgress}%</ProgressTitle>
-          <ProgressBar>
-            <ProgressFill percentage={stats.overallProgress} />
-          </ProgressBar>
-          
-          <TimeStatus available={hasAvailableTime}>
-            {hasAvailableTime 
-              ? "You have time available for additional learning this week!" 
-              : "You might be busy this week. Consider adjusting your schedule."}
-          </TimeStatus>
-        </ProgressContainer>
-      )}
-      
-      <TabContainer>
-        <Tab 
-          active={activeTab === 'ALL'} 
-          onClick={() => handleTabChange('ALL')}
-        >
-          All Courses
-        </Tab>
-        <Tab 
-          active={activeTab === 'IN_PROGRESS'} 
-          onClick={() => handleTabChange('IN_PROGRESS')}
-        >
-          In Progress
-        </Tab>
-        <Tab 
-          active={activeTab === 'COMPLETED'} 
-          onClick={() => handleTabChange('COMPLETED')}
-        >
-          Completed
-        </Tab>
-        <Tab 
-          active={activeTab === 'NOT_STARTED'} 
-          onClick={() => handleTabChange('NOT_STARTED')}
-        >
-          Not Started
-        </Tab>
-      </TabContainer>
-      
-      {filteredCourses.length === 0 ? (
-        <EmptyState>
-          <p>No courses found in this category.</p>
-        </EmptyState>
-      ) : (
-        <CourseContainer>
-          {filteredCourses.map(course => (
-            <CourseCard key={course.id}>
-              <CourseHeader>
-                <CourseTitle>{course.courseTitle}</CourseTitle>
-                <PlatformBadge>{course.platform}</PlatformBadge>
-              </CourseHeader>
-              
-              <CourseDetails>
-                <DetailItem>
-                  <DetailLabel>Status</DetailLabel>
-                  <DetailValue>
-                    <StatusIndicator status={course.status} />
-                    {course.status.replace('_', ' ')}
-                  </DetailValue>
-                </DetailItem>
+    return (
+        <Section>
+        <Title>My Learning Journey</Title>
+        
+        {stats && (
+            <StatsContainer>
+            <StatCard>
+                <StatValue>{stats.totalCourses}</StatValue>
+                <StatLabel>Total Courses</StatLabel>
+            </StatCard>
+            <StatCard>
+                <StatValue>{stats.completedCourses}</StatValue>
+                <StatLabel>Completed</StatLabel>
+            </StatCard>
+            <StatCard>
+                <StatValue>{stats.totalHoursSpent}</StatValue>
+                <StatLabel>Hours Spent</StatLabel>
+            </StatCard>
+            </StatsContainer>
+        )}
+        
+        {stats && (
+            <ProgressContainer>
+            <ProgressTitle>Overall Learning Progress: {stats.overallProgress}%</ProgressTitle>
+            <ProgressBar>
+                <ProgressFill percentage={stats.overallProgress} />
+            </ProgressBar>
+            
+            <TimeStatus available={hasAvailableTime}>
+                {hasAvailableTime 
+                ? "You have time available for additional learning this week!" 
+                : "You might be busy this week. Consider adjusting your schedule."}
+            </TimeStatus>
+            </ProgressContainer>
+        )}
+        
+        <TabContainer>
+            <Tab 
+            active={activeTab === 'ALL'} 
+            onClick={() => handleTabChange('ALL')}
+            >
+            All Courses
+            </Tab>
+            <Tab 
+            active={activeTab === 'IN_PROGRESS'} 
+            onClick={() => handleTabChange('IN_PROGRESS')}
+            >
+            In Progress
+            </Tab>
+            <Tab 
+            active={activeTab === 'COMPLETED'} 
+            onClick={() => handleTabChange('COMPLETED')}
+            >
+            Completed
+            </Tab>
+            <Tab 
+            active={activeTab === 'NOT_STARTED'} 
+            onClick={() => handleTabChange('NOT_STARTED')}
+            >
+            Not Started
+            </Tab>
+        </TabContainer>
+        
+        {filteredCourses.length === 0 ? (
+            <EmptyState>
+            <p>No courses found in this category.</p>
+            </EmptyState>
+        ) : (
+            <CourseContainer>
+            {filteredCourses.map(course => (
+                <CourseCard key={course.id}>
+                <CourseHeader>
+                    <CourseTitle>{course.courseTitle}</CourseTitle>
+                    <PlatformBadge>{course.platform}</PlatformBadge>
+                </CourseHeader>
                 
-                <DetailItem>
-                  <DetailLabel>Enrolled On</DetailLabel>
-                  <DetailValue>{formatDate(course.enrollmentDate)}</DetailValue>
-                </DetailItem>
+                <CourseDetails>
+                    <DetailItem>
+                    <DetailLabel>Status</DetailLabel>
+                    <DetailValue>
+                        <StatusIndicator status={course.status} />
+                        {course.status.replace('_', ' ')}
+                    </DetailValue>
+                    </DetailItem>
+                    
+                    <DetailItem>
+                    <DetailLabel>Enrolled On</DetailLabel>
+                    <DetailValue>{formatDate(course.enrollmentDate)}</DetailValue>
+                    </DetailItem>
+                    
+                    <DetailItem>
+                    <DetailLabel>Target Completion</DetailLabel>
+                    <DetailValue>{formatDate(course.targetCompletionDate)}</DetailValue>
+                    </DetailItem>
+                    
+                    <DetailItem>
+                    <DetailLabel>Hours Spent / Estimated</DetailLabel>
+                    <DetailValue>{course.hoursSpent} / {course.estimatedHours}</DetailValue>
+                    </DetailItem>
+                </CourseDetails>
                 
-                <DetailItem>
-                  <DetailLabel>Target Completion</DetailLabel>
-                  <DetailValue>{formatDate(course.targetCompletionDate)}</DetailValue>
-                </DetailItem>
+                <CourseProgress>
+                    <DetailLabel>Progress: {course.progressPercentage}%</DetailLabel>
+                    <ProgressBar>
+                    <ProgressFill percentage={course.progressPercentage} />
+                    </ProgressBar>
+                </CourseProgress>
                 
-                <DetailItem>
-                  <DetailLabel>Hours Spent / Estimated</DetailLabel>
-                  <DetailValue>{course.hoursSpent} / {course.estimatedHours}</DetailValue>
-                </DetailItem>
-              </CourseDetails>
-              
-              <CourseProgress>
-                <DetailLabel>Progress: {course.progressPercentage}%</DetailLabel>
-                <ProgressBar>
-                  <ProgressFill percentage={course.progressPercentage} />
-                </ProgressBar>
-              </CourseProgress>
-              
-              <CourseActions>
-                <ActionButton 
-                  onClick={() => handleUpdateProgress(course.id)}
-                  disabled={course.status === 'COMPLETED'}
-                >
-                  Update Progress
-                </ActionButton>
-                <OpenLinkButton 
-                  href={course.url} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                >
-                  Open Course
-                </OpenLinkButton>
-              </CourseActions>
-            </CourseCard>
-          ))}
-        </CourseContainer>
-      )}
-      
-      {showProgressModal && (
-        <Modal>
-          <ModalContent>
-            <h2>Update Course Progress</h2>
-            <form onSubmit={handleProgressSubmit}>
-              <FormGroup>
-                <Label htmlFor="progressPercentage">Progress Percentage</Label>
-                <Input
-                  type="number"
-                  id="progressPercentage"
-                  name="progressPercentage"
-                  min="0"
-                  max="100"
-                  value={progressData.progressPercentage}
-                  onChange={handleProgressInputChange}
-                  required
-                />
-              </FormGroup>
-              
-              <FormGroup>
-                <Label htmlFor="additionalHoursSpent">Additional Hours Spent</Label>
-                <Input
-                  type="number"
-                  id="additionalHoursSpent"
-                  name="additionalHoursSpent"
-                  min="0"
-                  value={progressData.additionalHoursSpent}
-                  onChange={handleProgressInputChange}
-                  required
-                />
-              </FormGroup>
-              
-              <ButtonGroup>
-                <CancelButton type="button" onClick={() => setShowProgressModal(false)}>
-                  Cancel
-                </CancelButton>
-                <SubmitButton type="submit">
-                  Update
-                </SubmitButton>
-              </ButtonGroup>
-            </form>
-          </ModalContent>
-        </Modal>
-      )}
-    </Section>
-  );
+                <CourseActions>
+                    <ActionButton 
+                    onClick={() => handleUpdateProgress(course.id)}
+                    disabled={course.status === 'COMPLETED'}
+                    >
+                    Update Progress
+                    </ActionButton>
+                    <OpenLinkButton 
+                    href={course.url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    >
+                    Open Course
+                    </OpenLinkButton>
+                </CourseActions>
+                </CourseCard>
+            ))}
+            </CourseContainer>
+        )}
+        
+        {showProgressModal && (
+            <Modal>
+            <ModalContent>
+                <ModalTitle>Update Course Progress</ModalTitle>
+                <form onSubmit={handleProgressSubmit}>
+                <FormGroup>
+                    <Label htmlFor="progressPercentage">Progress Percentage</Label>
+                    <Input
+                    type="number"
+                    id="progressPercentage"
+                    name="progressPercentage"
+                    min="0"
+                    max="100"
+                    value={progressData.progressPercentage}
+                    onChange={handleProgressInputChange}
+                    required
+                    />
+                </FormGroup>
+                
+                <FormGroup>
+                    <Label htmlFor="additionalHoursSpent">Additional Hours Spent</Label>
+                    <Input
+                    type="number"
+                    id="additionalHoursSpent"
+                    name="additionalHoursSpent"
+                    min="0"
+                    value={progressData.additionalHoursSpent}
+                    onChange={handleProgressInputChange}
+                    required
+                    />
+                </FormGroup>
+                
+                <ButtonGroup>
+                    <CancelButton type="button" onClick={() => setShowProgressModal(false)}>
+                    Cancel
+                    </CancelButton>
+                    <SubmitButton type="submit">
+                    Update
+                    </SubmitButton>
+                </ButtonGroup>
+                </form>
+            </ModalContent>
+            </Modal>
+        )}
+        </Section>
+    );
 };
 
 export default MiddleSection;
