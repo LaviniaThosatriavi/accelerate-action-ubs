@@ -108,6 +108,11 @@ const EventsDetails = styled.div`
   overflow-y: auto;
 `;
 
+const EventTitle = styled.h3`
+    color: black;
+    margin-top: 0;
+`;
+
 const EventItem = styled.div`
   padding: 10px;
   margin-bottom: 8px;
@@ -259,7 +264,6 @@ const Calendar: React.FC<CalendarProps> = ({ onDateSelect, events: propEvents })
   const getEventsForSelectedDate = useCallback((): CalendarEvent[] => {
     const dateString = format(selectedDate, 'yyyy-MM-dd');
     
-    // Get API events
     const year = selectedDate.getFullYear();
     const month = (selectedDate.getMonth() + 1).toString().padStart(2, '0');
     const monthKey = `${year}-${month}`;
@@ -269,10 +273,21 @@ const Calendar: React.FC<CalendarProps> = ({ onDateSelect, events: propEvents })
     // Get prop events
     const propEventMatches = propEvents ? propEvents.filter(event => event.eventDate === dateString) : [];
     
-    // Combine both sources
     const allEvents = [...apiEvents, ...propEventMatches];
-    return allEvents;
-  }, [selectedDate, propEvents, adjacentMonthsData]);
+    
+    // Using a combination of enrolledCourseId, title, and eventDate as the unique key
+    const uniqueEvents = allEvents.reduce((acc, event) => {
+        const uniqueKey = `${event.enrolledCourseId}-${event.title}-${event.eventDate}`;
+        if (!acc.some(existingEvent => 
+        `${existingEvent.enrolledCourseId}-${existingEvent.title}-${existingEvent.eventDate}` === uniqueKey
+        )) {
+        acc.push(event);
+        }
+        return acc;
+    }, [] as CalendarEvent[]);
+    
+    return uniqueEvents;
+    }, [selectedDate, propEvents, adjacentMonthsData]);
 
   const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const selectedDateEvents = getEventsForSelectedDate();
@@ -319,7 +334,7 @@ const Calendar: React.FC<CalendarProps> = ({ onDateSelect, events: propEvents })
       </div>
 
       <EventsDetails>
-        <h3>Course Deadlines for {format(selectedDate, 'MMMM d, yyyy')}</h3>
+        <EventTitle>Course Deadlines for {format(selectedDate, 'MMMM d, yyyy')}</EventTitle>
         {selectedDateEvents.length > 0 ? (
           selectedDateEvents.map((event, index) => (
             <EventItem key={`${event.enrolledCourseId}-${index}`}>

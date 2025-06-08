@@ -13,11 +13,13 @@ const PageContainer = styled.div`
   min-height: 100vh;
   background-color: #f8f9fa;
   padding: 20px;
-  gap: 20px;
+  gap: 5vh;
 `;
 
 const TopSection = styled.div`
   display: flex;
+  height: 85vh;
+  margin-bottom: 5vh;
   
   @media (max-width: 768px) {
     flex-direction: column;
@@ -27,7 +29,6 @@ const TopSection = styled.div`
 
 const LeftSection = styled.div`
   flex: 1;
-  height: 600px;
   margin-right: 20px;
   
   @media (max-width: 768px) {
@@ -38,8 +39,6 @@ const LeftSection = styled.div`
 
 const RightSection = styled.div`
   flex: 1;
-  height: 600px;
-  overflow-y: auto;
 `;
 
 const CompletedTasksSection = styled.div`
@@ -90,8 +89,10 @@ const Label = styled.label`
 const Input = styled.input`
   padding: 10px 15px;
   border-radius: 4px;
-  border: 1px solid #dadce0;
+  border: 1px solid #3367d6;
   font-size: 14px;
+  background-color: white;
+  color: black;
   
   &:focus {
     outline: none;
@@ -102,8 +103,10 @@ const Input = styled.input`
 const Select = styled.select`
   padding: 10px 15px;
   border-radius: 4px;
-  border: 1px solid #dadce0;
+  border: 1px solid #3367d6;
   font-size: 14px;
+  background-color: white;
+  color: black;
   
   &:focus {
     outline: none;
@@ -149,7 +152,10 @@ const CompleteTaskForm = styled.div`
 const MultiSelect = styled.select`
   padding: 10px;
   border-radius: 4px;
-  border: 1px solid #dadce0;
+  border: 1px solid #3367d6;
+  background-color: white;
+  color: black;
+  font-size: 0.8rem;
   
   &:focus {
     outline: none;
@@ -159,6 +165,10 @@ const MultiSelect = styled.select`
 
 const CompletedTasksList = styled.div`
   margin-top: 20px;
+`;
+
+const CompletedTitle = styled.h3`
+  color: #2d9249;
 `;
 
 const EmptyState = styled.div`
@@ -591,7 +601,7 @@ const ToDo: React.FC = () => {
         </CompleteTaskForm>
         
         <CompletedTasksList>
-          <h3>Completed Today:</h3>
+          <CompletedTitle>Completed Today:</CompletedTitle>
           {completedGoals.length > 0 ? (
             completedGoals.map(goal => (
               <GoalItem 
