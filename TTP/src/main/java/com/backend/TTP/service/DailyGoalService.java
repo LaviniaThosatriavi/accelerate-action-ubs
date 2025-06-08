@@ -32,21 +32,49 @@ public class DailyGoalService {
     private UserProfileRepository userProfileRepository;
     
     @Autowired 
-    private LearningPathService learningPathService;
-    
-    @Autowired
     private SkillMappingService skillMappingService;
     
+    /**
+     * Gets today's goals for a user, filtering out completed goals and generating
+     * recommendations if needed
+     */
     public List<DailyGoalDTO> getTodaysGoals(User user) {
         LocalDate today = LocalDate.now();
-        List<DailyGoal> goals = dailyGoalRepository.findByUserIdAndGoalDate(user.getId(), today);
         
-        // If no goals for today, generate recommendations
-        if (goals.isEmpty()) {
-            goals = generateRecommendedGoals(user, today);
+        // Get only incomplete goals for today
+        List<DailyGoal> activeGoals = dailyGoalRepository.findByUserIdAndGoalDateAndIsCompleted(
+                user.getId(), today, false);
+        
+        // If no active goals for today, generate recommendations
+        if (activeGoals.isEmpty()) {
+            // Check if we already have completed goals for today
+            List<DailyGoal> completedGoals = dailyGoalRepository.findByUserIdAndGoalDateAndIsCompleted(
+                    user.getId(), today, false);
+            
+            // Only generate recommendations if we have no goals at all for today
+            if (completedGoals.isEmpty()) {
+                activeGoals = generateRecommendedGoals(user, today);
+            }
         }
         
-        return goals.stream()
+        // Get all goals for today (including completed) for the response
+        List<DailyGoal> allGoals = dailyGoalRepository.findByUserIdAndGoalDate(user.getId(), today);
+        
+        return allGoals.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+    
+    /**
+     * Gets all incomplete goals for today that need to be completed
+     */
+    public List<DailyGoalDTO> getActiveGoals(User user) {
+        LocalDate today = LocalDate.now();
+        
+        List<DailyGoal> activeGoals = dailyGoalRepository.findByUserIdAndGoalDateAndIsCompleted(
+                user.getId(), today, false);
+                
+        return activeGoals.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
@@ -228,78 +256,78 @@ public class DailyGoalService {
                 allocatedHours += courseHoursToday;
             }
         }
-
-    // If we still have time, suggest skill-based videos or articles
-    if (allocatedHours < todayTargetHours) {
-        List<String> userSkills = userProfile.getSkills();
         
-        // Select up to 3 skills to recommend content for
-        List<String> prioritySkills = userSkills.isEmpty() ? 
-                List.of("programming", "software development") : // Fallback if no skills
-                userSkills.subList(0, Math.min(3, userSkills.size()));
-        
-        // Create learning context based on career stage
-        String context = userProfile.getCareerStage() != null ? 
-                userProfile.getCareerStage() : "beginner";
-                
-        double remainingToAllocate = todayTargetHours - allocatedHours;
-        
-        for (String skill : prioritySkills) {
-            if (allocatedHours >= todayTargetHours) break;
+        // If we still have time, suggest skill-based videos or articles
+        if (allocatedHours < todayTargetHours) {
+            List<String> userSkills = userProfile.getSkills();
             
-            try {
-                // Get video recommendations for this skill using the core YouTube search method
-                List<SkillMappingService.VideoResource> videos = skillMappingService.searchYouTubeVideos(skill, context, 2);
+            // Select up to 3 skills to recommend content for
+            List<String> prioritySkills = userSkills.isEmpty() ? 
+                    List.of("programming", "software development") : // Fallback if no skills
+                    userSkills.subList(0, Math.min(3, userSkills.size()));
+            
+            // Create learning context based on career stage
+            String context = userProfile.getCareerStage() != null ? 
+                    userProfile.getCareerStage() : "beginner";
+                    
+            double remainingToAllocate = todayTargetHours - allocatedHours;
+            
+            for (String skill : prioritySkills) {
+                if (allocatedHours >= todayTargetHours) break;
                 
-                if (videos != null && !videos.isEmpty()) {
-                    // Pick a video resource that hasn't been recommended recently
-                    // Ideally would check against recent goals, but simplified here
-                    SkillMappingService.VideoResource resource = videos.get(new Random().nextInt(videos.size()));
+                try {
+                    // Get video recommendations for this skill using the core YouTube search method
+                    List<SkillMappingService.VideoResource> videos = skillMappingService.searchYouTubeVideos(skill, context, 2);
                     
-                    // Default time allocation for a video (30 mins)
-                    double resourceHours = 0.5;
-                    
-                    // Ensure we don't exceed daily allocation
-                    resourceHours = Math.min(resourceHours, remainingToAllocate);
-                    
-                    if (resourceHours >= 0.25) { // Only recommend if it's worth at least 15 minutes
+                    if (videos != null && !videos.isEmpty()) {
+                        // Pick a video resource that hasn't been recommended recently
+                        SkillMappingService.VideoResource resource = videos.get(new Random().nextInt(videos.size()));
+                        
+                        // Default time allocation for a video (30 mins)
+                        double resourceHours = 0.5;
+                        
+                        // Ensure we don't exceed daily allocation
+                        resourceHours = Math.min(resourceHours, remainingToAllocate);
+                        
+                        if (resourceHours >= 0.25) { // Only recommend if it's worth at least 15 minutes
+                            DailyGoal goal = new DailyGoal();
+                            goal.setUser(user);
+                            goal.setTitle("Learn " + skill + ": " + resource.getTitle());
+                            goal.setDescription("Watch this recommended video about " + skill);
+                            goal.setAllocatedHours(resourceHours);
+                            goal.setGoalDate(date);
+                            goal.setIsRecommended(true);
+                            goal.setIsCompleted(false);
+                            goal.setResourceUrl(resource.getUrl());
+                            goal.setResourceType("VIDEO");
+                            
+                            recommendedGoals.add(goal);
+                            allocatedHours += resourceHours;
+                            remainingToAllocate -= resourceHours;
+                        }
+                    }
+                } catch (Exception e) {
+                    // If video search fails, try recommending a reading resource instead
+                    String articleUrl = generateArticleRecommendation(skill, context);
+                    if (articleUrl != null) {
+                        double articleHours = 1.0; // Default time for reading an article
+                        articleHours = Math.min(articleHours, remainingToAllocate);
+                        
                         DailyGoal goal = new DailyGoal();
                         goal.setUser(user);
-                        goal.setTitle("Learn " + skill + ": " + resource.getTitle());
-                        goal.setDescription("Watch this recommended video about " + skill);
-                        goal.setAllocatedHours(resourceHours);
+                        goal.setTitle("Study " + skill);
+                        goal.setDescription("Read this article about " + skill);
+                        goal.setAllocatedHours(articleHours);
                         goal.setGoalDate(date);
                         goal.setIsRecommended(true);
                         goal.setIsCompleted(false);
-                        goal.setResourceUrl(resource.getUrl());
-                        goal.setResourceType("VIDEO");
+                        goal.setResourceUrl(articleUrl);
+                        goal.setResourceType("ARTICLE");
                         
                         recommendedGoals.add(goal);
-                        allocatedHours += resourceHours;
-                        remainingToAllocate -= resourceHours;
+                        allocatedHours += articleHours;
+                        remainingToAllocate -= articleHours;
                     }
-                }
-            } catch (Exception e) {
-                // If video search fails, try recommending a reading resource instead
-                String articleUrl = generateArticleRecommendation(skill, context);
-                if (articleUrl != null) {
-                    double articleHours = 1.0; // Default time for reading an article
-                    articleHours = Math.min(articleHours, remainingToAllocate);
-                    
-                    DailyGoal goal = new DailyGoal();
-                    goal.setUser(user);
-                    goal.setTitle("Study " + skill);
-                    goal.setDescription("Read this article about " + skill);
-                    goal.setAllocatedHours(articleHours);
-                    goal.setGoalDate(date);
-                    goal.setIsRecommended(true);
-                    goal.setIsCompleted(false);
-                    goal.setResourceUrl(articleUrl);
-                    goal.setResourceType("ARTICLE");
-                    
-                    recommendedGoals.add(goal);
-                    allocatedHours += articleHours;
-                    remainingToAllocate -= articleHours;
                 }
             }
         }
@@ -325,11 +353,11 @@ public class DailyGoalService {
                 allocatedHours += practiceHours;
             }
         }
-    }
+        
         // Save all the recommended goals
         return dailyGoalRepository.saveAll(recommendedGoals);
     }
-
+    
     private String generateArticleRecommendation(String skill, String context) {
         // Generate fallback article recommendations when video search fails
         Map<String, List<String>> articlesBySkill = new HashMap<>();
@@ -373,6 +401,41 @@ public class DailyGoalService {
         return generalArticles.get(new Random().nextInt(generalArticles.size()));
     }
     
+    public List<DailyGoalDTO> getGoalsForDateRange(User user, LocalDate startDate, LocalDate endDate) {
+        List<DailyGoal> goals = dailyGoalRepository.findByUserIdAndGoalDateBetween(
+                user.getId(), startDate, endDate);
+                
+        return goals.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+    
+    public DailyGoalDTO getGoalById(User user, Long goalId) {
+        DailyGoal goal = dailyGoalRepository.findById(goalId)
+                .orElseThrow(() -> new RuntimeException("Goal not found with ID: " + goalId));
+                
+        // Verify the goal belongs to the current user
+        if (!goal.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("Goal with ID " + goalId + 
+                    " does not belong to the current user");
+        }
+        
+        return convertToDTO(goal);
+    }
+    
+    public void deleteGoal(User user, Long goalId) {
+        DailyGoal goal = dailyGoalRepository.findById(goalId)
+                .orElseThrow(() -> new RuntimeException("Goal not found with ID: " + goalId));
+                
+        // Verify the goal belongs to the current user
+        if (!goal.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("Goal with ID " + goalId + 
+                    " does not belong to the current user");
+        }
+        
+        dailyGoalRepository.delete(goal);
+    }
+    
     private DailyGoalDTO convertToDTO(DailyGoal goal) {
         DailyGoalDTO dto = new DailyGoalDTO();
         dto.setId(goal.getId());
@@ -392,41 +455,5 @@ public class DailyGoalService {
         }
         
         return dto;
-    }
-
-
-    public List<DailyGoalDTO> getGoalsForDateRange(User user, LocalDate startDate, LocalDate endDate) {
-        List<DailyGoal> goals = dailyGoalRepository.findByUserIdAndGoalDateBetween(
-                user.getId(), startDate, endDate);
-                
-        return goals.stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
-    }
-
-    public DailyGoalDTO getGoalById(User user, Long goalId) {
-        DailyGoal goal = dailyGoalRepository.findById(goalId)
-                .orElseThrow(() -> new RuntimeException("Goal not found with ID: " + goalId));
-                
-        // Verify the goal belongs to the current user
-        if (!goal.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("Goal with ID " + goalId + 
-                    " does not belong to the current user");
-        }
-        
-        return convertToDTO(goal);
-    }
-
-    public void deleteGoal(User user, Long goalId) {
-        DailyGoal goal = dailyGoalRepository.findById(goalId)
-                .orElseThrow(() -> new RuntimeException("Goal not found with ID: " + goalId));
-                
-        // Verify the goal belongs to the current user
-        if (!goal.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("Goal with ID " + goalId + 
-                    " does not belong to the current user");
-        }
-        
-        dailyGoalRepository.delete(goal);
     }
 }

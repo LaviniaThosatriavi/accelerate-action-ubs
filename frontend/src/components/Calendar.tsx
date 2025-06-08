@@ -197,19 +197,22 @@ const Calendar: React.FC<CalendarProps> = ({ onDateSelect, events }) => {
         </WeekdaysRow>
         
         <DaysGrid>
-          {calendarDays.map(day => (
-            <Day 
-              key={day.toString()}
-              $isCurrentMonth={isSameMonth(day, currentDate)}
-              $isToday={isSameDay(day, new Date())}
-              $hasEvents={hasEventsOnDate(day)}
-              $isSelected={isSameDay(day, selectedDate)}
-              onClick={() => handleDateClick(day)}
-            >
-              {format(day, 'd')}
-              {hasEventsOnDate(day) && <EventMarker>*</EventMarker>}
-            </Day>
-          ))}
+          {calendarDays.map(day => {
+            const hasEvents = hasEventsOnDate(day);
+            return (
+              <Day 
+                key={day.toString()}
+                $isCurrentMonth={isSameMonth(day, currentDate)}
+                $isToday={isSameDay(day, new Date())}
+                $hasEvents={hasEvents}
+                $isSelected={isSameDay(day, selectedDate)}
+                onClick={() => handleDateClick(day)}
+              >
+                {format(day, 'd')}
+                {hasEvents && <EventMarker>*</EventMarker>}
+              </Day>
+            );
+          })}
         </DaysGrid>
       </div>
       
@@ -222,8 +225,8 @@ const Calendar: React.FC<CalendarProps> = ({ onDateSelect, events }) => {
               <h4>{event.title}</h4>
               <p>{event.description}</p>
               <p><strong>Type:</strong> {event.eventType}</p>
-              {event.enrolledCourseId && (
-                <p><strong>Course ID:</strong> {event.enrolledCourseId}</p>
+              {event.courseTitle && (
+                <p><strong>Course:</strong> {event.courseTitle}</p>
               )}
             </EventItem>
           ))

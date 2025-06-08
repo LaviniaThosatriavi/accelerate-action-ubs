@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
-
 import java.util.List;
 
 @RestController
@@ -33,6 +32,16 @@ public class DailyGoalController {
                 .orElseThrow(() -> new RuntimeException("User not found"));
         
         List<DailyGoalDTO> goals = dailyGoalService.getTodaysGoals(user);
+        
+        return ResponseEntity.ok(goals);
+    }
+    
+    @GetMapping("/today/active")
+    public ResponseEntity<List<DailyGoalDTO>> getActiveGoals(Authentication auth) {
+        User user = userRepository.findByUsername(auth.getName())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        List<DailyGoalDTO> goals = dailyGoalService.getActiveGoals(user);
         
         return ResponseEntity.ok(goals);
     }

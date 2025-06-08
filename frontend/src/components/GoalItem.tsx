@@ -1,10 +1,9 @@
-// src/components/GoalItem.tsx
 import React from 'react';
 import styled from 'styled-components';
 import type { Goal } from '../types/ToDosTypes';
 
 interface GoalItemContainerProps {
-  $completed: boolean;
+  $isCompleted: boolean; 
 }
 
 const GoalItemContainer = styled.div<GoalItemContainerProps>`
@@ -13,8 +12,8 @@ const GoalItemContainer = styled.div<GoalItemContainerProps>`
   padding: 15px;
   margin-bottom: 10px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-  border-left: 4px solid ${props => props.$completed ? '#34a853' : '#4285f4'};
-  opacity: ${props => props.$completed ? 0.8 : 1};
+  border-left: 4px solid ${props => props.$isCompleted ? '#34a853' : '#4285f4'};
+  opacity: ${props => props.$isCompleted ? 0.8 : 1};
   transition: all 0.2s;
   
   &:hover {
@@ -27,6 +26,8 @@ const GoalTitle = styled.h3`
   color: #3367d6;
   font-weight: 500;
   font-size: 16px;
+  display: flex;
+  align-items: center;
 `;
 
 const GoalDescription = styled.p`
@@ -81,6 +82,17 @@ const CourseInfo = styled.div`
   display: inline-block;
 `;
 
+const CompletedBadge = styled.div`
+  background-color: #34a853;
+  color: white;
+  font-size: 11px;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 10px;
+  margin-left: 8px;
+  display: inline-block;
+`;
+
 interface GoalItemProps {
   goal: Goal;
   courseName?: string;
@@ -88,8 +100,12 @@ interface GoalItemProps {
 
 const GoalItem: React.FC<GoalItemProps> = ({ goal, courseName }) => {
   return (
-    <GoalItemContainer $completed={goal.completed}>
-      <GoalTitle>{goal.title}</GoalTitle>
+    <GoalItemContainer $isCompleted={goal.isCompleted}>
+      <GoalTitle>
+        {goal.title} 
+        {goal.isCompleted && <CompletedBadge>Completed</CompletedBadge>}
+      </GoalTitle>
+      
       <GoalDescription>{goal.description}</GoalDescription>
       
       {goal.resourceUrl && (
@@ -98,8 +114,8 @@ const GoalItem: React.FC<GoalItemProps> = ({ goal, courseName }) => {
         </ResourceLink>
       )}
       
-      {courseName && goal.enrolledCourseId && (
-        <CourseInfo>Course: {courseName}</CourseInfo>
+      {(courseName || goal.courseName) && goal.enrolledCourseId && (
+        <CourseInfo>Course: {courseName || goal.courseName}</CourseInfo>
       )}
       
       <GoalMeta>

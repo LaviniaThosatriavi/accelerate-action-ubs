@@ -18,21 +18,19 @@ public class DailyGoal {
     private Long id;
     
     @ManyToOne
-    @JoinColumn(name = "user_id")
     private User user;
     
     private String title;
     private String description;
     private Double allocatedHours;
     private LocalDate goalDate;
-    private Boolean isCompleted = false;
-    private Boolean isRecommended = false; // True if system-generated, false if user-added
+    private Boolean isCompleted = false; 
+    private Boolean isRecommended = false;
     private LocalDateTime completedAt;
     
     @ManyToOne
-    @JoinColumn(name = "enrolled_course_id")
-    private EnrolledCourse enrolledCourse; 
+    private EnrolledCourse enrolledCourse;
     
-    private String resourceUrl; // YouTube URL, article URL, etc.
-    private String resourceType; // "VIDEO", "COURSE", "ARTICLE", etc.
+    private String resourceUrl;
+    private String resourceType;
 }

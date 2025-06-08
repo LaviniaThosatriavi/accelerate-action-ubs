@@ -6,8 +6,9 @@ export interface CalendarEvent {
     eventDate: string;
     title: string;
     description: string;
-    eventType: EventType;
+    eventType: string;
     enrolledCourseId?: number;
+    courseTitle?: string;
 }
 
 export interface Goal {
@@ -18,16 +19,19 @@ export interface Goal {
     resourceUrl?: string;
     resourceType: ResourceType;
     enrolledCourseId?: number;
-    completed: boolean;
+    courseName?: string;
+    goalDate?: string;
+    isCompleted: boolean;
+    isRecommended?: boolean;
+    completedAt?: string;
 }
 
 export interface CalendarMonth {
     year: number;
     month: number;
-    days: Array<{
-        date: string;
-        events: CalendarEvent[];
-    }>;
+    firstDay: string;
+    lastDay: string;
+    events: Record<string, CalendarEvent[]>;
 }
 
 export interface EnrolledCourse {
@@ -50,11 +54,4 @@ export interface ProgressUpdateRequest {
     enrolledCourseId: number;
     progressPercentage: number;
     additionalHoursSpent: number;
-}
-
-export interface CompleteGoalsRequest {
-    completedGoalIds: number[];
-    enrolledCourseId?: number;
-    progressPercentage?: number;
-    additionalHoursSpent?: number;
 }

@@ -173,10 +173,10 @@ const LoadingIndicator = styled.div`
   padding: 20px;
 `;
 
-const Todo: React.FC = () => {
+const ToDo: React.FC = () => {
   const [, setSelectedDate] = useState<Date>(new Date());
-  const [goals, setGoals] = useState<Goal[]>([]);
-  const [completedGoals, setCompletedGoals] = useState<Goal[]>([]);
+  const [allTodayGoals, setAllTodayGoals] = useState<Goal[]>([]);
+  const [activeGoals, setActiveGoals] = useState<Goal[]>([]);
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [enrolledCourses, setEnrolledCourses] = useState<EnrolledCourse[]>([]);
   const [selectedCourseId, setSelectedCourseId] = useState<number | undefined>(undefined);
@@ -197,47 +197,64 @@ const Todo: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   
   useEffect(() => {
-    fetchTodayGoals();
-    fetchCalendarMonth();
-    fetchEnrolledCourses();
+    console.log("ToDo component mounted");
+    fetchData();
   }, []);
   
-  const fetchTodayGoals = async (): Promise<void> => {
-    setIsLoading(true);
+  const fetchData = async (): Promise<void> => {
     try {
-      const goalsData = await TodoService.getTodayGoals();
-      
-      const activeGoals = goalsData.filter(goal => !goal.completed);
-      const completed = goalsData.filter(goal => goal.completed);
-      
-      console.log("Active goals:", activeGoals);
-      console.log("Completed goals:", completed);
-      
-      setGoals(activeGoals);
-      setCompletedGoals(completed);
+      setIsLoading(true);
+      await Promise.all([
+        fetchAllTodayGoals(),
+        fetchActiveTodayGoals(),
+        fetchCalendarMonth(),
+        fetchEnrolledCourses()
+      ]);
     } catch (error) {
-      console.error('Error fetching today\'s goals:', error);
+      console.error("Error fetching initial data:", error);
     } finally {
       setIsLoading(false);
     }
   };
   
+  const fetchAllTodayGoals = async (): Promise<void> => {
+    try {
+      const goals = await TodoService.getTodayGoals();
+      console.log("All today's goals:", goals);
+      setAllTodayGoals(goals);
+    } catch (error) {
+      console.error('Error fetching all today\'s goals:', error);
+    }
+  };
+  
+  const fetchActiveTodayGoals = async (): Promise<void> => {
+    try {
+      const goals = await TodoService.getActiveTodayGoals();
+      console.log("Active today's goals:", goals);
+      setActiveGoals(goals);
+    } catch (error) {
+      console.error('Error fetching active today\'s goals:', error);
+    }
+  };
+  
   const fetchCalendarMonth = async (): Promise<void> => {
     try {
-      const today = new Date();
-      const calendarData = await TodoService.getCalendarMonth(today.getFullYear(), today.getMonth() + 1);
+      const calendarData = await TodoService.getCalendarMonth();
       
       // Extract all events from the month data
       const allEvents: CalendarEvent[] = [];
       
-      if (calendarData && calendarData.days) {
-        calendarData.days.forEach(day => {
-          if (day.events && day.events.length > 0) {
-            allEvents.push(...day.events);
+      if (calendarData && calendarData.events) {
+        // Flatten events from all days
+        Object.keys(calendarData.events).forEach(dateKey => {
+          const dateEvents = calendarData.events[dateKey];
+          if (dateEvents && dateEvents.length > 0) {
+            allEvents.push(...dateEvents);
           }
         });
       }
       
+      console.log("Extracted calendar events:", allEvents);
       setEvents(allEvents);
     } catch (error) {
       console.error('Error fetching calendar events:', error);
@@ -247,13 +264,14 @@ const Todo: React.FC = () => {
   const fetchEnrolledCourses = async (): Promise<void> => {
     try {
       const courses = await TodoService.getEnrolledCourses();
+      console.log("Enrolled courses:", courses);
       setEnrolledCourses(courses);
     } catch (error) {
       console.error('Error fetching enrolled courses:', error);
     }
   };
   
- const handleDateSelect = (date: Date): void => {
+  const handleDateSelect = (date: Date): void => {
     setSelectedDate(date);
   };
   
@@ -282,7 +300,10 @@ const Todo: React.FC = () => {
       setNewGoalCourseId('');
       
       // Refresh goals
-      fetchTodayGoals();
+      await Promise.all([
+        fetchAllTodayGoals(),
+        fetchActiveTodayGoals()
+      ]);
     } catch (error) {
       console.error('Error adding goal:', error);
     }
@@ -303,16 +324,19 @@ const Todo: React.FC = () => {
     setSelectedGoalIds(selected);
   };
   
-  // This is the key function to fix
   const handleCompleteGoalsClick = (): void => {
+    console.log("Complete goals clicked with selection:", selectedGoalIds);
+    
     if (selectedGoalIds.length === 0) {
       alert("Please select at least one goal to complete");
       return;
     }
     
     if (selectedCourseId) {
+      console.log("Selected course ID:", selectedCourseId);
       const course = enrolledCourses.find(c => c.id === selectedCourseId);
       if (course) {
+        console.log("Found course for progress update:", course);
         setSelectedCourse(course);
         setShowProgressModal(true);
       } else {
@@ -321,27 +345,41 @@ const Todo: React.FC = () => {
       }
     } else {
       // No course selected, complete goals without updating course progress
+      console.log("No course selected, completing goals without progress update");
       completeGoalsAndUpdateProgress(selectedGoalIds);
     }
   };
   
-  // Separate the completion and progress update for clarity
   const completeGoalsAndUpdateProgress = async (goalIds: number[], progressUpdate?: { courseId: number, percentage: number, hours: number }): Promise<void> => {
     try {
       console.log("Completing goals:", goalIds);
       
-      // First, complete the goals
+      // 1. Immediately update UI to remove completed goals from active list
+      setActiveGoals(prevGoals => {
+        const updatedGoals = prevGoals.filter(goal => !goalIds.includes(goal.id));
+        console.log("Updated active goals:", updatedGoals);
+        return updatedGoals;
+      });
+      
+      // 2. Update all today's goals to mark selected goals as completed
+      setAllTodayGoals(prevGoals => {
+        const updatedGoals = prevGoals.map(goal => 
+          goalIds.includes(goal.id) 
+            ? { ...goal, isCompleted: true, completedAt: new Date().toISOString() } 
+            : goal
+        );
+        console.log("Updated all today's goals:", updatedGoals);
+        return updatedGoals;
+      });
+      
+      // 3. Clear selection
+      setSelectedGoalIds([]);
+      
+      // 4. Make the API call to complete goals
       const completedGoalsResponse = await TodoService.completeGoals(goalIds);
+      console.log("Complete goals API response:", completedGoalsResponse);
       
-      // Immediately update local state to reflect changes
-      // Remove completed goals from active goals list
-      setGoals(prevGoals => prevGoals.filter(goal => !goalIds.includes(goal.id)));
-      
-      // Add the newly completed goals to the completed list
-      const completedGoalsData = completedGoalsResponse || [];
-      setCompletedGoals(prev => [...completedGoalsData, ...prev]);
-      
-      // If progress update is needed
+      // 5. If progress update is needed
       if (progressUpdate) {
         console.log("Updating course progress:", progressUpdate);
         await TodoService.updateProgress({
@@ -351,22 +389,25 @@ const Todo: React.FC = () => {
         });
       }
       
-      // Reset selection
-      setSelectedGoalIds([]);
-      
-      // Close modal if open
+      // 6. Close modal if open
       setShowProgressModal(false);
       setSelectedCourse(null);
       
-      // Refresh data to ensure sync with backend
-      await fetchTodayGoals();
-      if (progressUpdate) {
-        await fetchEnrolledCourses();
-      }
+      // 7. Refresh data to ensure sync with backend
+      await Promise.all([
+        fetchAllTodayGoals(),
+        fetchActiveTodayGoals(),
+        fetchCalendarMonth(),
+        fetchEnrolledCourses()
+      ]);
       
     } catch (error) {
       console.error("Error in goal completion process:", error);
       alert("There was an error completing the selected goals. Please try again.");
+      
+      // Revert state changes on error
+      fetchActiveTodayGoals();
+      fetchAllTodayGoals();
     }
   };
   
@@ -394,6 +435,8 @@ const Todo: React.FC = () => {
     return course ? course.courseTitle : '';
   };
   
+  // Get completed goals from allTodayGoals
+  const completedGoals = allTodayGoals.filter(goal => goal.isCompleted);
   
   return (
     <PageContainer>
@@ -492,9 +535,9 @@ const Todo: React.FC = () => {
             
             {isLoading ? (
               <LoadingIndicator>Loading goals...</LoadingIndicator>
-            ) : goals.length > 0 ? (
+            ) : activeGoals.length > 0 ? (
               <NumberedList>
-                {goals.map(goal => (
+                {activeGoals.map(goal => (
                   <li key={goal.id}>
                     <GoalItem 
                       goal={goal} 
@@ -504,7 +547,7 @@ const Todo: React.FC = () => {
                 ))}
               </NumberedList>
             ) : (
-              <EmptyState>No goals for today. Add one to get started!</EmptyState>
+              <EmptyState>No active goals for today. Add one to get started!</EmptyState>
             )}
           </TodayGoalsSection>
         </RightSection>
@@ -520,9 +563,9 @@ const Todo: React.FC = () => {
             value={selectedGoalIds.map(String)} 
             onChange={handleGoalSelect}
           >
-            {goals.map(goal => (
+            {activeGoals.map(goal => (
               <option key={goal.id} value={goal.id}>
-                {goal.title} {goal.enrolledCourseId ? `(${getCourseNameById(goal.enrolledCourseId)})` : ''}
+                {goal.title} {goal.enrolledCourseId ? `(${getCourseNameById(goal.enrolledCourseId) || goal.courseName})` : ''}
               </option>
             ))}
           </MultiSelect>
@@ -554,7 +597,7 @@ const Todo: React.FC = () => {
               <GoalItem 
                 key={goal.id} 
                 goal={goal} 
-                courseName={getCourseNameById(goal.enrolledCourseId)}
+                courseName={getCourseNameById(goal.enrolledCourseId) || goal.courseName}
               />
             ))
           ) : (
@@ -574,4 +617,4 @@ const Todo: React.FC = () => {
   );
 };
 
-export default Todo;
+export default ToDo;
