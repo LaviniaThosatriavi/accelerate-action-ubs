@@ -3,6 +3,8 @@ import styled from 'styled-components';
 import axios from 'axios';
 import { FaUser, FaRoad, FaEdit, FaPlusCircle, FaCode, FaGithub, FaDatabase } from 'react-icons/fa';
 import ReactMarkdown from 'react-markdown';
+import MiddleSection from './MiddleSection';
+import RightSection from './RightSection';
 
 interface Profile {
   id?: number;
@@ -13,7 +15,6 @@ interface Profile {
   learningPath?: string;
 }
 
-// Styled Components
 const CoursePlannerContainer = styled.div`
   background-color: #f8f8f8;
   width: 100%;
@@ -54,14 +55,6 @@ const LeftSection = styled(Section)`
   gap: 1.5rem;
   min-height: 0;
   padding: 1.5rem;
-`;
-
-const EmptySection = styled(Section)`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: #f5f5f5;
-  border: 1px dashed #ccc;
 `;
 
 const ActionButton = styled.button`
@@ -157,7 +150,9 @@ const Label = styled.label`
 const Input = styled.input`
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid #ddd;
+  border: 1px solid #db2b45;
+  background-color: white;
+  color: black;
   border-radius: 6px;
   font-size: 1rem;
   transition: border 0.2s;
@@ -173,7 +168,9 @@ const Input = styled.input`
 const Select = styled.select`
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid #ddd;
+  border: 1px solid #db2b45;
+  background-color: white;
+  color: black;
   border-radius: 6px;
   font-size: 1rem;
   appearance: none;
@@ -192,8 +189,9 @@ const Select = styled.select`
 const TextArea = styled.textarea`
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 6px;
+  border: 1px solid #db2b45;
+  background-color: white;
+  color: black;
   font-size: 1rem;
   resize: vertical;
   min-height: 100px;
@@ -397,9 +395,9 @@ const LearningPathContent = styled.div`
     
   }
   
-  color: #8B0000;}
+  color: #4285f4;}
   a {
-    color: #db2b45;
+    color: #3367d6;
     text-decoration: none;
     
     &:hover {
@@ -457,7 +455,6 @@ const CareerStageInput = styled.input`
   }
 `;
 
-// Main Component
 const CoursePlanner = () => {
   const [activeTab, setActiveTab] = useState<'profile' | 'learningPath'>('profile');
   const [showProfileModal, setShowProfileModal] = useState(false);
@@ -585,13 +582,6 @@ const CoursePlanner = () => {
     createOrUpdateProfile(profileData);
   };
 
-  // // Define an interface for the error response structure
-  // interface ApiErrorResponse {
-  //   message?: string;
-  //   error?: string;
-  //   status?: number;
-  // }
-
   const createOrUpdateProfile = async (profileData: Profile) => {
     try {
       setLoading(true);
@@ -604,8 +594,6 @@ const CoursePlanner = () => {
       if (!token) {
         console.error('No token found, please login first');
         setError('Authentication required. Please login.');
-        // Optionally redirect to login
-        // navigate('/login');
         return;
       }
       
@@ -636,10 +624,8 @@ const CoursePlanner = () => {
         if (err.response?.status === 403 || err.response?.status === 401) {
           console.error(`${err.response.status} - Authentication issue`);
           alert('Authentication error: Your session may have expired. Please log in again.');
-          // Optionally clear token and redirect to login
           localStorage.removeItem('token');
           localStorage.removeItem('jwtToken');
-          // navigate('/login');
         } else {
           alert(`API Error (${err.response?.status}): ${err.message}`);
         }
@@ -771,13 +757,10 @@ const CoursePlanner = () => {
         </TabContainer>
       </LeftSection>
 
-      {/* Middle Section - Empty */}
-      <EmptySection />
+      <MiddleSection />
 
-      {/* Right Section - Empty */}
-      <EmptySection />
+      <RightSection />
 
-      {/* Modal - Explicitly rendered outside of sections to ensure it's visible */}
       {showProfileModal && (
         <>
           <ModalOverlay onClick={() => setShowProfileModal(false)} />
