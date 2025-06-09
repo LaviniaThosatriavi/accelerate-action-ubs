@@ -104,7 +104,7 @@ const Select = styled.select`
   padding: 10px 15px;
   border-radius: 4px;
   border: 1px solid #3367d6;
-  font-size: 14px;
+  font-size: 1.2rem;
   background-color: white;
   color: black;
   
@@ -121,6 +121,7 @@ const Button = styled.button`
   border-radius: 4px;
   padding: 10px 15px;
   cursor: pointer;
+  font-size: 1.2rem;
   font-weight: 500;
   transition: background-color 0.2s;
   
@@ -155,11 +156,21 @@ const MultiSelect = styled.select`
   border: 1px solid #3367d6;
   background-color: white;
   color: black;
-  font-size: 0.8rem;
+  font-size: 1.2rem;
+  white-space: normal; /* Allow text wrapping */
+  word-wrap: break-word; /* Break long words */
+  word-break: break-word; 
+  max-width: 100%; /* Ensure it doesn't exceed container width */
   
   &:focus {
     outline: none;
     border-color: #4285f4;
+  }
+  
+  option {
+    white-space: normal;
+    word-wrap: break-word;
+    padding: 5px;
   }
 `;
 
@@ -445,7 +456,6 @@ const ToDo: React.FC = () => {
     return course ? course.courseTitle : '';
   };
   
-  // Get completed goals from allTodayGoals
   const completedGoals = allTodayGoals.filter(goal => goal.isCompleted);
   
   return (

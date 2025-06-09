@@ -21,7 +21,7 @@ const ModalContainer = styled.div`
   border-radius: 8px;
   width: 90%;
   max-width: 500px;
-  padding: 20px;
+  padding: 2rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 `;
 
@@ -29,25 +29,13 @@ const ModalHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 1rem;
 `;
 
 const ModalTitle = styled.h2`
   color: #3367d6;
   margin: 0;
   font-weight: 500;
-`;
-
-const CloseButton = styled.button`
-  background: none;
-  border: none;
-  font-size: 20px;
-  cursor: pointer;
-  color: #5f6368;
-  
-  &:hover {
-    color: #db2b45;
-  }
 `;
 
 const FormGroup = styled.div`
@@ -62,10 +50,12 @@ const Label = styled.label`
 `;
 
 const Input = styled.input`
-  width: 100%;
+  width: 95%;
   padding: 10px;
   border-radius: 4px;
-  border: 1px solid #dadce0;
+  border: 1px solid #3367d6;
+  background-color: white;
+  color: black;
   
   &:focus {
     outline: none;
@@ -114,6 +104,10 @@ const SubmitButton = styled(Button)`
   }
 `;
 
+const ProgressDetail = styled.p`
+  color: black;
+`;
+
 interface ProgressUpdateModalProps {
   enrolledCourse: EnrolledCourse;
   onClose: () => void;
@@ -138,13 +132,12 @@ const ProgressUpdateModal: React.FC<ProgressUpdateModalProps> = ({
       <ModalContainer onClick={e => e.stopPropagation()}>
         <ModalHeader>
           <ModalTitle>Update Course Progress</ModalTitle>
-          <CloseButton onClick={onClose}>&times;</CloseButton>
         </ModalHeader>
         
         <CourseInfo>
-          <p><strong>Course:</strong> {enrolledCourse.courseTitle}</p>
-          <p><strong>Current Progress:</strong> {enrolledCourse.progressPercentage}%</p>
-          <p><strong>Hours Spent:</strong> {enrolledCourse.hoursSpent} of {enrolledCourse.estimatedHours} hours</p>
+          <ProgressDetail><strong>Course:</strong> {enrolledCourse.courseTitle}</ProgressDetail>
+          <ProgressDetail><strong>Current Progress:</strong> {enrolledCourse.progressPercentage}%</ProgressDetail>
+          <ProgressDetail><strong>Hours Spent:</strong> {enrolledCourse.hoursSpent} of {enrolledCourse.estimatedHours} hours</ProgressDetail>
         </CourseInfo>
         
         <form onSubmit={handleSubmit}>

@@ -637,9 +637,42 @@ const CoursePlanner = () => {
     }
   };
   
-  const formatLearningPath = (markdownContent: string) => {
-    // Return markdown content to be rendered by ReactMarkdown
-    return markdownContent;
+  const formatLearningPath = (markdownContent: string): string => {
+    // Split content into lines for processing
+    const lines = markdownContent.split('\n');
+    
+    // More flexible regex to match various week patterns
+    const weekHeaderRegex = /^(#{1,6})\s*Week\s+(\d+)(?:\s*[:-]|\s*$)/i;
+    const weekNumbers: number[] = [];
+    
+    // Extract all week numbers
+    lines.forEach(line => {
+      const match = line.match(weekHeaderRegex);
+      if (match) {
+        weekNumbers.push(parseInt(match[2], 10));
+      }
+    });
+    
+    // Find the highest week number
+    const maxWeek = Math.max(...weekNumbers);
+    
+    // Process lines and modify the last week header
+    const processedLines = lines.map(line => {
+      const match = line.match(weekHeaderRegex);
+      if (match) {
+        const weekNumber = parseInt(match[2], 10);
+        const headerLevel = match[1]; // # symbols
+        const restOfLine = line.substring(match[0].length); // Get any text after "Week X"
+        
+        // If this is the last week, modify it to show range
+        if (weekNumber === maxWeek) {
+          return `${headerLevel} Week ${weekNumber}-${weekNumber + 1}${restOfLine}`;
+        }
+      }
+      return line;
+    });
+    
+    return processedLines.join('\n');
   };
 
   const renderSkillIcon = (skill: string) => {

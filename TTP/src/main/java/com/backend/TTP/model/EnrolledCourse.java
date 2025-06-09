@@ -21,6 +21,8 @@ public class EnrolledCourse {
     private Integer progressPercentage = 0;
     private String status = "NOT_STARTED"; // NOT_STARTED, IN_PROGRESS, COMPLETED
     private Integer hoursSpent = 0;
+    private Integer hoursSpentThisWeek = 0; // New field to track weekly hours
+    private LocalDate weekStartDate; // To track which week the hoursSpentThisWeek refers to
     
     // Getters and Setters
     public Long getId() {
@@ -93,5 +95,21 @@ public class EnrolledCourse {
     
     public void setHoursSpent(Integer hoursSpent) {
         this.hoursSpent = hoursSpent;
+    }
+    
+    public Integer getHoursSpentThisWeek() {
+        return hoursSpentThisWeek;
+    }
+    
+    public void setHoursSpentThisWeek(Integer hoursSpentThisWeek) {
+        this.hoursSpentThisWeek = hoursSpentThisWeek;
+    }
+    
+    public LocalDate getWeekStartDate() {
+        return weekStartDate;
+    }
+    
+    public void setWeekStartDate(LocalDate weekStartDate) {
+        this.weekStartDate = weekStartDate;
     }
 }

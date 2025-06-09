@@ -7,11 +7,14 @@ import com.backend.TTP.dto.ProgressUpdateRequest;
 import com.backend.TTP.model.Course;
 import com.backend.TTP.model.EnrolledCourse;
 import com.backend.TTP.model.User;
+import com.backend.TTP.model.UserProfile;
 import com.backend.TTP.repository.CourseRepository;
 import com.backend.TTP.repository.EnrolledCourseRepository;
+import com.backend.TTP.repository.UserProfileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +30,9 @@ public class EnrolledCourseService {
     
     @Autowired
     private CourseRepository courseRepository;
+    
+    @Autowired
+    private UserProfileRepository userProfileRepository;
     
     /**
      * Get all enrolled courses for a user
@@ -65,6 +71,8 @@ public class EnrolledCourseService {
         enrolledCourse.setTargetCompletionDate(request.getTargetCompletionDate());
         enrolledCourse.setProgressPercentage(0);
         enrolledCourse.setStatus("NOT_STARTED");
+        enrolledCourse.setHoursSpentThisWeek(0);
+        enrolledCourse.setWeekStartDate(getStartOfWeek(LocalDate.now()));
         
         enrolledCourse = enrolledCourseRepository.save(enrolledCourse);
         
@@ -96,6 +104,8 @@ public class EnrolledCourseService {
         enrolledCourse.setTargetCompletionDate(request.getTargetCompletionDate());
         enrolledCourse.setProgressPercentage(0);
         enrolledCourse.setStatus("NOT_STARTED");
+        enrolledCourse.setHoursSpentThisWeek(0);
+        enrolledCourse.setWeekStartDate(getStartOfWeek(LocalDate.now()));
         
         enrolledCourse = enrolledCourseRepository.save(enrolledCourse);
         
@@ -125,6 +135,9 @@ public class EnrolledCourseService {
         // Add hours spent
         Integer currentHoursSpent = enrolledCourse.getHoursSpent() != null ? enrolledCourse.getHoursSpent() : 0;
         enrolledCourse.setHoursSpent(currentHoursSpent + request.getAdditionalHoursSpent());
+        
+        // Update weekly hours
+        updateWeeklyHours(enrolledCourse, request.getAdditionalHoursSpent());
         
         // Update status based on progress
         if (request.getProgressPercentage() == 100) {
@@ -212,31 +225,36 @@ public class EnrolledCourseService {
     
     /**
      * Check if the user has free time this week
-     * (Has less than 10 hours of courses in progress)
+     * Has available time if hours spent this week for all enrolled courses < hours per week set by user
      */
     public boolean hasAvailableTimeThisWeek(User user) {
-        List<EnrolledCourse> inProgressCourses = enrolledCourseRepository.findByUserAndStatus(user, "IN_PROGRESS");
+        // Get user's hours per week setting
+        Optional<UserProfile> userProfileOpt = userProfileRepository.findByUser(user);
+        if (!userProfileOpt.isPresent() || userProfileOpt.get().getHoursPerWeek() == null) {
+            return true; 
+        }
         
-        int totalWeeklyHours = 0;
-        for (EnrolledCourse course : inProgressCourses) {
-            // Estimate weekly hours as total estimated hours / weeks until target date
-            LocalDate targetDate = course.getTargetCompletionDate();
-            if (targetDate != null) {
-                long weeksUntilTarget = Math.max(1, (targetDate.toEpochDay() - LocalDate.now().toEpochDay()) / 7);
-                int estimatedHours = course.getCourse().getEstimatedHours() != null ? 
-                        course.getCourse().getEstimatedHours() : 0;
-                int remainingPercentage = 100 - (course.getProgressPercentage() != null ? 
-                        course.getProgressPercentage() : 0);
-                
-                double remainingHours = estimatedHours * (remainingPercentage / 100.0);
-                double weeklyHours = remainingHours / weeksUntilTarget;
-                
-                totalWeeklyHours += weeklyHours;
+        Integer userHoursPerWeek = userProfileOpt.get().getHoursPerWeek();
+        
+        // Get all enrolled courses for the user
+        List<EnrolledCourse> enrolledCourses = enrolledCourseRepository.findByUser(user);
+        
+        // Calculate total hours spent this week across all courses
+        int totalHoursThisWeek = 0;
+        LocalDate currentWeekStart = getStartOfWeek(LocalDate.now());
+        
+        for (EnrolledCourse course : enrolledCourses) {
+            // Update weekly hours if needed (in case week has changed)
+            updateWeeklyHours(course, 0);
+            
+            // Only count hours if the course's week matches current week
+            if (course.getWeekStartDate() != null && course.getWeekStartDate().equals(currentWeekStart)) {
+                totalHoursThisWeek += course.getHoursSpentThisWeek() != null ? course.getHoursSpentThisWeek() : 0;
             }
         }
         
-        // User has available time if they have less than 10 hours of courses per week
-        return totalWeeklyHours < 10;
+        // User has available time if total hours this week is less than their weekly limit
+        return totalHoursThisWeek < userHoursPerWeek;
     }
     
     /**
@@ -265,5 +283,48 @@ public class EnrolledCourseService {
                 "https://www.youtube.com/watch?v=zOjov-2OZ0E"  // FreeCodeCamp CS
             );
         }
+    }
+    
+    /**
+     * Helper method to get the start of the week (Monday)
+     */
+    private LocalDate getStartOfWeek(LocalDate date) {
+        return date.with(DayOfWeek.MONDAY);
+    }
+    
+    /**
+     * Helper method to update weekly hours for a course
+     */
+    private void updateWeeklyHours(EnrolledCourse enrolledCourse, Integer additionalHours) {
+        LocalDate currentWeekStart = getStartOfWeek(LocalDate.now());
+        
+        // If it's a new week, reset the weekly hours
+        if (enrolledCourse.getWeekStartDate() == null || !enrolledCourse.getWeekStartDate().equals(currentWeekStart)) {
+            enrolledCourse.setHoursSpentThisWeek(additionalHours != null ? additionalHours : 0);
+            enrolledCourse.setWeekStartDate(currentWeekStart);
+        } else {
+            // Same week, add to existing hours
+            Integer currentWeeklyHours = enrolledCourse.getHoursSpentThisWeek() != null ? enrolledCourse.getHoursSpentThisWeek() : 0;
+            enrolledCourse.setHoursSpentThisWeek(currentWeeklyHours + (additionalHours != null ? additionalHours : 0));
+        }
+    }
+    
+    /**
+     * Get total hours spent this week across all courses for a user
+     */
+    public int getTotalHoursThisWeek(User user) {
+        List<EnrolledCourse> enrolledCourses = enrolledCourseRepository.findByUser(user);
+        int totalHours = 0;
+        LocalDate currentWeekStart = getStartOfWeek(LocalDate.now());
+        
+        for (EnrolledCourse course : enrolledCourses) {
+            updateWeeklyHours(course, 0); // Update weekly tracking if needed
+            
+            if (course.getWeekStartDate() != null && course.getWeekStartDate().equals(currentWeekStart)) {
+                totalHours += course.getHoursSpentThisWeek() != null ? course.getHoursSpentThisWeek() : 0;
+            }
+        }
+        
+        return totalHours;
     }
 }
