@@ -501,7 +501,6 @@ const CoursePlanner = () => {
       console.log(`Fetching profile from ${API_BASE_URL}/api/profiles`);
       
       const response = await api.get('/api/profiles');
-      
       if (response.data) {
         console.log("Fetched profile:", response.data);
         setProfile(response.data);

@@ -16,7 +16,12 @@ public class ProfileResponse {
     private Integer hoursPerWeek;
     private String learningPath;
     
-    // Add explicit getters/setters if Lombok isn't working
+    // Achievement fields with safe defaults
+    private Integer totalPoints = 0;
+    private String currentBadgeLevel = "NOVICE";
+    private Integer loginStreak = 0;
+    
+    // Explicit getters and setters
     public Long getId() {
         return id;
     }
@@ -63,5 +68,29 @@ public class ProfileResponse {
     
     public void setLearningPath(String learningPath) {
         this.learningPath = learningPath;
+    }
+    
+    public Integer getTotalPoints() {
+        return totalPoints != null ? totalPoints : 0;
+    }
+    
+    public void setTotalPoints(Integer totalPoints) {
+        this.totalPoints = totalPoints != null ? totalPoints : 0;
+    }
+    
+    public String getCurrentBadgeLevel() {
+        return currentBadgeLevel != null ? currentBadgeLevel : "NOVICE";
+    }
+    
+    public void setCurrentBadgeLevel(String currentBadgeLevel) {
+        this.currentBadgeLevel = currentBadgeLevel != null ? currentBadgeLevel : "NOVICE";
+    }
+    
+    public Integer getLoginStreak() {
+        return loginStreak != null ? loginStreak : 0;
+    }
+    
+    public void setLoginStreak(Integer loginStreak) {
+        this.loginStreak = loginStreak != null ? loginStreak : 0;
     }
 }

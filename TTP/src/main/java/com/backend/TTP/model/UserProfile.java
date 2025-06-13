@@ -2,6 +2,7 @@ package com.backend.TTP.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +30,11 @@ public class UserProfile {
     @OneToOne(mappedBy = "userProfile", cascade = CascadeType.ALL, orphanRemoval = true)
     private LearningPath learningPath;
     
+    private Integer totalPoints = 0;
+    private String currentBadgeLevel = "NOVICE";
+    private Integer loginStreak = 0;
+    private LocalDate lastLoginDate;
+
     // Add explicit getters/setters if Lombok isn't working
     public Long getId() {
         return id;
@@ -84,5 +90,37 @@ public class UserProfile {
 
     public void setLearningPath(LearningPath learningPath) {
         this.learningPath = learningPath;
+    }
+
+    public Integer getTotalPoints() {
+        return totalPoints;
+    }
+    
+    public void setTotalPoints(Integer totalPoints) {
+        this.totalPoints = totalPoints;
+    }
+    
+    public String getCurrentBadgeLevel() {
+        return currentBadgeLevel;
+    }
+    
+    public void setCurrentBadgeLevel(String currentBadgeLevel) {
+        this.currentBadgeLevel = currentBadgeLevel;
+    }
+    
+    public Integer getLoginStreak() {
+        return loginStreak;
+    }
+    
+    public void setLoginStreak(Integer loginStreak) {
+        this.loginStreak = loginStreak;
+    }
+    
+    public LocalDate getLastLoginDate() {
+        return lastLoginDate;
+    }
+    
+    public void setLastLoginDate(LocalDate lastLoginDate) {
+        this.lastLoginDate = lastLoginDate;
     }
 }

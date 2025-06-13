@@ -7,6 +7,7 @@ import com.backend.TTP.repository.UserProfileRepository;
 import com.backend.TTP.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 import java.util.Optional;
 import java.util.ArrayList;
 import org.slf4j.Logger;
@@ -19,6 +20,8 @@ public class ProfileService {
     private final UserProfileRepository userProfileRepository;
     private final UserRepository userRepository;
     private final LearningPathService learningPathService;
+    @Autowired
+    private AchievementService achievementService;
 
     public ProfileService(UserProfileRepository userProfileRepository,
                          UserRepository userRepository,
@@ -35,6 +38,12 @@ public class ProfileService {
         
         UserProfile profile = userProfileRepository.findByUser(user)
                 .orElseThrow(() -> new RuntimeException("Profile not found"));
+        
+        try {
+            achievementService.recordDailyLogin(user);
+        } catch (Exception e) {
+            logger.warn("Failed to record daily login: {}", e.getMessage());
+        }
         
         return mapToResponse(profile);
     }
@@ -113,6 +122,11 @@ public class ProfileService {
         if (profile.getLearningPath() != null) {
             response.setLearningPath(profile.getLearningPath().getPathContent());
         }
+        
+        // SAFE handling of achievement fields with null checks
+        response.setTotalPoints(profile.getTotalPoints() != null ? profile.getTotalPoints() : 0);
+        response.setCurrentBadgeLevel(profile.getCurrentBadgeLevel() != null ? profile.getCurrentBadgeLevel() : "NOVICE");
+        response.setLoginStreak(profile.getLoginStreak() != null ? profile.getLoginStreak() : 0);
         
         return response;
     }

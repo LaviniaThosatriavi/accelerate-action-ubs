@@ -15,4 +15,5 @@ public interface EnrolledCourseRepository extends JpaRepository<EnrolledCourse, 
     List<EnrolledCourse> findByUserAndStatus(User user, String status);
     Optional<EnrolledCourse> findByUserAndCourse(User user, Course course);
     List<EnrolledCourse> findByUserAndTargetCompletionDateBetween(User user, LocalDate startDate, LocalDate endDate);
+    Long countByUserAndStatus(User user, String status);
 }

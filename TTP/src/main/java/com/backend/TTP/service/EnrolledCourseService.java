@@ -33,6 +33,9 @@ public class EnrolledCourseService {
     
     @Autowired
     private UserProfileRepository userProfileRepository;
+
+    @Autowired
+    private AchievementService achievementService;
     
     /**
      * Get all enrolled courses for a user
@@ -112,9 +115,6 @@ public class EnrolledCourseService {
         return convertToDTO(enrolledCourse);
     }
     
-    /**
-     * Update progress for an enrolled course
-     */
     public EnrolledCourseDTO updateProgress(User user, ProgressUpdateRequest request) {
         Optional<EnrolledCourse> enrolledCourseOpt = enrolledCourseRepository.findById(request.getEnrolledCourseId());
         
@@ -128,6 +128,10 @@ public class EnrolledCourseService {
         if (!enrolledCourse.getUser().getId().equals(user.getId())) {
             throw new RuntimeException("Not authorized to update this course");
         }
+        
+        // Check if this is a course completion (was not completed before, now 100%)
+        boolean wasCompleted = "COMPLETED".equals(enrolledCourse.getStatus());
+        boolean isNowCompleted = request.getProgressPercentage() == 100;
         
         // Update progress
         enrolledCourse.setProgressPercentage(request.getProgressPercentage());
@@ -148,6 +152,18 @@ public class EnrolledCourseService {
         }
         
         enrolledCourse = enrolledCourseRepository.save(enrolledCourse);
+        
+        // NEW: Award achievement points for course completion
+        if (!wasCompleted && isNowCompleted) {
+            // Award base completion points (20 points)
+            // Note: Course scoring with bonus points should be done separately via the course score endpoint
+            try {
+                achievementService.awardCourseCompletionPoints(user, enrolledCourse);
+            } catch (Exception e) {
+                // Log error but don't fail the course update
+                System.err.println("Failed to award achievement points: " + e.getMessage());
+            }
+        }
         
         return convertToDTO(enrolledCourse);
     }
