@@ -13,19 +13,12 @@ import java.util.Optional;
 public interface LeaderboardEntryRepository extends JpaRepository<LeaderboardEntry, Long> {
     Optional<LeaderboardEntry> findByUserAndDate(User user, LocalDate date);
     
-    // Daily leaderboard
-    @Query("SELECT le FROM LeaderboardEntry le WHERE le.date = :date ORDER BY le.dailyPoints DESC")
+    // Daily leaderboard - ORDER BY TOTAL POINTS instead of daily points
+    @Query("SELECT le FROM LeaderboardEntry le WHERE le.date = :date ORDER BY le.totalPoints DESC, le.user.username ASC")
     List<LeaderboardEntry> findDailyLeaderboard(LocalDate date);
     
-    // Weekly leaderboard
-    @Query("SELECT le FROM LeaderboardEntry le WHERE le.date >= :startDate AND le.date <= :endDate ORDER BY le.weeklyPoints DESC")
-    List<LeaderboardEntry> findWeeklyLeaderboard(LocalDate startDate, LocalDate endDate);
-    
-    // Monthly leaderboard
-    @Query("SELECT le FROM LeaderboardEntry le WHERE YEAR(le.date) = :year AND MONTH(le.date) = :month ORDER BY le.monthlyPoints DESC")
-    List<LeaderboardEntry> findMonthlyLeaderboard(int year, int month);
-    
-    // Get user's rank for a specific date
-    @Query("SELECT COUNT(le) + 1 FROM LeaderboardEntry le WHERE le.date = :date AND le.dailyPoints > (SELECT le2.dailyPoints FROM LeaderboardEntry le2 WHERE le2.user = :user AND le2.date = :date)")
+    // Get user's daily rank based on TOTAL POINTS
+    @Query("SELECT COUNT(DISTINCT le.user) + 1 FROM LeaderboardEntry le WHERE le.date = :date AND le.totalPoints > " +
+           "(SELECT COALESCE(le2.totalPoints, 0) FROM LeaderboardEntry le2 WHERE le2.user = :user AND le2.date = :date)")
     Integer findUserDailyRank(User user, LocalDate date);
 }

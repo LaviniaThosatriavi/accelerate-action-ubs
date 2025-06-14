@@ -19,7 +19,6 @@ import { IoMdInformationCircleOutline } from 'react-icons/io';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 
-// Types
 interface AchievementProfile {
   userId: number;
   username: string;
@@ -51,7 +50,7 @@ interface LeaderboardUser {
 
 interface LeaderboardData {
   topUsers: LeaderboardUser[];
-  currentUser: LeaderboardUser;
+  currentUser: LeaderboardUser | null;
   period: string;
 }
 
@@ -66,12 +65,11 @@ const Container = styled.div`
 const TopSection = styled.div`
   display: flex;
   align-items: center;
-  justify-content: space-between;
   margin-bottom: 2rem;
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
   border-radius: 15px;
-  padding: 1.5rem;
+  padding: 1rem 1.5rem;
   border: 1px solid rgba(255, 255, 255, 0.2);
 `;
 
@@ -81,14 +79,11 @@ const LeftSection = styled.div`
   gap: 1rem;
 `;
 
-const InfoButton = styled.button`
-  background: linear-gradient(45deg, #4CAF50, #45a049);
-  border: none;
-  border-radius: 50%;
+const InfoButton = styled(IoMdInformationCircleOutline)`
   width: 40px;
   height: 40px;
   color: white;
-  font-size: 1.2rem;
+  font-size: 1rem;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -125,6 +120,8 @@ const LeaderboardButton = styled.button`
 const WelcomeSection = styled.div`
   display: flex;
   align-items: center;
+  margin-left: 1rem;
+  font-size: 1rem;
   gap: 1rem;
 `;
 
@@ -139,10 +136,10 @@ const LevelBadge = styled.div<{ $level: string }>`
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 `;
 
-const Username = styled.h2`
-  margin: 0;
-  font-size: 1.5rem;
-  font-weight: 300;
+const Username = styled.span`
+  font-weight: 500;
+  font-style: italic;
+  font-size: 1.2rem;
 `;
 
 const ProgressSection = styled.div`
@@ -302,7 +299,6 @@ const PointsRequired = styled.div<{ $isUnlocked: boolean }>`
   display: inline-block;
 `;
 
-// Modal Styles
 const ModalOverlay = styled.div`
   position: fixed;
   top: 0;
@@ -415,7 +411,6 @@ const UserPoints = styled.div`
   color: #FFD700;
 `;
 
-// Info Modal Styles
 const InfoModalContent = styled.div`
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border-radius: 20px;
@@ -560,6 +555,21 @@ const getRankIcon = (rank: number) => {
   return <span>{rank}</span>;
 };
 
+interface LeaderboardUser {
+  userId: number;
+  username: string;
+  points: number;
+  rank: number;
+  badgeLevel: string;
+  isCurrentUser: boolean;
+}
+
+interface LeaderboardResponse {
+  topUsers: LeaderboardUser[];
+  currentUser: LeaderboardUser | null;
+  period: string;
+}
+
 export const Achievements: React.FC = () => {
   const [achievementProfile, setAchievementProfile] = useState<AchievementProfile | null>(null);
   const [badges, setBadges] = useState<Badge[]>([]);
@@ -608,26 +618,40 @@ export const Achievements: React.FC = () => {
     }
   };
 
-  const fetchLeaderboard = async () => {
+    const fetchLeaderboard = async (): Promise<void> => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${API_BASE_URL}/api/achievements/leaderboard?period=daily&limit=10`, {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${API_BASE_URL}/api/achievements/leaderboard?period=daily&limit=10`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
         }
-      });
-      
-      if (!response.ok) {
+        });
+        
+        if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      setLeaderboard(data);
+        }
+        
+        const data: LeaderboardResponse = await response.json();
+        console.log('=== LEADERBOARD DEBUG ===');
+        console.log('Full response:', data);
+        console.log('Top users count:', data.topUsers ? data.topUsers.length : 0);
+        console.log('Current user:', data.currentUser);
+        console.log('Period:', data.period);
+        
+        if (data.topUsers && data.topUsers.length > 0) {
+        console.log('Top 3 users:');
+        data.topUsers.slice(0, 3).forEach((user: LeaderboardUser, index: number) => {
+            console.log(`${index + 1}. ${user.username} - ${user.points} points (Rank: ${user.rank}, Current: ${user.isCurrentUser})`);
+        });
+        }
+        console.log('========================');
+        
+        setLeaderboard(data);
     } catch (error) {
-      console.error('Error fetching leaderboard:', error);
+        console.error('Error fetching leaderboard:', error);
     }
-  };
+    };
 
   const triggerDailyLogin = async () => {
     try {
@@ -690,12 +714,9 @@ export const Achievements: React.FC = () => {
 
   return (
     <Container>
-      {/* Top Section */}
       <TopSection>
         <LeftSection>
-          <InfoButton onClick={() => setShowInfo(true)} title="How to earn points">
-            <IoMdInformationCircleOutline />
-          </InfoButton>
+          <InfoButton onClick={() => setShowInfo(true)} title="How to earn points" />
           <LeaderboardButton onClick={() => setShowLeaderboard(true)}>
             <MdLeaderboard />
             Leaderboard
@@ -711,7 +732,6 @@ export const Achievements: React.FC = () => {
         </WelcomeSection>
       </TopSection>
 
-      {/* Progress Section */}
       <ProgressSection>
         <h3 style={{ marginBottom: '1rem', textAlign: 'center' }}>Your Progress</h3>
         
@@ -796,7 +816,6 @@ export const Achievements: React.FC = () => {
         </BadgesGrid>
       </BadgesSection>
 
-      {/* Info Modal */}
       {showInfo && (
         <ModalOverlay onClick={() => setShowInfo(false)}>
           <InfoModalContent onClick={(e) => e.stopPropagation()}>

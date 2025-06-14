@@ -11,7 +11,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Service
 public class AchievementService {
@@ -172,35 +171,39 @@ public class AchievementService {
     }
     
     /**
-     * Get leaderboard
+     * Get leaderboard - SIMPLIFIED FOR DAILY ONLY
      */
     public LeaderboardResponse getLeaderboard(User user, String period, Integer limit) {
+        // Only support daily leaderboard now
         List<LeaderboardUserDTO> topUsers = new ArrayList<>();
         LeaderboardUserDTO currentUserEntry = null;
         
         LocalDate today = LocalDate.now();
         
-        switch (period.toLowerCase()) {
-            case "daily":
-                topUsers = getDailyLeaderboard(today, limit);
-                currentUserEntry = getCurrentUserLeaderboardPosition(user, period, today);
+        // Ensure leaderboard is up to date (but don't trigger from awardPoints to avoid loop)
+        updateDailyLeaderboard();
+        
+        // Get daily leaderboard (showing total points, not daily points)
+        topUsers = getDailyLeaderboard(today, limit);
+        currentUserEntry = getCurrentUserLeaderboardPosition(user, today);
+        
+        // Set isCurrentUser flag for users in the top list
+        for (LeaderboardUserDTO topUser : topUsers) {
+            if (topUser.getUserId().equals(user.getId())) {
+                topUser.setIsCurrentUser(true);
+                if (currentUserEntry == null) {
+                    currentUserEntry = topUser;
+                } else {
+                    currentUserEntry.setIsCurrentUser(true);
+                }
                 break;
-            case "weekly":
-                LocalDate weekStart = today.with(java.time.DayOfWeek.MONDAY);
-                LocalDate weekEnd = weekStart.plusDays(6);
-                topUsers = getWeeklyLeaderboard(weekStart, weekEnd, limit);
-                currentUserEntry = getCurrentUserLeaderboardPosition(user, period, today);
-                break;
-            case "monthly":
-                topUsers = getMonthlyLeaderboard(today.getYear(), today.getMonthValue(), limit);
-                currentUserEntry = getCurrentUserLeaderboardPosition(user, period, today);
-                break;
+            }
         }
         
         LeaderboardResponse response = new LeaderboardResponse();
         response.setTopUsers(topUsers);
         response.setCurrentUser(currentUserEntry);
-        response.setPeriod(period);
+        response.setPeriod("daily");
         
         return response;
     }
@@ -236,32 +239,20 @@ public class AchievementService {
     }
     
     /**
-     * Calculate and update leaderboard rankings daily
+     * FIXED: Update leaderboard with TOTAL POINTS - NO BONUS AWARDING
      */
     @Transactional
     public void updateDailyLeaderboard() {
         LocalDate today = LocalDate.now();
-        LocalDateTime startOfDay = today.atStartOfDay();
         
-        // Get all users with their daily points
+        // Get all users with their profiles
         List<UserProfile> allProfiles = userProfileRepository.findAll();
         
         for (UserProfile profile : allProfiles) {
             User user = profile.getUser();
             
-            // Calculate daily points
-            Integer dailyPoints = pointHistoryRepository.getPointsByUserSince(user, startOfDay);
-            if (dailyPoints == null) dailyPoints = 0;
-            
-            // Calculate weekly points (from Monday)
-            LocalDate weekStart = today.with(java.time.DayOfWeek.MONDAY);
-            Integer weeklyPoints = pointHistoryRepository.getPointsByUserSince(user, weekStart.atStartOfDay());
-            if (weeklyPoints == null) weeklyPoints = 0;
-            
-            // Calculate monthly points
-            LocalDate monthStart = today.withDayOfMonth(1);
-            Integer monthlyPoints = pointHistoryRepository.getPointsByUserSince(user, monthStart.atStartOfDay());
-            if (monthlyPoints == null) monthlyPoints = 0;
+            // Use TOTAL POINTS from profile instead of calculating daily points
+            Integer totalPoints = profile.getTotalPoints();
             
             // Create or update leaderboard entry
             LeaderboardEntry entry = leaderboardEntryRepository.findByUserAndDate(user, today)
@@ -269,16 +260,16 @@ public class AchievementService {
             
             entry.setUser(user);
             entry.setDate(today);
-            entry.setDailyPoints(dailyPoints);
-            entry.setWeeklyPoints(weeklyPoints);
-            entry.setMonthlyPoints(monthlyPoints);
-            entry.setTotalPoints(profile.getTotalPoints());
+            entry.setDailyPoints(totalPoints); // Store total points in dailyPoints field
+            entry.setWeeklyPoints(totalPoints); // Keep these for compatibility
+            entry.setMonthlyPoints(totalPoints);
+            entry.setTotalPoints(totalPoints);
             
             leaderboardEntryRepository.save(entry);
         }
         
-        // Award leaderboard bonus points
-        awardLeaderboardBonuses(today);
+        // REMOVED: Don't award leaderboard bonuses here to avoid infinite loop
+        // awardLeaderboardBonuses(today);
     }
     
     /**
@@ -293,7 +284,7 @@ public class AchievementService {
     }
     
     /**
-     * Make awardPoints method public so other services can use it
+     * FIXED: Award points WITHOUT triggering leaderboard update to avoid loop
      */
     @Transactional
     public void awardPoints(User user, String activityType, Integer points, String description, Long relatedEntityId) {
@@ -319,16 +310,47 @@ public class AchievementService {
         if (!newBadgeLevel.equals(profile.getCurrentBadgeLevel())) {
             profile.setCurrentBadgeLevel(newBadgeLevel);
             
-            // Award badge level up bonus
-            awardBadgeLevelUpBonus(user, newBadgeLevel);
+            // Award badge level up bonus (but don't trigger leaderboard update here)
+            awardBadgeLevelUpBonusWithoutUpdate(user, newBadgeLevel);
         }
         
         userProfileRepository.save(profile);
+        
+        // Update the user's leaderboard entry immediately (but only for this user)
+        updateUserLeaderboardEntry(user);
+    }
+    
+    /**
+     * NEW: Update only one user's leaderboard entry to avoid full leaderboard recalculation
+     */
+    @Transactional
+    public void updateUserLeaderboardEntry(User user) {
+        LocalDate today = LocalDate.now();
+        UserProfile profile = userProfileRepository.findByUser(user).orElse(null);
+        
+        if (profile != null) {
+            Integer totalPoints = profile.getTotalPoints();
+            
+            LeaderboardEntry entry = leaderboardEntryRepository.findByUserAndDate(user, today)
+                    .orElse(new LeaderboardEntry());
+            
+            entry.setUser(user);
+            entry.setDate(today);
+            entry.setDailyPoints(totalPoints);
+            entry.setWeeklyPoints(totalPoints);
+            entry.setMonthlyPoints(totalPoints);
+            entry.setTotalPoints(totalPoints);
+            
+            leaderboardEntryRepository.save(entry);
+        }
     }
     
     // Private helper methods
     
-    private void awardBadgeLevelUpBonus(User user, String newBadgeLevel) {
+    /**
+     * FIXED: Award badge bonus without triggering leaderboard update
+     */
+    private void awardBadgeLevelUpBonusWithoutUpdate(User user, String newBadgeLevel) {
         int bonusPoints = 0;
         switch (newBadgeLevel) {
             case "APPRENTICE": bonusPoints = 10; break;
@@ -390,6 +412,9 @@ public class AchievementService {
         return threshold != null ? Math.max(0, threshold - currentPoints) : 0;
     }
     
+    /**
+     * FIXED: Daily leaderboard now shows TOTAL POINTS
+     */
     private List<LeaderboardUserDTO> getDailyLeaderboard(LocalDate date, Integer limit) {
         List<LeaderboardEntry> entries = leaderboardEntryRepository.findDailyLeaderboard(date);
         
@@ -400,91 +425,32 @@ public class AchievementService {
         for (int i = 0; i < Math.min(entries.size(), limit); i++) {
             LeaderboardEntry entry = entries.get(i);
             
-            // If points are different from previous, update rank to current position
-            if (previousPoints == null || !previousPoints.equals(entry.getDailyPoints())) {
-                currentRank = i + 1;
-            }
-            // If points are the same, keep the same rank
-            
-            LeaderboardUserDTO dto = new LeaderboardUserDTO();
-            dto.setUserId(entry.getUser().getId());
-            dto.setUsername(entry.getUser().getUsername());
-            dto.setPoints(entry.getDailyPoints());
-            dto.setRank(currentRank);
-            
-            UserProfile profile = userProfileRepository.findByUser(entry.getUser()).orElse(null);
-            dto.setBadgeLevel(profile != null ? profile.getCurrentBadgeLevel() : "NOVICE");
-            
-            result.add(dto);
-            previousPoints = entry.getDailyPoints();
-        }
-        
-        return result;
-    }
-    
-    private List<LeaderboardUserDTO> getWeeklyLeaderboard(LocalDate startDate, LocalDate endDate, Integer limit) {
-        List<LeaderboardEntry> entries = leaderboardEntryRepository.findWeeklyLeaderboard(startDate, endDate);
-        
-        List<LeaderboardUserDTO> result = new ArrayList<>();
-        int currentRank = 1;
-        Integer previousPoints = null;
-        
-        for (int i = 0; i < Math.min(entries.size(), limit); i++) {
-            LeaderboardEntry entry = entries.get(i);
-            
-            // If points are different from previous, update rank to current position
-            if (previousPoints == null || !previousPoints.equals(entry.getWeeklyPoints())) {
+            // Handle ranking with ties
+            if (previousPoints == null || !previousPoints.equals(entry.getTotalPoints())) {
                 currentRank = i + 1;
             }
             
             LeaderboardUserDTO dto = new LeaderboardUserDTO();
             dto.setUserId(entry.getUser().getId());
             dto.setUsername(entry.getUser().getUsername());
-            dto.setPoints(entry.getWeeklyPoints());
+            dto.setPoints(entry.getTotalPoints()); // Use total points instead of daily points
             dto.setRank(currentRank);
+            dto.setIsCurrentUser(false); // Will be set later in main method
             
             UserProfile profile = userProfileRepository.findByUser(entry.getUser()).orElse(null);
             dto.setBadgeLevel(profile != null ? profile.getCurrentBadgeLevel() : "NOVICE");
             
             result.add(dto);
-            previousPoints = entry.getWeeklyPoints();
+            previousPoints = entry.getTotalPoints();
         }
         
         return result;
     }
     
-    private List<LeaderboardUserDTO> getMonthlyLeaderboard(int year, int month, Integer limit) {
-        List<LeaderboardEntry> entries = leaderboardEntryRepository.findMonthlyLeaderboard(year, month);
-        
-        List<LeaderboardUserDTO> result = new ArrayList<>();
-        int currentRank = 1;
-        Integer previousPoints = null;
-        
-        for (int i = 0; i < Math.min(entries.size(), limit); i++) {
-            LeaderboardEntry entry = entries.get(i);
-            
-            // If points are different from previous, update rank to current position
-            if (previousPoints == null || !previousPoints.equals(entry.getMonthlyPoints())) {
-                currentRank = i + 1;
-            }
-            
-            LeaderboardUserDTO dto = new LeaderboardUserDTO();
-            dto.setUserId(entry.getUser().getId());
-            dto.setUsername(entry.getUser().getUsername());
-            dto.setPoints(entry.getMonthlyPoints());
-            dto.setRank(currentRank);
-            
-            UserProfile profile = userProfileRepository.findByUser(entry.getUser()).orElse(null);
-            dto.setBadgeLevel(profile != null ? profile.getCurrentBadgeLevel() : "NOVICE");
-            
-            result.add(dto);
-            previousPoints = entry.getMonthlyPoints();
-        }
-        
-        return result;
-    }
-    
-    private LeaderboardUserDTO getCurrentUserLeaderboardPosition(User user, String period, LocalDate date) {
+    /**
+     * FIXED: Get current user position using total points
+     */
+    private LeaderboardUserDTO getCurrentUserLeaderboardPosition(User user, LocalDate date) {
         LeaderboardEntry entry = leaderboardEntryRepository.findByUserAndDate(user, date).orElse(null);
         if (entry == null) return null;
         
@@ -492,46 +458,15 @@ public class AchievementService {
         dto.setUserId(user.getId());
         dto.setUsername(user.getUsername());
         dto.setIsCurrentUser(true);
+        dto.setPoints(entry.getTotalPoints()); // Use total points
         
         UserProfile profile = userProfileRepository.findByUser(user).orElse(null);
         dto.setBadgeLevel(profile != null ? profile.getCurrentBadgeLevel() : "NOVICE");
         
-        switch (period.toLowerCase()) {
-            case "daily":
-                dto.setPoints(entry.getDailyPoints());
-                dto.setRank(leaderboardEntryRepository.findUserDailyRank(user, date));
-                break;
-            case "weekly":
-                dto.setPoints(entry.getWeeklyPoints());
-                // Calculate weekly rank
-                break;
-            case "monthly":
-                dto.setPoints(entry.getMonthlyPoints());
-                // Calculate monthly rank
-                break;
-        }
+        // Calculate rank based on total points
+        Integer rank = leaderboardEntryRepository.findUserDailyRank(user, date);
+        dto.setRank(rank != null ? rank : 999);
         
         return dto;
-    }
-    
-    private void awardLeaderboardBonuses(LocalDate date) {
-        List<LeaderboardEntry> dailyTop = leaderboardEntryRepository.findDailyLeaderboard(date);
-        
-        // Award bonus points for top performers
-        for (int i = 0; i < Math.min(10, dailyTop.size()); i++) {
-            LeaderboardEntry entry = dailyTop.get(i);
-            int bonusPoints = 0;
-            
-            if (i < 3) {
-                bonusPoints = 20; // Top 3
-            } else {
-                bonusPoints = 10; // Top 10
-            }
-            
-            if (bonusPoints > 0) {
-                awardPoints(entry.getUser(), "LEADERBOARD_BONUS", bonusPoints,
-                        "Daily leaderboard rank " + (i + 1), null);
-            }
-        }
     }
 }

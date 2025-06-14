@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/api/achievements")
-@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:3000"}, 
+@CrossOrigin(origins = {"http://localhost:5173"}, 
             allowCredentials = "true",
             allowedHeaders = {"Authorization", "Content-Type", "Accept"},
             methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.OPTIONS})
@@ -91,7 +91,7 @@ public class AchievementController {
     }
     
     /**
-     * Get leaderboard
+     * Get leaderboard - SIMPLIFIED FOR DAILY ONLY
      */
     @GetMapping("/leaderboard")
     public ResponseEntity<LeaderboardResponse> getLeaderboard(
@@ -135,17 +135,35 @@ public class AchievementController {
     }
     
     /**
-     * Test endpoint to award test points (for development only)
+     * FIXED: Simple test endpoint to award test points
      */
     @PostMapping("/admin/test-points")
     public ResponseEntity<String> awardTestPoints(@AuthenticationPrincipal User user) {
         try {
-            // Award some test points
+            // Get current total points before
+            AchievementProfileResponse profileBefore = achievementService.getAchievementProfile(user);
+            Integer beforePoints = profileBefore.getTotalPoints();
+            
+            // Award test points
             achievementService.awardPoints(user, "TEST", 50, "Test points for development", null);
             achievementService.recordDailyLogin(user); // Also record login
-            achievementService.updateDailyLeaderboard(); // Update leaderboard immediately
-            return ResponseEntity.ok("Awarded 50 test points and updated leaderboard");
+            
+            // Get points after
+            AchievementProfileResponse profileAfter = achievementService.getAchievementProfile(user);
+            Integer afterPoints = profileAfter.getTotalPoints();
+            
+            return ResponseEntity.ok(String.format(
+                "Test completed! User: %s (ID: %d)\n" +
+                "Total Points: %d → %d\n" +
+                "Leaderboard updated automatically\n" +
+                "Frontend should show: %d total points",
+                user.getUsername(), user.getId(),
+                beforePoints, afterPoints,
+                afterPoints
+            ));
+            
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.badRequest().body("Error: " + e.getMessage());
         }
     }
