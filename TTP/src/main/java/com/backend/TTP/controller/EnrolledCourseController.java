@@ -9,12 +9,15 @@ import com.backend.TTP.repository.UserRepository;
 import com.backend.TTP.service.EnrolledCourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import java.security.Principal;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/enrolled-courses")
@@ -22,9 +25,10 @@ public class EnrolledCourseController {
     
     @Autowired
     private EnrolledCourseService enrolledCourseService;
-    
+
     @Autowired
     private UserRepository userRepository;
+
     
     /**
      * Get all enrolled courses for current user
@@ -116,5 +120,21 @@ public class EnrolledCourseController {
         
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+    @GetMapping("/total-hours-this-week")
+    public ResponseEntity<Integer> getTotalHoursThisWeek(Principal principal) {
+        try {
+            Optional<User> userOpt = userRepository.findByUsername(principal.getName());
+            if (!userOpt.isPresent()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
+            
+            User user = userOpt.get();
+            int totalHours = enrolledCourseService.getTotalHoursThisWeek(user);
+            return ResponseEntity.ok(totalHours);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 }

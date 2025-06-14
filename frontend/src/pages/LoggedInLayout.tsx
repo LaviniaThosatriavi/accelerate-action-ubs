@@ -42,7 +42,7 @@ const LoggedInLayout = ({ children }: Props) => {
       {/* Sidebar and Content on the same level */}
       <LayoutContainer>
         <Sidebar isOpen={isSidebarOpen} onToggle={() => setIsSidebarOpen(!isSidebarOpen)} />
-        <ContentWrapper sidebarWidth={sidebarWidth}>{children}</ContentWrapper>
+        <ContentWrapper $sidebarWidth={sidebarWidth}>{children}</ContentWrapper>
       </LayoutContainer>
     </>
   );

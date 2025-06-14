@@ -100,6 +100,45 @@ const StatLabel = styled.div`
   color: #666;
 `;
 
+const WeeklyHoursContainer = styled.div`
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 0rem 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60px;
+  
+  @media (max-width: 768px) {
+    padding: 1rem;
+  }
+`;
+
+const WeeklyHoursContent = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: center;
+  }
+`;
+
+const WeeklyHoursValue = styled.div`
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #4285f4;
+`;
+
+const WeeklyHoursLabel = styled.div`
+  font-size: 1rem;
+  color: #666;
+  font-weight: 500;
+`;
 
 const ProgressContainer = styled.div`
   background-color: #f8f9fa;
@@ -399,6 +438,7 @@ const MiddleSection: React.FC = () => {
     const [filteredCourses, setFilteredCourses] = useState<EnrolledCourse[]>([]);
     const [activeTab, setActiveTab] = useState<string>('ALL');
     const [stats, setStats] = useState<EnrollmentStats | null>(null);
+    const [weeklyHours, setWeeklyHours] = useState<number>(0);
     const [hasAvailableTime, setHasAvailableTime] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string>('');
@@ -436,6 +476,10 @@ const MiddleSection: React.FC = () => {
             const statsResponse = await axios.get('/api/enrolled-courses/stats', { headers });
             setStats(statsResponse.data);
             
+            // fetch total learning hours this week
+            const weeklyHoursResponse = await axios.get('/api/enrolled-courses/total-hours-this-week', { headers });
+            setWeeklyHours(weeklyHoursResponse.data);
+
             // Check if user has available time
             const timeResponse = await axios.get('/api/enrolled-courses/has-available-time', { headers });
             setHasAvailableTime(timeResponse.data);
@@ -566,6 +610,12 @@ const MiddleSection: React.FC = () => {
             </StatCard>
             </StatsContainer>
         )}
+        <WeeklyHoursContainer>
+          <WeeklyHoursContent>
+            <WeeklyHoursValue>{weeklyHours}</WeeklyHoursValue>
+            <WeeklyHoursLabel>Hours of Learning This Week</WeeklyHoursLabel>
+          </WeeklyHoursContent>
+      </WeeklyHoursContainer>
         
         {stats && (
             <ProgressContainer>
