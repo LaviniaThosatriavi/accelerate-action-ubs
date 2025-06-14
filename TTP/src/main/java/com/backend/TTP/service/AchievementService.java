@@ -86,16 +86,17 @@ public class AchievementService {
     }
     
     /**
-     * Record course score and award points
+     * Record course score and award points 
      */
     @Transactional
     public CourseScore recordCourseScore(User user, CourseScoreRequest request) {
+        // Find the enrolled course by ID directly (not by courseId)
         EnrolledCourse enrolledCourse = enrolledCourseRepository.findById(request.getEnrolledCourseId())
                 .orElseThrow(() -> new RuntimeException("Enrolled course not found"));
         
-        // Verify course belongs to user
+        // Verify the enrolled course belongs to this user
         if (!enrolledCourse.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("Not authorized to score this course");
+            throw new RuntimeException("This enrolled course does not belong to the current user");
         }
         
         // Check if course is completed
@@ -103,31 +104,40 @@ public class AchievementService {
             throw new RuntimeException("Course must be completed before scoring");
         }
         
-        // Check if score already exists
-        Optional<CourseScore> existingScore = courseScoreRepository.findByUserAndEnrolledCourse(user, enrolledCourse);
+        // Check if score already exists using enrolledCourse.getCourse().getId()
+        Long courseId = enrolledCourse.getCourse().getId();
+        Optional<CourseScore> existingScore = courseScoreRepository.findByUserAndCourseId(user, courseId);
+        
+        CourseScore courseScore;
         if (existingScore.isPresent()) {
-            throw new RuntimeException("Score already recorded for this course");
+            courseScore = existingScore.get();
+        } else {
+            courseScore = new CourseScore();
+            courseScore.setUser(user);
+            courseScore.setCourseId(courseId);
+            courseScore.setCompletionDate(LocalDateTime.now());
         }
         
-        // Create course score
-        CourseScore courseScore = new CourseScore();
-        courseScore.setUser(user);
-        courseScore.setEnrolledCourse(enrolledCourse);
+        // Set score data
         courseScore.setScore(request.getScore());
-        courseScore.setCompletionDate(request.getCompletionDate());
+        courseScore.setMaxScore(request.getMaxScore());
+        courseScore.setNotes(request.getNotes());
         
-        // Calculate points
-        Integer basePoints = 20; // Base points for completion
-        Integer scoreBonus = calculateScoreBonus(request.getScore());
+        // Calculate points based on percentage
+        Double percentage = (request.getScore().doubleValue() / request.getMaxScore().doubleValue()) * 100;
+        Integer basePoints = 20;
+        Integer scoreBonus = calculateScoreBonus(percentage.intValue());
         Integer totalPoints = basePoints + scoreBonus;
         
         courseScore.setPointsEarned(totalPoints);
         courseScore = courseScoreRepository.save(courseScore);
         
-        // Award points
-        awardPoints(user, "COURSE_COMPLETION", totalPoints, 
-                   "Completed course: " + enrolledCourse.getCourse().getTitle(), 
-                   enrolledCourse.getId());
+        // Award points only for new scores
+        if (!existingScore.isPresent()) {
+            awardPoints(user, "COURSE_COMPLETION", totalPoints, 
+                    "Completed course with score: " + percentage.intValue() + "%", 
+                    enrolledCourse.getId());
+        }
         
         return courseScore;
     }

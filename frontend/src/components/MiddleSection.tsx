@@ -296,6 +296,24 @@ const ActionButton = styled.button`
   }
 `;
 
+const ScoreButton = styled.button`
+  flex: 1;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  background-color: #34a853;
+  color: white;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s;
+  text-align: center;
+  min-width: 0;
+  
+  &:hover {
+    background-color: #2d9249;
+  }
+`;
+
 const OpenLinkButton = styled.a`
   flex: 1;
   padding: 0.5rem 1rem;
@@ -342,7 +360,6 @@ const ModalTitle = styled.h2`
     color: black;
 `;
 
-
 const FormGroup = styled.div`
     margin-bottom: 1rem;
 `;
@@ -361,6 +378,13 @@ const Input = styled.input`
     border-radius: 4px;
     background-color: white;
     color: black;
+`;
+
+const HelpText = styled.div`
+    font-size: 0.75rem;
+    color: #666;
+    margin-top: 0.25rem;
+    font-style: italic;
 `;
 
 const ButtonGroup = styled.div`
@@ -402,6 +426,22 @@ const EmptyState = styled.div`
     color: #666;
 `;
 
+const ScoreDisplay = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+`;
+
+const ScoreBadge = styled.span`
+  background-color: #e6f4ea;
+  color: #34a853;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 500;
+`;
+
 interface EnrolledCourse {
     id: number;
     courseId: number;
@@ -433,6 +473,23 @@ interface ProgressUpdateData {
     additionalHoursSpent: number;
 }
 
+interface CourseScore {
+    id: number;
+    score: number;
+    percentage: number;
+    completionDate: string;
+    pointsEarned: number;
+    enrolledCourse: {
+        id: number;
+    };
+}
+
+interface CourseScoreRequest {
+    enrolledCourseId: number; 
+    score: number;
+    completionDate?: string;   // Changed from maxScore and notes
+}
+
 const MiddleSection: React.FC = () => {
     const [enrolledCourses, setEnrolledCourses] = useState<EnrolledCourse[]>([]);
     const [filteredCourses, setFilteredCourses] = useState<EnrolledCourse[]>([]);
@@ -443,11 +500,18 @@ const MiddleSection: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string>('');
     const [showProgressModal, setShowProgressModal] = useState<boolean>(false);
+    const [showScoreModal, setShowScoreModal] = useState<boolean>(false);
     const [, setSelectedCourseId] = useState<number | null>(null);
+    const [courseScores, setCourseScores] = useState<Map<number, CourseScore>>(new Map());
     const [progressData, setProgressData] = useState<ProgressUpdateData>({
         enrolledCourseId: 0,
         progressPercentage: 0,
         additionalHoursSpent: 0
+    });
+    const [scoreData, setScoreData] = useState<CourseScoreRequest>({
+        enrolledCourseId: 0,     // Changed from courseId
+        score: 0,
+        completionDate: new Date().toISOString()  // Changed from maxScore and notes
     });
 
     // Fetch all data on component mount
@@ -483,6 +547,16 @@ const MiddleSection: React.FC = () => {
             // Check if user has available time
             const timeResponse = await axios.get('/api/enrolled-courses/has-available-time', { headers });
             setHasAvailableTime(timeResponse.data);
+
+            // Fetch course scores for completed courses - using enrolled course IDs
+            const scoresResponse = await axios.get('/api/course-scores/user-scores', { headers });
+            const scoresMap = new Map<number, CourseScore>();
+            scoresResponse.data.forEach((score: CourseScore) => {
+                if (score.enrolledCourse && score.enrolledCourse.id) {
+                    scoresMap.set(score.enrolledCourse.id, score);
+                }
+            });
+            setCourseScores(scoresMap);
             
         } catch (err) {
             console.error('Error fetching data:', err);
@@ -523,6 +597,15 @@ const MiddleSection: React.FC = () => {
         }
     };
 
+    const handleEnterScore = (course: EnrolledCourse) => {
+        setScoreData({
+            enrolledCourseId: course.id,  // Use enrolled course ID
+            score: 0,
+            completionDate: new Date().toISOString()
+        });
+        setShowScoreModal(true);
+    };
+
     const handleProgressInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setProgressData({
@@ -530,6 +613,14 @@ const MiddleSection: React.FC = () => {
         [name]: name === 'progressPercentage' 
             ? Math.min(100, Math.max(0, parseInt(value)))
             : parseInt(value)
+        });
+    };
+
+    const handleScoreInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setScoreData({
+            ...scoreData,
+            [name]: name === 'score' ? Math.max(0, parseInt(value) || 0) : value
         });
     };
 
@@ -570,6 +661,43 @@ const MiddleSection: React.FC = () => {
         } catch (err) {
         console.error('Error updating progress:', err);
         alert('Failed to update course progress. Please try again.');
+        }
+    };
+
+    const handleScoreSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            const token = localStorage.getItem('token');
+            
+            // Log the data being sent for debugging
+            console.log('Sending score data:', scoreData);
+            
+            const response = await axios.post('/api/course-scores', scoreData, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            // Update the course scores map - use enrolled course ID as key
+            const newScore = response.data;
+            setCourseScores(prev => new Map(prev.set(scoreData.enrolledCourseId, newScore)));
+
+            // Close modal
+            setShowScoreModal(false);
+            
+        } catch (err) {
+            console.error('Error recording course score:', err);
+            
+            // Type-safe error handling
+            if (axios.isAxiosError(err)) {
+                console.error('Error response:', err.response?.data);
+                const errorMessage = err.response?.data?.message || err.message || 'Failed to record course score';
+                alert(`Error: ${errorMessage}. Please try again.`);
+            } else {
+                console.error('Unknown error:', err);
+                alert('An unexpected error occurred. Please try again.');
+            }
         }
     };
 
@@ -665,7 +793,9 @@ const MiddleSection: React.FC = () => {
             </EmptyState>
         ) : (
             <CourseContainer>
-            {filteredCourses.map(course => (
+            {filteredCourses.map(course => {
+                const courseScore = courseScores.get(course.id); // Use enrolled course ID
+                return (
                 <CourseCard key={course.id}>
                 <CourseHeader>
                     <CourseTitle>{course.courseTitle}</CourseTitle>
@@ -702,15 +832,28 @@ const MiddleSection: React.FC = () => {
                     <ProgressBar>
                     <ProgressFill percentage={course.progressPercentage} />
                     </ProgressBar>
+                    {courseScore && (
+                        <ScoreDisplay>
+                            <DetailLabel>Final Score:</DetailLabel>
+                            <ScoreBadge>
+                                {courseScore.score}/100 ({courseScore.percentage}%)
+                            </ScoreBadge>
+                        </ScoreDisplay>
+                    )}
                 </CourseProgress>
                 
                 <CourseActions>
-                    <ActionButton 
-                    onClick={() => handleUpdateProgress(course.id)}
-                    disabled={course.status === 'COMPLETED'}
-                    >
-                    Update Progress
-                    </ActionButton>
+                    {course.status === 'COMPLETED' ? (
+                        <ScoreButton onClick={() => handleEnterScore(course)}>
+                            {courseScore ? 'Update Score' : 'Enter Score'}
+                        </ScoreButton>
+                    ) : (
+                        <ActionButton 
+                            onClick={() => handleUpdateProgress(course.id)}
+                        >
+                            Update Progress
+                        </ActionButton>
+                    )}
                     <OpenLinkButton 
                     href={course.url} 
                     target="_blank" 
@@ -720,7 +863,8 @@ const MiddleSection: React.FC = () => {
                     </OpenLinkButton>
                 </CourseActions>
                 </CourseCard>
-            ))}
+                );
+            })}
             </CourseContainer>
         )}
         
@@ -762,6 +906,41 @@ const MiddleSection: React.FC = () => {
                     </CancelButton>
                     <SubmitButton type="submit">
                     Update
+                    </SubmitButton>
+                </ButtonGroup>
+                </form>
+            </ModalContent>
+            </Modal>
+        )}
+
+        {showScoreModal && (
+            <Modal>
+            <ModalContent>
+                <ModalTitle>Enter Course Score</ModalTitle>
+                <form onSubmit={handleScoreSubmit}>
+                <FormGroup>
+                    <Label htmlFor="score">Your Score (out of 100)</Label>
+                    <Input
+                    type="number"
+                    id="score"
+                    name="score"
+                    min="0"
+                    max="100"
+                    value={scoreData.score}
+                    onChange={handleScoreInputChange}
+                    required
+                    />
+                    <HelpText>
+                        Please convert your score to out of 100 (e.g., 85/100 = 85, 17/20 = 85)
+                    </HelpText>
+                </FormGroup>
+                
+                <ButtonGroup>
+                    <CancelButton type="button" onClick={() => setShowScoreModal(false)}>
+                    Cancel
+                    </CancelButton>
+                    <SubmitButton type="submit">
+                    Save Score
                     </SubmitButton>
                 </ButtonGroup>
                 </form>

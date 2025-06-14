@@ -4,6 +4,8 @@ import com.backend.TTP.model.Course;
 import com.backend.TTP.model.EnrolledCourse;
 import com.backend.TTP.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.util.List;
@@ -16,4 +18,7 @@ public interface EnrolledCourseRepository extends JpaRepository<EnrolledCourse, 
     Optional<EnrolledCourse> findByUserAndCourse(User user, Course course);
     List<EnrolledCourse> findByUserAndTargetCompletionDateBetween(User user, LocalDate startDate, LocalDate endDate);
     Long countByUserAndStatus(User user, String status);
+    
+    @Query("SELECT ec FROM EnrolledCourse ec WHERE ec.user = :user AND ec.course.id = :courseId")
+    Optional<EnrolledCourse> findByUserAndCourseId(@Param("user") User user, @Param("courseId") Long courseId);
 }

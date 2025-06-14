@@ -45,6 +45,8 @@ public class CourseScoreController {
             }
             
             logger.info("Recording course score for user: {}", user.getUsername());
+            logger.info("Request data: {}", request); // Add this log
+            
             CourseScore courseScore = achievementService.recordCourseScore(user, request);
             logger.info("Course score recorded successfully for user: {}", user.getUsername());
             

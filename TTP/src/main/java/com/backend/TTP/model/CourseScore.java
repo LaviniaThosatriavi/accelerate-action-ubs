@@ -16,12 +16,28 @@ public class CourseScore {
     private Long id;
     
     @ManyToOne
+    @JoinColumn(name = "user_id")
     private User user;
     
+    @Column(name = "course_id")
+    private Long courseId;
+    
     @ManyToOne
+    @JoinColumn(name = "enrolled_course_id")
     private EnrolledCourse enrolledCourse;
     
-    private Integer score; // 0-100
+    private Integer score;
+    private Integer maxScore;
+    private Double percentage;
     private LocalDateTime completionDate;
+    private String notes;
     private Integer pointsEarned;
+    
+    @PrePersist
+    @PreUpdate
+    private void calculatePercentage() {
+        if (score != null && maxScore != null && maxScore > 0) {
+            this.percentage = (score.doubleValue() / maxScore.doubleValue()) * 100;
+        }
+    }
 }
