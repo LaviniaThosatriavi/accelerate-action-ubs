@@ -17,11 +17,11 @@ const LayoutContainer = styled.div`
   bottom: 0;
 `;
 
-const ContentWrapper = styled.div<{ sidebarWidth: number }>`
-  flex: 1; /* Take up remaining space */
-  width: calc(100% - ${(props) => props.sidebarWidth}px); /* Adjust width dynamically */
-  transition: width 0.3s ease; /* Smooth transition when sidebar opens/closes */
-  overflow-y: auto; /* Allow scrolling if content overflows */
+const ContentWrapper = styled.div<{ $sidebarWidth: number }>`
+  flex: 1;
+  width: calc(100% - ${(props) => props.$sidebarWidth}px);
+  transition: width 0.3s ease;
+  overflow-y: auto;
 `;
 
 interface Props {

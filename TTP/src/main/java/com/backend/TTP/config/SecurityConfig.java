@@ -45,7 +45,9 @@ public class SecurityConfig {
                     "/v3/api-docs/**",
                     "/swagger-ui/**",
                     "/api/news/**",
-                    "/error/**"  
+                    "/error/**",
+                    "/api/achievements/badges",
+                    "/api/achievements/admin/update-leaderboard"
                 ).permitAll()
                 .anyRequest().authenticated()
             )

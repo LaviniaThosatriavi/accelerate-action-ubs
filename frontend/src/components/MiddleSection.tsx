@@ -100,6 +100,7 @@ const StatLabel = styled.div`
   color: #666;
 `;
 
+
 const ProgressContainer = styled.div`
   background-color: #f8f9fa;
   border-radius: 8px;

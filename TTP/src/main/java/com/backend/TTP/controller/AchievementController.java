@@ -12,7 +12,10 @@ import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/api/achievements")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:3000"}, 
+            allowCredentials = "true",
+            allowedHeaders = {"Authorization", "Content-Type", "Accept"},
+            methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.OPTIONS})
 public class AchievementController {
     
     @Autowired
@@ -128,6 +131,22 @@ public class AchievementController {
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
+        }
+    }
+    
+    /**
+     * Test endpoint to award test points (for development only)
+     */
+    @PostMapping("/admin/test-points")
+    public ResponseEntity<String> awardTestPoints(@AuthenticationPrincipal User user) {
+        try {
+            // Award some test points
+            achievementService.awardPoints(user, "TEST", 50, "Test points for development", null);
+            achievementService.recordDailyLogin(user); // Also record login
+            achievementService.updateDailyLeaderboard(); // Update leaderboard immediately
+            return ResponseEntity.ok("Awarded 50 test points and updated leaderboard");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
         }
     }
     
