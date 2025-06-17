@@ -1,3 +1,4 @@
+// MiddleSection.tsx
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import type {
@@ -164,6 +165,12 @@ const MiddleSection: React.FC = () => {
     };
 
     const handleEnterScore = (course: EnrolledCourse) => {
+        // Only allow if score doesn't exist
+        const courseScore = courseScores.get(course.id);
+        if (courseScore) {
+            return; // Do nothing if score already exists
+        }
+        
         setScoreData({
             enrolledCourseId: course.id, 
             score: 0,
@@ -414,8 +421,11 @@ const MiddleSection: React.FC = () => {
                                 
                                 <CourseActions>
                                     {course.status === 'COMPLETED' ? (
-                                        <ScoreButton onClick={() => handleEnterScore(course)}>
-                                            {courseScore ? 'Update Score' : 'Enter Score'}
+                                        <ScoreButton 
+                                            onClick={() => handleEnterScore(course)}
+                                            disabled={!!courseScore}
+                                        >
+                                            {courseScore ? 'Score Entered' : 'Enter Score'}
                                         </ScoreButton>
                                     ) : (
                                         <ActionButton onClick={() => handleUpdateProgress(course.id)}>
@@ -519,4 +529,4 @@ const MiddleSection: React.FC = () => {
     );
 };
 
-export default MiddleSection;// MiddleSection.tsx
+export default MiddleSection;

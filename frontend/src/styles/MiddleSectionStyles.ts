@@ -310,6 +310,16 @@ export const ScoreButton = styled.button`
   &:hover {
     background-color: #2d9249;
   }
+  
+  &:disabled {
+    background-color: #dadce0;
+    color: #666;
+    cursor: not-allowed;
+    
+    &:hover {
+      background-color: #dadce0;
+    }
+  }
 `;
 
 export const OpenLinkButton = styled.a`

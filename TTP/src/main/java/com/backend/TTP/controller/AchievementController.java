@@ -91,7 +91,7 @@ public class AchievementController {
     }
     
     /**
-     * Get leaderboard - SIMPLIFIED FOR DAILY ONLY
+     * Get leaderboard 
      */
     @GetMapping("/leaderboard")
     public ResponseEntity<LeaderboardResponse> getLeaderboard(
