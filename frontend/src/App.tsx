@@ -6,6 +6,7 @@ import HomePage from './pages/HomePage'
 import CoursePlannerPage from './pages/CoursePlannerPage'
 import ToDoPage from './pages/ToDoPage'
 import AchievementsPage from './pages/AchievementsPage'
+import ReportPage from './pages/ReportPage'
 
 const App = () => {
   return (
@@ -18,6 +19,7 @@ const App = () => {
       <Route path="/course-planner" element={<CoursePlannerPage />} />
       <Route path="/todos" element={<ToDoPage />} />
       <Route path="/achievements" element={<AchievementsPage />} />
+      <Route path="/report" element={<ReportPage />} />
       </Routes></BrowserRouter>
   )
 }

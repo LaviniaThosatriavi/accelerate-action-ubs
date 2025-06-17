@@ -1,4 +1,3 @@
-// Achievements.tsx
 import React, { useState, useEffect } from 'react';
 import { 
   FaTrophy, 
@@ -8,7 +7,7 @@ import {
   FaLock, 
   FaUnlock, 
   FaFire, 
-  FaBook, 
+  FaBook,  
   FaChartLine,
   FaTimes,
   FaGraduationCap
