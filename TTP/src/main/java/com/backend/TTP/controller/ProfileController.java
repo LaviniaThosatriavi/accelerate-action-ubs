@@ -4,17 +4,24 @@ import com.backend.TTP.dto.ProfileRequest;
 import com.backend.TTP.dto.ProfileResponse;
 import com.backend.TTP.model.User;
 import com.backend.TTP.service.ProfileService;
-
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/profiles")
@@ -22,15 +29,27 @@ import org.slf4j.LoggerFactory;
 @CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true",
         allowedHeaders = {"Authorization", "Content-Type"},
         methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.OPTIONS})
+@Tag(name = "User Profile Management", description = "Operations for managing user profiles, career stages, skills, and learning preferences")
+@SecurityRequirement(name = "bearerAuth")
 public class ProfileController {
 
     private static final Logger logger = LoggerFactory.getLogger(ProfileController.class);
     private final ProfileService profileService;
 
     @PostMapping
+    @Operation(summary = "Create user profile", 
+               description = "Create a new user profile with career stage, skills, goals, and learning preferences. Missing fields will be set to default values.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Profile created successfully",
+                    content = @Content(schema = @Schema(implementation = ProfileResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request - invalid profile data or missing required fields"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - user not authenticated"),
+            @ApiResponse(responseCode = "500", description = "Internal server error - failed to create profile")
+    })
     public ResponseEntity<ProfileResponse> createProfile(
-            @RequestBody ProfileRequest request,
-            @AuthenticationPrincipal User user) {
+            @Parameter(description = "Profile creation data", required = true)
+            @Valid @RequestBody ProfileRequest request,
+            @Parameter(hidden = true) @AuthenticationPrincipal User user) {
         try {
             if (user == null) {
                 logger.error("Authentication principal is null");
@@ -93,8 +112,17 @@ public class ProfileController {
     }
 
     @GetMapping
+    @Operation(summary = "Get user profile", 
+               description = "Retrieve the authenticated user's profile information including career stage, skills, goals, and preferences")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Profile retrieved successfully",
+                    content = @Content(schema = @Schema(implementation = ProfileResponse.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - user not authenticated"),
+            @ApiResponse(responseCode = "404", description = "Profile not found for the authenticated user"),
+            @ApiResponse(responseCode = "500", description = "Internal server error - failed to retrieve profile")
+    })
     public ResponseEntity<ProfileResponse> getProfile(
-            @AuthenticationPrincipal User user) {
+            @Parameter(hidden = true) @AuthenticationPrincipal User user) {
         try {
             if (user == null) {
                 logger.error("Authentication principal is null");
@@ -131,9 +159,19 @@ public class ProfileController {
     }
 
     @PutMapping
+    @Operation(summary = "Update user profile", 
+               description = "Update the authenticated user's profile information. Missing fields will be set to default values.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Profile updated successfully",
+                    content = @Content(schema = @Schema(implementation = ProfileResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request - invalid profile data"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - user not authenticated"),
+            @ApiResponse(responseCode = "500", description = "Internal server error - failed to update profile")
+    })
     public ResponseEntity<ProfileResponse> updateProfile(
-            @RequestBody ProfileRequest request,
-            @AuthenticationPrincipal User user) {
+            @Parameter(description = "Profile update data", required = true)
+            @Valid @RequestBody ProfileRequest request,
+            @Parameter(hidden = true) @AuthenticationPrincipal User user) {
         try {
             if (user == null) {
                 logger.error("Authentication principal is null");
@@ -180,6 +218,7 @@ public class ProfileController {
 
     // Handle OPTIONS preflight requests
     @RequestMapping(method = RequestMethod.OPTIONS)
+    @Operation(hidden = true)
     public ResponseEntity<?> handleOptions() {
         return ResponseEntity.ok().build();
     }

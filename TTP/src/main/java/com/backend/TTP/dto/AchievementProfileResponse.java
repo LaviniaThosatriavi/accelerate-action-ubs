@@ -1,5 +1,6 @@
 package com.backend.TTP.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
@@ -7,15 +8,36 @@ import lombok.AllArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Schema(description = "User achievement profile response containing points, badges, and progress information")
 public class AchievementProfileResponse {
+    
+    @Schema(description = "Unique user identifier", example = "1", accessMode = Schema.AccessMode.READ_ONLY)
     private Long userId;
+    
+    @Schema(description = "Username of the user", example = "john_doe", accessMode = Schema.AccessMode.READ_ONLY)
     private String username;
+    
+    @Schema(description = "Total points earned by the user", example = "1250", minimum = "0")
     private Integer totalPoints;
+    
+    @Schema(description = "Current badge level of the user", example = "BRONZE", 
+            allowableValues = {"BEGINNER", "BRONZE", "SILVER", "GOLD", "PLATINUM", "DIAMOND"})
     private String currentBadgeLevel;
+    
+    @Schema(description = "Points needed to reach the next badge level", example = "250", minimum = "0")
     private Integer pointsToNextLevel;
+    
+    @Schema(description = "Next badge level the user can achieve", example = "SILVER",
+            allowableValues = {"BRONZE", "SILVER", "GOLD", "PLATINUM", "DIAMOND", "MASTER"})
     private String nextBadgeLevel;
+    
+    @Schema(description = "Current login streak in days", example = "7", minimum = "0")
     private Integer loginStreak;
+    
+    @Schema(description = "Number of courses completed by the user", example = "5", minimum = "0")
     private Integer completedCourses;
+    
+    @Schema(description = "Average score across all completed courses", example = "85.5", minimum = "0", maximum = "100")
     private Double averageScore;
     
     public Long getUserId() {

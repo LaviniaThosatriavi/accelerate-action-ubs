@@ -1,5 +1,6 @@
 package com.backend.TTP.config;
 
+import com.backend.TTP.config.JwtAuthenticationFilter;
 import com.backend.TTP.service.CustomUserDetailsServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -39,22 +40,48 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .formLogin(login -> login.disable())
             .authorizeHttpRequests(auth -> auth
+                // Public endpoints (no authentication required)
                 .requestMatchers(
+                    // H2 Console
                     "/h2-console/**",
+                    // Authentication endpoints
                     "/api/auth/**",
-                    "/v3/api-docs/**",
+                    // debug endpoint
+                    "/api/debug/**",
+                    // Swagger/OpenAPI endpoints - CRITICAL PATHS
                     "/swagger-ui/**",
+                    "/swagger-ui.html",
+                    "/v3/api-docs/**",
+                    "/v3/api-docs",
+                    "/swagger-resources/**",
+                    "/swagger-resources",
+                    "/webjars/**",
+                    "/configuration/ui",
+                    "/configuration/security",
+                    // Favicon and static resources
+                    "/favicon.ico",
+                    "/static/**",
+                    "/css/**",
+                    "/js/**",
+                    "/images/**",
+                    // News endpoints (public)
                     "/api/news/**",
+                    // Error pages
                     "/error/**",
+                    "/error",
+                    // Public achievement endpoints
                     "/api/achievements/badges",
                     "/api/achievements/admin/update-leaderboard"
                 ).permitAll()
+                // All other endpoints require authentication
                 .anyRequest().authenticated()
             )
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
+            // Add JWT filter before username/password authentication
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+            // Disable frame options for H2 console
             .headers(headers -> headers.frameOptions(frameOptionsConfig -> frameOptionsConfig.disable()));
         
         return http.build();
@@ -63,10 +90,11 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOriginPatterns(List.of("http://localhost:5173")); // Use patterns instead of origins
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With", "Accept"));
-        config.setExposedHeaders(List.of("Authorization"));
+        // Allow your frontend origin
+        config.setAllowedOriginPatterns(List.of("http://localhost:5173", "http://localhost:3000")); 
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        config.setAllowedHeaders(List.of("*")); // Allow all headers
+        config.setExposedHeaders(List.of("Authorization", "Content-Type"));
         config.setAllowCredentials(true);
         config.setMaxAge(3600L);
 
