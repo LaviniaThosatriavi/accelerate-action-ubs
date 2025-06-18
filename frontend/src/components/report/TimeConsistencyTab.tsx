@@ -81,18 +81,16 @@ const TimeConsistencyTab: React.FC<TimeConsistencyTabProps> = ({
 
   return (
     <>
-      {/* Time Management Tab */}
       {activeTab === 2 && (
         <CardContent sx={{ padding: '32px' }}>
           <SectionTitle>
             <FiClock size={24} color={colors.primary} />
             Time Management Analysis
           </SectionTitle>
-          <Typography variant="body1" color="text.secondary" sx={{ marginBottom: 4 }}>
+          <Typography textAlign="left" variant="body1" color="text.secondary" sx={{ marginBottom: 4 }}>
             {timeManagement?.summary}
           </Typography>
 
-          {/* Time Analysis Chart */}
           <ChartContainer>
             <Typography variant="h6" fontWeight="bold" sx={{ marginBottom: 2 }}>
               Weekly Hours Comparison
@@ -109,15 +107,14 @@ const TimeConsistencyTab: React.FC<TimeConsistencyTabProps> = ({
             </ResponsiveContainer>
           </ChartContainer>
 
-          {/* Time Metrics */}
           <StatsGrid>
             <MetricCard gradient={`linear-gradient(135deg, ${colors.primary}, ${colors.secondary})`}>
               <CardContent sx={{ textAlign: 'center' }}>
-                <IoMdTimer size={48} color="white" style={{ marginBottom: '16px' }} />
-                <Typography variant="h3" fontWeight="bold" color="white">
+                <IoMdTimer size={38} color="black" />
+                <Typography variant="h5" fontWeight="bold" sx={{ marginTop: 0.4 }}>
                   {timeManagement?.timeAnalysis.timeUtilizationRate}%
                 </Typography>
-                <Typography variant="body1" color="rgba(255,255,255,0.9)">
+                <Typography variant="caption" color="text.secondary">
                   Utilization Rate
                 </Typography>
               </CardContent>
@@ -160,7 +157,6 @@ const TimeConsistencyTab: React.FC<TimeConsistencyTabProps> = ({
             </MetricCard>
           </StatsGrid>
 
-          {/* Time Insights and Tips */}
           <Grid container spacing={3}>
             <Grid size={{ xs: 12, md: 6 }}>
               <SectionTitle>Time Insights</SectionTitle>
@@ -195,16 +191,23 @@ const TimeConsistencyTab: React.FC<TimeConsistencyTabProps> = ({
             </Grid>
           </Grid>
 
-          {/* Deadline Status */}
           <Box sx={{ marginTop: 4 }}>
             <Alert 
               severity={timeManagement?.timeAnalysis.hasOverdueDeadlines ? "warning" : "success"}
-              sx={{ borderRadius: '12px' }}
+              icon={false}
+              sx={{ 
+                borderRadius: '12px',
+                '& .MuiAlert-message': {
+                  width: '100%',
+                  textAlign: 'center',
+                  padding: 0
+                }
+              }}
             >
-              <Typography variant="subtitle1" fontWeight="bold">
+              <Typography variant="subtitle1" fontWeight="bold" sx={{ width: '100%', textAlign: 'center' }}>
                 Deadline Status
               </Typography>
-              <Typography variant="body2">
+              <Typography variant="body2" sx={{ width: '100%', textAlign: 'center' }}>              
                 {timeManagement?.timeAnalysis.hasOverdueDeadlines 
                   ? "You have overdue deadlines. Consider prioritizing urgent tasks."
                   : "Great! You're on track with all your deadlines."
@@ -222,11 +225,10 @@ const TimeConsistencyTab: React.FC<TimeConsistencyTabProps> = ({
             <FiActivity size={24} color={colors.primary} />
             Consistency Analysis
           </SectionTitle>
-          <Typography variant="body1" color="text.secondary" sx={{ marginBottom: 4 }}>
+          <Typography textAlign="left" variant="body1" color="text.secondary" sx={{ marginBottom: 4 }}>
             {consistency?.summary}
           </Typography>
 
-          {/* Consistency Trend Chart */}
           <ChartContainer>
             <Typography variant="h6" fontWeight="bold" sx={{ marginBottom: 2 }}>
               Consistency Trend Over Time
@@ -246,59 +248,70 @@ const TimeConsistencyTab: React.FC<TimeConsistencyTabProps> = ({
 
           {/* Consistency Metrics */}
           <StatsGrid>
-            <MetricCard gradient={`linear-gradient(135deg, ${colors.warning}, #d97706)`}>
-              <CardContent sx={{ textAlign: 'center' }}>
-                <IoMdFlame size={48} color="white" style={{ marginBottom: '16px' }} />
-                <Typography variant="h3" fontWeight="bold" color="white">
-                  {consistency?.metrics.currentLoginStreak}
-                </Typography>
-                <Typography variant="body1" color="rgba(255,255,255,0.9)" sx={{ marginBottom: 1 }}>
-                  Current Streak
-                </Typography>
-                <Typography variant="caption" color="rgba(255,255,255,0.7)">
-                  Best: {consistency?.metrics.longestLoginStreak} days
-                </Typography>
+            <MetricCard alignItems gradient={`linear-gradient(135deg, ${colors.warning}, #d97706)`}>
+              <CardContent sx={{ padding: '16px !important' }}>
+                <Box display="flex" alignItems="center" gap={2}>
+                  <IoMdFlame size={48} color="red" />
+                  <Box display="flex" flexDirection="column" alignItems="flex-start">
+                    <Typography variant="h3" fontWeight="bold" color="red" lineHeight={1}>
+                      {consistency?.metrics.currentLoginStreak}
+                    </Typography>
+                    <Typography variant="body1" color="red" sx={{ marginBottom: 0.5 }}>
+                      Current Streak
+                    </Typography>
+                    <Typography variant="caption" color="red">
+                      Best: {consistency?.metrics.longestLoginStreak} days
+                    </Typography>
+                  </Box>
+                </Box>
               </CardContent>
             </MetricCard>
 
-            <MetricCard>
-              <CardContent sx={{ textAlign: 'center' }}>
-                <FiTarget size={48} color={colors.success} style={{ marginBottom: '16px' }} />
-                <Typography variant="h3" fontWeight="bold" color={colors.success}>
-                  {consistency?.metrics.goalCompletionRate}%
-                </Typography>
-                <Typography variant="body1" color="text.secondary" sx={{ marginBottom: 1 }}>
-                  Goal Completion
-                </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  {consistency?.metrics.goalsCompletedThisWeek}/{consistency?.metrics.totalGoalsThisWeek} this week
-                </Typography>
+            <MetricCard alignItems>
+              <CardContent sx={{ padding: '16px !important' }}>
+                <Box display="flex" alignItems="center" gap={2}>
+                  <FiTarget size={48} color={colors.success} />
+                  <Box display="flex" flexDirection="column" alignItems="flex-start">
+                    <Typography variant="h3" fontWeight="bold" color={colors.success} lineHeight={1}>
+                      {consistency?.metrics.goalCompletionRate}%
+                    </Typography>
+                    <Typography variant="body1" color={colors.success} sx={{ marginBottom: 0.5 }}>
+                      Goal Completion
+                    </Typography>
+                    <Typography variant="caption" color={colors.success}>
+                      {consistency?.metrics.goalsCompletedThisWeek}/{consistency?.metrics.totalGoalsThisWeek} this week
+                    </Typography>
+                  </Box>
+                </Box>
               </CardContent>
             </MetricCard>
 
-            <MetricCard gradient={`linear-gradient(135deg, ${colors.info}, #1d4ed8)`}>
-              <CardContent sx={{ textAlign: 'center' }}>
-                <FiCalendar size={48} color="white" style={{ marginBottom: '16px' }} />
-                <Typography variant="h3" fontWeight="bold" color="white">
-                  {consistency?.metrics.averageStudySessionsPerWeek}
-                </Typography>
-                <Typography variant="body1" color="rgba(255,255,255,0.9)">
-                  Sessions/Week
-                </Typography>
-                <Chip 
-                  label={consistency?.metrics.consistencyLevel}
-                  sx={{ 
-                    marginTop: 2,
-                    background: 'rgba(255,255,255,0.2)', 
-                    color: 'white',
-                    fontWeight: 'bold'
-                  }}
-                />
+            <MetricCard alignItems gradient={`linear-gradient(135deg, ${colors.info}, #1d4ed8)`}>
+              <CardContent sx={{ padding: '16px !important' }}>
+                <Box display="flex" alignItems="center" gap={2}>
+                  <FiCalendar size={48} color="blue" />
+                  <Box display="flex" flexDirection="column" alignItems="flex-start">
+                    <Typography variant="h3" fontWeight="bold" color="blue" lineHeight={1}>
+                      {consistency?.metrics.averageStudySessionsPerWeek}
+                    </Typography>
+                    <Typography variant="body1" color="blue" sx={{ marginBottom: 1 }}>
+                      Sessions/Week
+                    </Typography>
+                    <Chip 
+                      label={consistency?.metrics.consistencyLevel}
+                      size="small"
+                      sx={{ 
+                        background: 'rgba(255,255,255,0.2)', 
+                        color: 'blue',
+                        fontWeight: 'bold'
+                      }}
+                    />
+                  </Box>
+                </Box>
               </CardContent>
             </MetricCard>
           </StatsGrid>
 
-          {/* Insights and Suggestions */}
           <Grid container spacing={3}>
             <Grid size={{ xs: 12, md: 6 }}>
               <SectionTitle>Consistency Insights</SectionTitle>

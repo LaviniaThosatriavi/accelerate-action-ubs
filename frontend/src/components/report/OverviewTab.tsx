@@ -94,19 +94,17 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
 
   return (
     <>
-      {/* Overview Tab */}
       {activeTab === 0 && (
         <CardContent sx={{ padding: '32px' }}>
           <SectionTitle>
             <IoBarChartSharp size={24} color={colors.primary} />
             Learning Overview
           </SectionTitle>
-          <Typography variant="body1" color="text.secondary" sx={{ marginBottom: 4 }}>
+          <Typography textAlign="left" variant="body1" color="text.secondary" sx={{ marginBottom: 4 }}>
             {overviewData?.summary}
           </Typography>
 
           <Grid container spacing={4}>
-            {/* Course Completion Chart */}
             <Grid size={{ xs: 12, md: 6 }}>
               <ChartContainer>
                 <Typography variant="h6" fontWeight="bold" sx={{ marginBottom: 2 }}>
@@ -134,7 +132,6 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
               </ChartContainer>
             </Grid>
 
-            {/* Performance Metrics */}
             <Grid size={{ xs: 12, md: 6 }}>
               <ChartContainer>
                 <Typography variant="h6" fontWeight="bold" sx={{ marginBottom: 2 }}>
@@ -155,7 +152,6 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
             </Grid>
           </Grid>
 
-          {/* Progress Bars */}
           <SectionContainer>
             <SectionTitle>Progress Tracking</SectionTitle>
             <Grid container spacing={3}>
@@ -251,14 +247,13 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
         </CardContent>
       )}
 
-      {/* Skills Analysis Tab */}
       {activeTab === 1 && (
         <CardContent sx={{ padding: '32px' }}>
           <SectionTitle>
             <LuBrainCircuit size={24} color={colors.primary} />
             Skills Analysis
           </SectionTitle>
-          <Typography variant="body1" color="text.secondary" sx={{ marginBottom: 4 }}>
+          <Typography textAlign="left" variant="body1" color="text.secondary" sx={{ marginBottom: 4 }}>
             {skillAnalysis?.summary}
           </Typography>
 
@@ -351,10 +346,10 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                         sx={{ background: colors.success, color: 'white' }}
                       />
                     </Box>
-                    <Typography variant="body2" color="text.secondary" sx={{ marginBottom: 1 }}>
+                    <Typography textAlign="left" variant="body2" color="text.secondary" sx={{ marginBottom: 1 }}>
                       {skill.reason}
                     </Typography>
-                    <Typography variant="caption" color="text.secondary">
+                    <Typography textAlign="left" variant="caption" color="text.secondary" >
                       {skill.coursesCompleted} courses completed
                     </Typography>
                   </CardContent>
@@ -372,13 +367,13 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                   <CardContent>
                     <Box display="flex" alignItems="center" gap={2} sx={{ marginBottom: 2 }}>
                       <FiAlertCircle size={24} color={colors.warning} />
-                      <Typography variant="h6" fontWeight="bold">
+                      <Typography variant="h6" fontWeight="bold" color="black">
                         {skill.skill}
                       </Typography>
                       <Chip 
                         label={`${skill.averageScore}%`} 
                         size="small" 
-                        sx={{ background: colors.warning, color: 'white' }}
+                        sx={{ background: colors.warning, color: 'black' }}
                       />
                     </Box>
                     <Typography variant="body2" color="text.secondary" sx={{ marginBottom: 1 }}>

@@ -70,18 +70,16 @@ const CompetitiveTab: React.FC<CompetitiveTabProps> = ({
 
   return (
     <>
-      {/* Competitive Tab */}
       {activeTab === 4 && (
         <CardContent sx={{ padding: '32px' }}>
           <SectionTitle>
             <FiUsers size={24} color={colors.primary} />
             Competitive Analysis
           </SectionTitle>
-          <Typography variant="body1" color="text.secondary" sx={{ marginBottom: 4 }}>
+          <Typography textAlign="left" variant="body1" color="text.secondary" sx={{ marginBottom: 4 }}>
             {competitive?.summary}
           </Typography>
 
-          {/* Ranking Visualization */}
           <Grid container spacing={4} sx={{ marginBottom: 4 }}>
             <Grid size={{ xs: 12, md: 6 }}>
               <ChartContainer>
@@ -113,7 +111,7 @@ const CompetitiveTab: React.FC<CompetitiveTabProps> = ({
               <RankCard>
                 <CardContent sx={{ textAlign: 'center', position: 'relative', zIndex: 1 }}>
                   <Box position="relative" display="inline-block" sx={{ marginBottom: 2 }}>
-                    <FiUsers size={64} color="white" />
+                    <FiUsers size={64} color="black" />
                     {competitive?.metrics.trendDirection === 'Rising' && (
                       <FiTrendingUp 
                         size={24} 
@@ -132,10 +130,10 @@ const CompetitiveTab: React.FC<CompetitiveTabProps> = ({
                   <Typography variant="h2" fontWeight="bold" color="white">
                     #{competitive?.metrics.currentRank}
                   </Typography>
-                  <Typography variant="h6" color="rgba(255,255,255,0.9)" sx={{ marginBottom: 1 }}>
+                  <Typography variant="h6" color="black" sx={{ marginBottom: 1 }}>
                     Current Rank
                   </Typography>
-                  <Typography variant="body2" color="rgba(255,255,255,0.7)">
+                  <Typography variant="body2" color="black">
                     out of {competitive?.metrics.totalUsers.toLocaleString()} users
                   </Typography>
                   <Chip 
@@ -143,7 +141,7 @@ const CompetitiveTab: React.FC<CompetitiveTabProps> = ({
                     sx={{ 
                       marginTop: 2,
                       background: 'rgba(255,255,255,0.2)', 
-                      color: 'white',
+                      color: 'black',
                       fontWeight: 'bold'
                     }}
                   />
@@ -152,28 +150,25 @@ const CompetitiveTab: React.FC<CompetitiveTabProps> = ({
             </Grid>
           </Grid>
 
-          {/* Performance Metrics */}
           <StatsGrid>
             <MetricCard gradient={`linear-gradient(135deg, ${colors.success}, #059669)`}>
-              <CardContent>
-                <Box display="flex" alignItems="center" gap={2}>
-                  <FiStar size={32} color="white" />
+              <CardContent sx={{ textAlign: 'center' }}>
+                  <FiStar size={36} color="blue" />
                   <Box>
-                    <Typography variant="h5" fontWeight="bold" color="white">
+                    <Typography variant="h4" fontWeight="bold" color="blue" sx={{ marginTop: 1 }}>
                       {competitive?.metrics.pointsThisWeek}
                     </Typography>
-                    <Typography variant="body2" color="rgba(255,255,255,0.8)">
+                    <Typography variant="caption" color="text.secondary">
                       Points This Week
                     </Typography>
                   </Box>
-                </Box>
               </CardContent>
             </MetricCard>
             
             <MetricCard>
               <CardContent sx={{ textAlign: 'center' }}>
-                <FiTrendingUp size={24} color={colors.success} />
-                <Typography variant="h6" fontWeight="bold" sx={{ marginTop: 1 }}>
+                <FiTrendingUp size={36} color={colors.success} />
+                <Typography variant="h4" fontWeight="bold" sx={{ marginTop: 1 }}>
                   {competitive?.metrics.pointsToNextRank}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
@@ -184,8 +179,8 @@ const CompetitiveTab: React.FC<CompetitiveTabProps> = ({
             
             <MetricCard>
               <CardContent sx={{ textAlign: 'center' }}>
-                <FiAward size={24} color={getBadgeColor(competitive?.metrics.badgeLevel || 'SILVER')} />
-                <Typography variant="h6" fontWeight="bold" sx={{ marginTop: 1 }}>
+                <FiAward size={36} color={getBadgeColor(competitive?.metrics.badgeLevel || 'SILVER')} />
+                <Typography variant="h4" fontWeight="bold" sx={{ marginTop: 1 }}>
                   {competitive?.metrics.pointsToNextBadge}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
@@ -195,7 +190,6 @@ const CompetitiveTab: React.FC<CompetitiveTabProps> = ({
             </MetricCard>
           </StatsGrid>
 
-          {/* Progress to Next Level */}
           <SectionContainer>
             <SectionTitle>Progress to Next Rank</SectionTitle>
             <MetricCard>

@@ -12,9 +12,7 @@ import {
   Grid,
 } from '@mui/material';
 import {
-  FiTarget,
   FiClock,
-  FiBook,
   FiZap,
   FiActivity,
   FiUsers,
@@ -25,7 +23,6 @@ import { FaRegLightbulb } from "react-icons/fa";
 import {
   IoMdFlame,
   IoMdMedal,
-  IoMdTrophy,
 } from 'react-icons/io';
 
 import type {
@@ -40,7 +37,6 @@ import {
   ReportContainer,
   HeaderCard,
   MetricCard,
-  IconWrapper,
   StatsGrid,
   LoadingContainer,
   colors,
@@ -223,7 +219,6 @@ const ReportComponent: React.FC = () => {
     );
   }
 
-  // Loading state
   if (loading) {
     return (
       <ReportContainer>
@@ -239,7 +234,6 @@ const ReportComponent: React.FC = () => {
 
   return (
     <ReportContainer>
-      {/* Header Section */}
       <HeaderCard>
         <CardContent sx={{ padding: '32px' }}>
           <Box display="flex" alignItems="center" justifyContent="space-between" sx={{ marginBottom: 3 }}>
@@ -288,14 +282,10 @@ const ReportComponent: React.FC = () => {
             </Box>
           </Box>
           
-          {/* Quick Metrics Grid */}
           <StatsGrid>
-            <MetricCard gradient={`linear-gradient(135deg, ${colors.primary}, ${colors.secondary})`}>
+            <MetricCard center gradient={`linear-gradient(135deg, ${colors.primary}, ${colors.secondary})`}>
               <CardContent>
-                <IconWrapper bgColor="rgba(255,255,255,0.2)" color="black">
-                  <FiTarget size={24} color="black" />
-                </IconWrapper>
-                <Typography variant="h3" fontWeight="bold" color="black">
+                <Typography variant="h3" fontWeight="bold" color="black" marginBottom="0.5vh">
                   {quickInsights?.completionRate || 0}%
                 </Typography>
                 <Typography variant="body2" color="black">
@@ -304,50 +294,40 @@ const ReportComponent: React.FC = () => {
               </CardContent>
             </MetricCard>
             
-            <MetricCard gradient={`linear-gradient(135deg, ${colors.success}, #059669)`}>
+            <MetricCard center gradient={`linear-gradient(135deg, ${colors.success}, #059669)`}>
               <CardContent>
-                <IconWrapper bgColor="rgba(255,255,255,0.2)">
-                  <IoMdTrophy size={24} />
-                </IconWrapper>
-                <Typography variant="h3" fontWeight="bold" color="white">
-                  {quickInsights?.averageScore || 0}
+                <Typography variant="h3" fontWeight="bold" color="black">
+                  {quickInsights?.averageScore || 0}%
                 </Typography>
-                <Typography variant="body2" color="rgba(255,255,255,0.8)">
+                <Typography variant="body2" color="black">
                   Average Score
                 </Typography>
               </CardContent>
             </MetricCard>
 
-            <MetricCard gradient={`linear-gradient(135deg, ${colors.warning}, #d97706)`}>
+            <MetricCard center gradient={`linear-gradient(135deg, ${colors.warning}, #d97706)`}>
               <CardContent>
-                <IconWrapper bgColor="rgba(255,255,255,0.2)">
-                  <FiBook size={24} />
-                </IconWrapper>
-                <Typography variant="h3" fontWeight="bold" color="white">
+                <Typography variant="h3" fontWeight="bold" color="black">
                   {overviewData?.performance.totalCourses || 0}
                 </Typography>
-                <Typography variant="body2" color="rgba(255,255,255,0.8)">
+                <Typography variant="body2" color="black">
                   Total Courses
                 </Typography>
               </CardContent>
             </MetricCard>
 
-            <MetricCard gradient={`linear-gradient(135deg, ${colors.info}, #1d4ed8)`}>
+            <MetricCard center gradient={`linear-gradient(135deg, ${colors.info}, #1d4ed8)`}>
               <CardContent>
-                <IconWrapper bgColor="rgba(255,255,255,0.2)">
-                  <FiClock size={24} />
-                </IconWrapper>
-                <Typography variant="h3" fontWeight="bold" color="white">
+                <Typography variant="h3" fontWeight="bold" color="black">
                   {timeManagement?.timeAnalysis.actualHoursThisWeek || 0}h
                 </Typography>
-                <Typography variant="body2" color="rgba(255,255,255,0.8)">
+                <Typography variant="body2" color="black">
                   This Week
                 </Typography>
               </CardContent>
             </MetricCard>
           </StatsGrid>
 
-          {/* Top Insights */}
           <Grid container spacing={3} sx={{ marginTop: 2 }}>
             <Grid size={{ xs: 12, md: 6 }}>
               <Alert 
@@ -389,7 +369,6 @@ const ReportComponent: React.FC = () => {
         </CardContent>
       </HeaderCard>
 
-      {/* Detailed Analysis Tabs */}
       <MetricCard>
         <Tabs
           value={activeTab}
