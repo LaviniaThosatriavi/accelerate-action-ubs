@@ -9,7 +9,10 @@ import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.time.DayOfWeek;
 import java.util.*;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 import java.util.stream.Collectors;
+import java.util.Arrays;
 
 @Service
 public class ReportAnalyticsService {
@@ -69,26 +72,130 @@ public class ReportAnalyticsService {
         return metrics;
     }
     
-    // Skill Analysis
     public Map<String, Double> getSkillScores(User user) {
         List<CourseScore> scores = courseScoreRepository.findByUser(user);
         Map<String, List<Double>> skillScoreMap = new HashMap<>();
-        
+
         for (CourseScore score : scores) {
             Course course = courseRepository.findById(score.getCourseId()).orElse(null);
-            if (course != null && course.getCategory() != null) {
-                skillScoreMap.computeIfAbsent(course.getCategory(), k -> new ArrayList<>())
+            if (course != null) {
+                String skillName = extractSkillName(course);
+                skillScoreMap.computeIfAbsent(skillName, k -> new ArrayList<>())
                     .add(score.getPercentage());
             }
         }
-        
+
         Map<String, Double> avgSkillScores = new HashMap<>();
         for (Map.Entry<String, List<Double>> entry : skillScoreMap.entrySet()) {
             double avg = entry.getValue().stream().mapToDouble(Double::doubleValue).average().orElse(0.0);
             avgSkillScores.put(entry.getKey(), Math.round(avg * 10.0) / 10.0);
         }
-        
+
         return avgSkillScores;
+    }
+
+    /**
+     * Extract meaningful skill name from course data
+     * Priority: tags -> title -> category
+     */
+    private String extractSkillName(Course course) {
+    // First, try to get skill from tags (if any meaningful tags exist)
+    if (course.getTags() != null && !course.getTags().isEmpty()) {
+        // Look for skill-related tags
+        Set<String> tags = course.getTags();
+        for (String tag : tags) {
+            String cleanTag = tag.toLowerCase().trim();
+            // Skip generic tags and use specific skill tags
+            if (!isGenericTag(cleanTag)) {
+                return formatSkillName(tag);
+            }
+        }
+    }
+
+    // If no meaningful tags, use course title
+    if (course.getTitle() != null && !course.getTitle().trim().isEmpty()) {
+        return formatSkillName(course.getTitle());
+    }
+
+    // Fallback to category if everything else is null
+    if (course.getCategory() != null && !course.getCategory().trim().isEmpty()) {
+        // If category is generic like "EXTERNAL", use course title instead
+        if ("EXTERNAL".equalsIgnoreCase(course.getCategory()) || 
+            "INTERNAL".equalsIgnoreCase(course.getCategory())) {
+            return course.getTitle() != null ? 
+                formatSkillName(course.getTitle()) : 
+                course.getCategory() + " Course";
+        }
+        return formatSkillName(course.getCategory());
+    }
+
+    return "Unknown Skill";
+    }
+
+    /**
+     * Check if a tag is too generic to be useful as a skill name
+     */
+    private boolean isGenericTag(String tag) {
+    Set<String> genericTags = Set.of(
+        "beginner", "intermediate", "advanced", 
+        "course", "tutorial", "lesson", "training",
+        "external", "internal", "online", "certification"
+    );
+    return genericTags.contains(tag);
+    }
+
+    /**
+     * Format skill name for consistent display
+     */
+    private String formatSkillName(String skillName) {
+    if (skillName == null || skillName.trim().isEmpty()) {
+        return "Unknown Skill";
+    }
+
+    // Clean up the skill name
+    String formatted = skillName.trim();
+
+    // If it's a long course title, try to extract the main skill
+    if (formatted.length() > 30) {
+        // Look for patterns like "Learn JavaScript" -> "JavaScript"
+        formatted = extractMainSkillFromTitle(formatted);
+    }
+
+    // Capitalize first letter of each word
+    return Arrays.stream(formatted.split("\\s+"))
+        .map(word -> word.substring(0, 1).toUpperCase() + word.substring(1).toLowerCase())
+        .collect(Collectors.joining(" "));
+    }
+
+    /**
+     * Extract main skill from course title
+     */
+    private String extractMainSkillFromTitle(String title) {
+    // Common patterns in course titles
+    String[] patterns = {
+        "Learn\\s+(.+?)\\s+(Programming|Development|Course|Tutorial|Fundamentals)",
+        "(.+?)\\s+(Complete|Course|Tutorial|Guide|Bootcamp|Masterclass)",
+        "Introduction\\s+to\\s+(.+)",
+        "(.+?)\\s+for\\s+(Beginners|Developers|Everyone)",
+        "Mastering\\s+(.+)",
+        "(.+?)\\s+Fundamentals"
+    };
+
+    for (String pattern : patterns) {
+        Pattern p = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
+        Matcher m = p.matcher(title);
+        if (m.find()) {
+            return m.group(1).trim();
+        }
+    }
+
+    // If no pattern matches, return first 2-3 words
+    String[] words = title.split("\\s+");
+    if (words.length >= 2) {
+        return String.join(" ", Arrays.copyOfRange(words, 0, Math.min(3, words.length)));
+    }
+
+    return title;
     }
     
     // Goal Completion Analysis

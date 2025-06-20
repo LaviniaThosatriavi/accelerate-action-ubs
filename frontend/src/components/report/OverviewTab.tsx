@@ -379,8 +379,8 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                     sx={{
                       background: `linear-gradient(45deg, ${colors.gray[400]}, ${colors.gray[500]})`,
                       color: 'white',
-                      fontSize: '1rem',
-                      padding: '2.5vh 0.5rem',
+                      fontSize: '0.8rem',
+                      padding: '1vh 0.5rem',
                       height: '4vh',
                       
                       '&:hover': {
@@ -429,7 +429,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                       <Typography textAlign="left" variant="body2" color="text.secondary" sx={{ marginBottom: 1 }}>
                         {skill.reason}
                       </Typography>
-                      <Typography textAlign="left" variant="caption" color="text.secondary">
+                      <Typography variant="caption" color="text.secondary">
                         {skill.coursesCompleted} courses completed
                       </Typography>
                     </CardContent>
@@ -466,11 +466,11 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                           sx={{ background: colors.warning, color: 'black' }}
                         />
                       </Box>
-                      <Typography variant="body2" color="text.secondary" sx={{ marginBottom: 1 }}>
+                      <Typography textAlign="left" variant="body2" color="text.secondary" sx={{ marginBottom: 1 }}>
                         {skill.reason}
                       </Typography>
                       <Alert severity="info" sx={{ marginTop: 2 }}>
-                        <Typography variant="caption">
+                        <Typography  variant="caption">
                           <strong>Improvement tip:</strong> {skill.improvement}
                         </Typography>
                       </Alert>

@@ -312,14 +312,69 @@ public class ReportGeneratorService {
     
     private List<String> identifySkillGaps(UserProfile profile, Map<String, Double> skillScores) {
         List<String> gaps = new ArrayList<>();
-        if (profile != null && profile.getSkills() != null) {
-            for (String profileSkill : profile.getSkills()) {
-                if (!skillScores.containsKey(profileSkill)) {
-                    gaps.add(profileSkill + " - no courses completed yet");
+        
+        try {
+            // Get skills from learning path if it exists
+            if (profile != null && profile.getLearningPath() != null) {
+                List<String> learningPathSkills = extractSkillsFromLearningPathContent(
+                    profile.getLearningPath().getPathContent()
+                );
+                
+                // Check which learning path skills haven't been learned through completed courses
+                for (String pathSkill : learningPathSkills) {
+                    if (!skillScores.containsKey(pathSkill)) {
+                        gaps.add(pathSkill + " - from your learning path, no courses completed yet");
+                    }
+                }
+            } else {
+                // Fallback to profile skills if no learning path exists
+                if (profile != null && profile.getSkills() != null) {
+                    for (String profileSkill : profile.getSkills()) {
+                        if (!skillScores.containsKey(profileSkill)) {
+                            gaps.add(profileSkill + " - no courses completed yet");
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // Fallback to profile skills on any error
+            if (profile != null && profile.getSkills() != null) {
+                for (String profileSkill : profile.getSkills()) {
+                    if (!skillScores.containsKey(profileSkill)) {
+                        gaps.add(profileSkill + " - no courses completed yet");
+                    }
                 }
             }
         }
+        
         return gaps;
+    }
+
+    // Helper method to extract skills from learning path markdown content
+    private List<String> extractSkillsFromLearningPathContent(String pathContent) {
+        List<String> skills = new ArrayList<>();
+        
+        if (pathContent != null && !pathContent.isEmpty()) {
+            String[] lines = pathContent.split("\n");
+            
+            for (String line : lines) {
+                // Look for week headers like "### Week 1: JavaScript" or "### Week 2: React"
+                if (line.startsWith("### Week ") && line.contains(":")) {
+                    String[] parts = line.split(":", 2);
+                    if (parts.length > 1) {
+                        String skillPart = parts[1].trim();
+                        
+                        // Skip review weeks
+                        if (!skillPart.toLowerCase().contains("review")) {
+                            skills.add(skillPart);
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Remove duplicates and return
+        return skills.stream().distinct().collect(Collectors.toList());
     }
     
     private List<String> generateSkillRecommendations(Map<String, Double> skillScores, UserProfile profile) {
