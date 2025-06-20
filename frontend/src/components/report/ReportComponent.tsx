@@ -10,12 +10,14 @@ import {
   Alert,
   CardContent,
   Grid,
+  IconButton,
 } from '@mui/material';
 import {
   FiClock,
   FiZap,
   FiActivity,
   FiUsers,
+  FiRefreshCw,
 } from 'react-icons/fi';
 import { LuBrainCircuit } from "react-icons/lu";
 import { IoBarChartSharp } from "react-icons/io5";
@@ -47,8 +49,8 @@ import TimeConsistencyTab from './TimeConsistencyTab';
 import CompetitiveTab from './CompetitiveTab';
 
 const ReportComponent: React.FC = () => {
-  const [activeTab, setActiveTab] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<number>(0);
+  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   
   // State for all report data
@@ -58,31 +60,39 @@ const ReportComponent: React.FC = () => {
   const [timeManagement, setTimeManagement] = useState<TimeManagement | null>(null);
   const [consistency, setConsistency] = useState<ConsistencyData | null>(null);
   const [competitive, setCompetitive] = useState<CompetitiveData | null>(null);
+  const [actualHoursThisWeek, setActualHoursThisWeek] = useState<number>(0);
 
   // Helper function to create authenticated fetch options
   const createFetchOptions = (): RequestInit => {
-    const token = localStorage.getItem('token') || localStorage.getItem('authToken') || sessionStorage.getItem('token');
+    const token = localStorage.getItem('token');
     
     const options: RequestInit = {
       method: 'GET',
-      credentials: 'include', // Include cookies if your backend uses them
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
       }
     };
 
-    // Add authorization header if token exists
     if (token) {
       (options.headers as Record<string, string>)['Authorization'] = `Bearer ${token}`;
+    } else {
+      console.warn('No authorization token found');
     }
 
     return options;
   };
 
   // Enhanced fetch function with error handling
-  const fetchWithAuth = useCallback(async (url: string) => {
+  const fetchWithAuth = useCallback(async (url: string): Promise<unknown> => {
     try {
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        throw new Error('No authorization token found');
+      }
+
       const response = await fetch(url, createFetchOptions());
       
       if (!response.ok) {
@@ -97,16 +107,27 @@ const ReportComponent: React.FC = () => {
         }
       }
 
-      return await response.json();
+      const data: unknown = await response.json();
+      return data;
     } catch (error) {
-      console.error(`Error fetching ${url}:`, error);
+      console.error(`❌ Error fetching ${url}:`, error);
       throw error;
     }
   }, []);
 
+  // Refresh hours data function
+  const refreshHours = useCallback(async (): Promise<void> => {
+    try {
+      const hours = await fetchWithAuth('/api/enrolled-courses/total-hours-this-week');
+      setActualHoursThisWeek(hours as number);
+    } catch (error) {
+      console.error('❌ Refresh failed:', error);
+    }
+  }, [fetchWithAuth]);
+
   // Fetch data on component mount
   useEffect(() => {
-    const fetchReportData = async () => {
+    const fetchReportData = async (): Promise<void> => {
       try {
         setLoading(true);
         setError(null);
@@ -118,24 +139,28 @@ const ReportComponent: React.FC = () => {
           skillsData,
           timeData,
           consistencyData,
-          competitiveData
+          competitiveData,
+          actualHours
         ] = await Promise.all([
           fetchWithAuth('/api/reports/quick-insights'),
           fetchWithAuth('/api/reports/overview'),
           fetchWithAuth('/api/reports/skills'),
           fetchWithAuth('/api/reports/time-management'),
           fetchWithAuth('/api/reports/consistency'),
-          fetchWithAuth('/api/reports/competitive')
+          fetchWithAuth('/api/reports/competitive'),
+          fetchWithAuth('/api/enrolled-courses/total-hours-this-week')
         ]);
-
-        setQuickInsights(quickInsightsData);
-        setOverviewData(overviewData);
-        setSkillAnalysis(skillsData);
-        setTimeManagement(timeData);
-        setConsistency(consistencyData);
-        setCompetitive(competitiveData);
+        
+        setQuickInsights(quickInsightsData as QuickInsights);
+        setOverviewData(overviewData as OverviewData);
+        setSkillAnalysis(skillsData as SkillAnalysis);
+        setTimeManagement(timeData as TimeManagement);
+        setConsistency(consistencyData as ConsistencyData);
+        setCompetitive(competitiveData as CompetitiveData);
+        setActualHoursThisWeek(actualHours as number);
+        
       } catch (error) {
-        console.error('Error fetching report data:', error);
+        console.error('❌ Error fetching report data:', error);
         setError(error instanceof Error ? error.message : 'Failed to load report data');
       } finally {
         setLoading(false);
@@ -145,7 +170,6 @@ const ReportComponent: React.FC = () => {
     fetchReportData();
   }, [fetchWithAuth]);
 
-  // Helper functions
   const getBadgeColor = (level: string): string => {
     switch (level?.toUpperCase()) {
       case 'BRONZE': return '#CD7F32';
@@ -157,7 +181,7 @@ const ReportComponent: React.FC = () => {
     }
   };
 
-  const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
+  const handleTabChange = (_: React.SyntheticEvent, newValue: number): void => {
     setActiveTab(newValue);
   };
 
@@ -192,7 +216,6 @@ const ReportComponent: React.FC = () => {
     return null;
   };
 
-  // Error state
   if (error) {
     return (
       <ReportContainer>
@@ -259,6 +282,18 @@ const ReportComponent: React.FC = () => {
               </Box>
             </Box>
             <Box display="flex" alignItems="center" gap={2}>
+              <IconButton
+                onClick={refreshHours}
+                sx={{
+                  background: 'rgba(255,255,255,0.1)',
+                  '&:hover': {
+                    background: 'rgba(255,255,255,0.2)'
+                  }
+                }}
+                title="Refresh hours data"
+              >
+                <FiRefreshCw size={20} />
+              </IconButton>
               <Chip
                 icon={<IoMdFlame size={16} />}
                 label={`${quickInsights?.loginStreak || 0} Day Streak`}
@@ -319,10 +354,10 @@ const ReportComponent: React.FC = () => {
             <MetricCard center gradient={`linear-gradient(135deg, ${colors.info}, #1d4ed8)`}>
               <CardContent>
                 <Typography variant="h3" fontWeight="bold" color="black">
-                  {timeManagement?.timeAnalysis.actualHoursThisWeek || 0}h
+                  {actualHoursThisWeek}h
                 </Typography>
                 <Typography variant="body2" color="black">
-                  This Week
+                  Hours This Week
                 </Typography>
               </CardContent>
             </MetricCard>
@@ -398,12 +433,12 @@ const ReportComponent: React.FC = () => {
           <Tab icon={<FiUsers size={20} />} label="Competitive" />
         </Tabs>
 
-        {/* Tab Content */}
         <OverviewTab
           overviewData={overviewData}
           skillAnalysis={skillAnalysis}
           activeTab={activeTab}
           customTooltip={CustomTooltip}
+          actualHoursThisWeek={actualHoursThisWeek}
         />
 
         <TimeConsistencyTab
@@ -411,6 +446,7 @@ const ReportComponent: React.FC = () => {
           consistency={consistency}
           activeTab={activeTab}
           customTooltip={CustomTooltip}
+          actualHoursThisWeek={actualHoursThisWeek}
         />
 
         <CompetitiveTab

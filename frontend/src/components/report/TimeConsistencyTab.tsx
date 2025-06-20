@@ -57,6 +57,7 @@ interface TimeConsistencyTabProps {
   consistency: ConsistencyData | null;
   activeTab: number;
   customTooltip: React.ComponentType<CustomTooltipProps>;
+  actualHoursThisWeek: number;
 }
 
 const TimeConsistencyTab: React.FC<TimeConsistencyTabProps> = ({
@@ -64,11 +65,13 @@ const TimeConsistencyTab: React.FC<TimeConsistencyTabProps> = ({
   consistency,
   activeTab,
   customTooltip: CustomTooltip,
+  actualHoursThisWeek,
 }) => {
-  // Prepare chart data
+
+  // Prepare chart data using the prop value
   const timeData = [
     { name: 'Planned', hours: timeManagement?.timeAnalysis.plannedHoursPerWeek || 0, color: colors.info },
-    { name: 'Actual', hours: timeManagement?.timeAnalysis.actualHoursThisWeek || 0, color: colors.primary },
+    { name: 'Actual', hours: actualHoursThisWeek, color: colors.primary },
     { name: 'Optimal', hours: timeManagement?.timeAnalysis.optimalHoursPerWeek || 0, color: colors.success }
   ];
 
@@ -78,6 +81,10 @@ const TimeConsistencyTab: React.FC<TimeConsistencyTabProps> = ({
     { week: 'Week 3', streak: 12, goals: 12 },
     { week: 'Week 4', streak: consistency?.metrics.currentLoginStreak || 14, goals: consistency?.metrics.goalsCompletedThisWeek || 12 }
   ];
+
+  const utilizationRate = timeManagement?.timeAnalysis.plannedHoursPerWeek 
+    ? Math.round((actualHoursThisWeek / timeManagement.timeAnalysis.plannedHoursPerWeek) * 100)
+    : 0;
 
   return (
     <>
@@ -112,7 +119,7 @@ const TimeConsistencyTab: React.FC<TimeConsistencyTabProps> = ({
               <CardContent sx={{ textAlign: 'center' }}>
                 <IoMdTimer size={38} color="black" />
                 <Typography variant="h5" fontWeight="bold" sx={{ marginTop: 0.4 }}>
-                  {timeManagement?.timeAnalysis.timeUtilizationRate}%
+                  {utilizationRate}%
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
                   Utilization Rate
@@ -124,7 +131,7 @@ const TimeConsistencyTab: React.FC<TimeConsistencyTabProps> = ({
               <CardContent sx={{ textAlign: 'center' }}>
                 <FiClock size={32} color={colors.success} />
                 <Typography variant="h5" fontWeight="bold" sx={{ marginTop: 1 }}>
-                  {timeManagement?.timeAnalysis.actualHoursThisWeek}h / {timeManagement?.timeAnalysis.plannedHoursPerWeek}h
+                  {actualHoursThisWeek}h / {timeManagement?.timeAnalysis.plannedHoursPerWeek}h
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
                   This Week's Progress

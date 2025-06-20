@@ -3,6 +3,7 @@ import Navbar from "../components/Navbar";
 import styled from "styled-components";
 import { AppBar } from "@mui/material";
 import Sidebar from "../components/Sidebar";
+import { WeeklyHoursContext } from "../components/WeeklyHoursContext";
 
 const StyledAppBar = styled(AppBar)`
   flex-shrink: 0;
@@ -29,22 +30,22 @@ interface Props {
 }
 
 const LoggedInLayout = ({ children }: Props) => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true); // Sidebar open state
-  const sidebarWidth = isSidebarOpen ? 250 : 0; // Sidebar width when open or closed
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [weeklyHours, setWeeklyHours] = useState<number>(0); 
+  
+  const sidebarWidth = isSidebarOpen ? 250 : 0; 
 
   return (
-    <>
-      {/* Navbar */}
+    <WeeklyHoursContext.Provider value={{ weeklyHours, setWeeklyHours }}>
       <StyledAppBar color="default" position="fixed">
         <Navbar />
       </StyledAppBar>
 
-      {/* Sidebar and Content on the same level */}
       <LayoutContainer>
         <Sidebar isOpen={isSidebarOpen} onToggle={() => setIsSidebarOpen(!isSidebarOpen)} />
         <ContentWrapper $sidebarWidth={sidebarWidth}>{children}</ContentWrapper>
       </LayoutContainer>
-    </>
+    </WeeklyHoursContext.Provider>
   );
 };
 

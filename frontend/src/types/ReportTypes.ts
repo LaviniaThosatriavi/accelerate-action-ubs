@@ -54,7 +54,6 @@ export interface SkillAnalysis {
 
 export interface TimeAnalysis {
     plannedHoursPerWeek: number;
-    actualHoursThisWeek: number;
     timeUtilizationRate: number;
     recommendation: string;
     optimalHoursPerWeek: number;

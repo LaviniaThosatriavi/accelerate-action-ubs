@@ -1,67 +1,18 @@
-// MiddleSection.tsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import type {
-  EnrollmentStats,
-  ProgressUpdateData,
-  CourseScore,
-  CourseScoreRequest
-} from '../types/MiddleSectionTypes';
+import { useWeeklyHours } from './WeeklyHoursContext';
+import type { EnrollmentStats, ProgressUpdateData, CourseScore, CourseScoreRequest } from '../types/MiddleSectionTypes';
 import type { EnrolledCourse } from '../types/ToDosTypes';
-import {
-    Section,
-    Title,
-    TabContainer,
-    Tab,
-    StatsContainer,
-    StatCard,
-    StatValue,
-    StatLabel,
-    WeeklyHoursContainer,
-    WeeklyHoursContent,
-    WeeklyHoursValue,
-    WeeklyHoursLabel,
-    ProgressContainer,
-    ProgressTitle,
-    ProgressBar,
-    ProgressFill,
-    TimeStatus,
-    StatusIndicator,
-    CourseContainer,
-    CourseCard,
-    CourseHeader,
-    CourseTitle,
-    PlatformBadge,
-    CourseDetails,
-    DetailItem,
-    DetailLabel,
-    DetailValue,
-    CourseProgress,
-    ScoreDisplay,
-    ScoreBadge,
-    CourseActions,
-    ActionButton,
-    ScoreButton,
-    OpenLinkButton,
-    Modal,
-    ModalContent,
-    ModalTitle,
-    FormGroup,
-    Label,
-    Input,
-    HelpText,
-    ButtonGroup,
-    SubmitButton,
-    CancelButton,
-    EmptyState
-} from '../styles/MiddleSectionStyles';
+import { ActionButton, ButtonGroup, CancelButton, CourseActions, CourseCard, CourseContainer, CourseDetails, CourseHeader, CourseProgress, CourseTitle, DetailItem, DetailLabel, DetailValue, EmptyState, FormGroup, HelpText, Input, Label, Modal, ModalContent, ModalTitle, OpenLinkButton, PlatformBadge, ProgressBar, ProgressContainer, ProgressFill, ProgressTitle, ScoreBadge, ScoreButton, ScoreDisplay, Section, StatCard, StatLabel, StatsContainer, StatusIndicator, StatValue, SubmitButton, Tab, TabContainer, TimeStatus, Title, WeeklyHoursContainer, WeeklyHoursContent, WeeklyHoursLabel, WeeklyHoursValue } from '../styles/MiddleSectionStyles';
 
 const MiddleSection: React.FC = () => {
+    const { setWeeklyHours } = useWeeklyHours();
+    
     const [enrolledCourses, setEnrolledCourses] = useState<EnrolledCourse[]>([]);
     const [filteredCourses, setFilteredCourses] = useState<EnrolledCourse[]>([]);
     const [activeTab, setActiveTab] = useState<string>('ALL');
     const [stats, setStats] = useState<EnrollmentStats | null>(null);
-    const [weeklyHours, setWeeklyHours] = useState<number>(0);
+    const [weeklyHours, setLocalWeeklyHours] = useState<number>(0);
     const [hasAvailableTime, setHasAvailableTime] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string>('');
@@ -79,7 +30,11 @@ const MiddleSection: React.FC = () => {
         completionDate: new Date().toISOString()  
     });
 
-    // Fetch all data on component mount
+    const updateWeeklyHours = useCallback((hours: number) => {
+        setLocalWeeklyHours(hours);
+        setWeeklyHours(hours);
+    }, [setWeeklyHours]);
+
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -96,24 +51,19 @@ const MiddleSection: React.FC = () => {
                     Authorization: `Bearer ${token}`
                 };
                 
-                // Fetch enrolled courses
                 const coursesResponse = await axios.get('/api/enrolled-courses', { headers });
                 setEnrolledCourses(coursesResponse.data);
                 setFilteredCourses(coursesResponse.data);
                 
-                // Fetch stats
                 const statsResponse = await axios.get('/api/enrolled-courses/stats', { headers });
                 setStats(statsResponse.data);
                 
-                // fetch total learning hours this week
                 const weeklyHoursResponse = await axios.get('/api/enrolled-courses/total-hours-this-week', { headers });
-                setWeeklyHours(weeklyHoursResponse.data);
+                updateWeeklyHours(weeklyHoursResponse.data);
 
-                // Check if user has available time
                 const timeResponse = await axios.get('/api/enrolled-courses/has-available-time', { headers });
                 setHasAvailableTime(timeResponse.data);
 
-                // Fetch course scores for completed courses
                 const scoresResponse = await axios.get('/api/course-scores/user-scores', { headers });
                 
                 const scoresMap = new Map<number, CourseScore>();
@@ -135,7 +85,7 @@ const MiddleSection: React.FC = () => {
         };
         
         fetchData();
-    }, []);
+    }, [updateWeeklyHours]);
 
     // Filter courses when tab changes
     useEffect(() => {
@@ -222,13 +172,18 @@ const MiddleSection: React.FC = () => {
             });
             setStats(statsResponse.data);
             
+            // Refresh weekly hours after progress update
+            const weeklyHoursResponse = await axios.get('/api/enrolled-courses/total-hours-this-week', {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            updateWeeklyHours(weeklyHoursResponse.data);
+            
             // Check if user still has available time
             const timeResponse = await axios.get('/api/enrolled-courses/has-available-time', {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setHasAvailableTime(timeResponse.data);
             
-            // Close modal
             setShowProgressModal(false);
             
         } catch (err) {

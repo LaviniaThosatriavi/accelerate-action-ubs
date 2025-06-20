@@ -32,6 +32,7 @@ import { FaRegLightbulb } from "react-icons/fa";
 import {
   IoMdTrophy,
 } from 'react-icons/io';
+import { MdOutlineSocialDistance } from 'react-icons/md';
 
 import type { OverviewData, SkillAnalysis, StrongSkill, WeakSkill } from '../../types/ReportTypes';
 import {
@@ -60,6 +61,25 @@ interface OverviewTabProps {
   skillAnalysis: SkillAnalysis | null;
   activeTab: number;
   customTooltip: React.ComponentType<CustomTooltipProps>;
+  actualHoursThisWeek: number; // Add the actual hours as a prop
+}
+
+interface SkillChartData {
+  skill: string;
+  score: number;
+  level: 'high' | 'medium' | 'low';
+}
+
+interface CompletionData {
+  name: string;
+  value: number;
+  color: string;
+}
+
+interface SkillDistributionData {
+  name: string;
+  value: number;
+  fill: string;
 }
 
 const OverviewTab: React.FC<OverviewTabProps> = ({
@@ -67,6 +87,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
   skillAnalysis,
   activeTab,
   customTooltip: CustomTooltip,
+  actualHoursThisWeek,
 }) => {
   const getSkillLevel = (score: number): 'high' | 'medium' | 'low' => {
     if (score >= 80) return 'high';
@@ -74,23 +95,30 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
     return 'low';
   };
 
+  const displayHours = actualHoursThisWeek;
+  const targetHours = overviewData?.performance.targetHoursPerWeek || 1;
+  const hoursProgress = (displayHours / targetHours) * 100;
+
   // Prepare chart data with proper typing
-  const skillsChartData = Object.entries(skillAnalysis?.skillScores || {}).map(([skill, score]: [string, unknown]) => ({
+  const skillsChartData: SkillChartData[] = Object.entries(skillAnalysis?.skillScores || {}).map(([skill, score]) => ({
     skill,
     score: typeof score === 'number' ? score : 0,
     level: getSkillLevel(typeof score === 'number' ? score : 0)
   }));
 
-  const completionData = [
+  const completionData: CompletionData[] = [
     { name: 'Completed', value: overviewData?.performance.completedCourses || 0, color: colors.success },
     { name: 'Remaining', value: (overviewData?.performance.totalCourses || 0) - (overviewData?.performance.completedCourses || 0), color: colors.gray[300] }
   ];
 
-  const skillDistributionData = [
+  const skillDistributionData: SkillDistributionData[] = [
     { name: 'High (80+)', value: skillsChartData.filter(s => s.level === 'high').length, fill: colors.success },
     { name: 'Medium (60-79)', value: skillsChartData.filter(s => s.level === 'medium').length, fill: colors.warning },
     { name: 'Low (<60)', value: skillsChartData.filter(s => s.level === 'low').length, fill: colors.error }
   ];
+
+  const hasWeakSkills = skillAnalysis?.weakSkills && skillAnalysis.weakSkills.length > 0;
+  const hasSkillGaps = skillAnalysis?.skillGaps && skillAnalysis.skillGaps.length > 0;
 
   return (
     <>
@@ -134,7 +162,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
 
             <Grid size={{ xs: 12, md: 6 }}>
               <ChartContainer>
-                <Typography variant="h6" fontWeight="bold" sx={{ marginBottom: 2 }}>
+                <Typography variant="h6" fontWeight="bold" >
                   Performance Metrics
                 </Typography>
                 <ResponsiveContainer width="100%" height={250}>
@@ -178,13 +206,16 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                     <Box display="flex" justifyContent="space-between" sx={{ marginBottom: 1 }}>
                       <Typography variant="subtitle2">Weekly Hours</Typography>
                       <Typography variant="subtitle2" fontWeight="bold">
-                        {overviewData?.performance.hoursThisWeek}/{overviewData?.performance.targetHoursPerWeek}h
+                        {actualHoursThisWeek}/{targetHours}h
                       </Typography>
                     </Box>
                     <ProgressBar 
-                      progress={((overviewData?.performance.hoursThisWeek || 0) / (overviewData?.performance.targetHoursPerWeek || 1)) * 100} 
+                      progress={hoursProgress} 
                       color={colors.warning} 
                     />
+                    <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem', marginTop: 0.5 }}>
+                      Live API data
+                    </Typography>
                   </CardContent>
                 </MetricCard>
               </Grid>
@@ -303,27 +334,78 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
             <Grid size={{ xs: 12, md: 6 }}>
               <SectionTitle>Individual Skill Scores</SectionTitle>
               <Box display="flex" flexDirection="column" gap={2}>
-                {skillsChartData.map((skill, index) => (
-                  <MetricCard key={index}>
+                {skillsChartData.length > 0 ? (
+                  skillsChartData.map((skill, index) => (
+                    <MetricCard key={index}>
+                      <CardContent sx={{ padding: '16px' }}>
+                        <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ marginBottom: 1 }}>
+                          <Typography variant="subtitle1" fontWeight="bold">
+                            {skill.skill}
+                          </Typography>
+                          <SkillBadge level={skill.level}>
+                            {skill.score}%
+                          </SkillBadge>
+                        </Box>
+                        <ProgressBar 
+                          progress={skill.score} 
+                          color={skill.level === 'high' ? colors.success : skill.level === 'medium' ? colors.warning : colors.error} 
+                        />
+                      </CardContent>
+                    </MetricCard>
+                  ))
+                ) : (
+                  <MetricCard>
                     <CardContent sx={{ padding: '16px' }}>
-                      <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ marginBottom: 1 }}>
-                        <Typography variant="subtitle1" fontWeight="bold">
-                          {skill.skill}
-                        </Typography>
-                        <SkillBadge level={skill.level}>
-                          {skill.score}%
-                        </SkillBadge>
-                      </Box>
-                      <ProgressBar 
-                        progress={skill.score} 
-                        color={skill.level === 'high' ? colors.success : skill.level === 'medium' ? colors.warning : colors.error} 
-                      />
+                      <Typography variant="body2" color="text.secondary" textAlign="center">
+                        No skill scores available yet. Complete some courses to see your progress!
+                      </Typography>
                     </CardContent>
                   </MetricCard>
-                ))}
+                )}
               </Box>
             </Grid>
           </Grid>
+
+          {/* Skill Gaps Section */}
+          <SectionContainer>
+            <SectionTitle>
+              <MdOutlineSocialDistance size={24} />
+              Skill Gaps
+            </SectionTitle>
+            {hasSkillGaps ? (
+              <Box display="flex" gap={1} flexWrap="wrap">
+                {skillAnalysis?.skillGaps.map((gap: string, index: number) => (
+                  <Chip
+                    key={index}
+                    label={gap}
+                    icon={<MdOutlineSocialDistance size={20} />}
+                    sx={{
+                      background: `linear-gradient(45deg, ${colors.gray[400]}, ${colors.gray[500]})`,
+                      color: 'white',
+                      fontSize: '1rem',
+                      padding: '2.5vh 0.5rem',
+                      height: '4vh',
+                      
+                      '&:hover': {
+                        background: `linear-gradient(45deg, ${colors.gray[500]}, ${colors.gray[600]})`,
+                      }
+                    }}
+                  />
+                ))}
+              </Box>
+            ) : (
+              <MetricCard>
+                <CardContent sx={{ padding: '16px' }}>
+                  <Box display="flex" alignItems="center" gap={2}>
+                    <FiCheckCircle size={20} color={colors.success} />
+                    <Typography variant="body2" color="text.secondary">
+                      Great! No skill gaps identified. You're working on all the skills in your profile.
+                    </Typography>
+                  </Box>
+                </CardContent>
+              </MetricCard>
+            )}
+          </SectionContainer>
 
           {/* Strong vs Weak Skills */}
           <Grid container spacing={3}>
@@ -332,29 +414,39 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                 <IoMdTrophy size={20} />
                 Strong Skills
               </SectionTitle>
-              {skillAnalysis?.strongSkills.map((skill:  StrongSkill, index: number) => (
-                <MetricCard key={index} gradient="linear-gradient(135deg, #ecfdf5, #d1fae5)">
-                  <CardContent>
-                    <Box display="flex" alignItems="center" gap={2} sx={{ marginBottom: 2 }}>
-                      <IoMdTrophy size={24} color={colors.success} />
-                      <Typography variant="h6" fontWeight="bold">
-                        {skill.skill}
+              {skillAnalysis?.strongSkills && skillAnalysis.strongSkills.length > 0 ? (
+                skillAnalysis.strongSkills.map((skill: StrongSkill, index: number) => (
+                  <MetricCard key={index} gradient="linear-gradient(135deg, #ecfdf5, #d1fae5)">
+                    <CardContent>
+                      <Box display="flex" alignItems="center" gap={2} sx={{ marginBottom: 2 }}>
+                        <IoMdTrophy size={24} color={colors.success} />
+                        <Typography variant="h6" fontWeight="bold">
+                          {skill.skill}
+                        </Typography>
+                        <Chip 
+                          label={`${skill.averageScore}%`} 
+                          size="small" 
+                          sx={{ background: colors.success, color: 'white' }}
+                        />
+                      </Box>
+                      <Typography textAlign="left" variant="body2" color="text.secondary" sx={{ marginBottom: 1 }}>
+                        {skill.reason}
                       </Typography>
-                      <Chip 
-                        label={`${skill.averageScore}%`} 
-                        size="small" 
-                        sx={{ background: colors.success, color: 'white' }}
-                      />
-                    </Box>
-                    <Typography textAlign="left" variant="body2" color="text.secondary" sx={{ marginBottom: 1 }}>
-                      {skill.reason}
-                    </Typography>
-                    <Typography textAlign="left" variant="caption" color="text.secondary" >
-                      {skill.coursesCompleted} courses completed
+                      <Typography textAlign="left" variant="caption" color="text.secondary">
+                        {skill.coursesCompleted} courses completed
+                      </Typography>
+                    </CardContent>
+                  </MetricCard>
+                ))
+              ) : (
+                <MetricCard>
+                  <CardContent sx={{ padding: '16px' }}>
+                    <Typography variant="body2" color="text.secondary" textAlign="center">
+                      Complete more courses to identify your strong skills!
                     </Typography>
                   </CardContent>
                 </MetricCard>
-              ))}
+              )}
             </Grid>
 
             <Grid size={{ xs: 12, md: 6 }}>
@@ -362,31 +454,44 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                 <FiAlertCircle size={20} />
                 Skills Needing Attention
               </SectionTitle>
-              {skillAnalysis?.weakSkills.map((skill: WeakSkill, index: number)  => (
-                <MetricCard key={index} gradient="linear-gradient(135deg, #fffbeb, #fef3c7)">
-                  <CardContent>
-                    <Box display="flex" alignItems="center" gap={2} sx={{ marginBottom: 2 }}>
-                      <FiAlertCircle size={24} color={colors.warning} />
-                      <Typography variant="h6" fontWeight="bold" color="black">
-                        {skill.skill}
+              {hasWeakSkills ? (
+                skillAnalysis?.weakSkills.map((skill: WeakSkill, index: number) => (
+                  <MetricCard key={index} gradient="linear-gradient(135deg, #fffbeb, #fef3c7)">
+                    <CardContent>
+                      <Box display="flex" alignItems="center" gap={2} sx={{ marginBottom: 2 }}>
+                        <FiAlertCircle size={24} color={colors.warning} />
+                        <Typography variant="h6" fontWeight="bold" color="black">
+                          {skill.skill}
+                        </Typography>
+                        <Chip 
+                          label={`${skill.averageScore}%`} 
+                          size="small" 
+                          sx={{ background: colors.warning, color: 'black' }}
+                        />
+                      </Box>
+                      <Typography variant="body2" color="text.secondary" sx={{ marginBottom: 1 }}>
+                        {skill.reason}
                       </Typography>
-                      <Chip 
-                        label={`${skill.averageScore}%`} 
-                        size="small" 
-                        sx={{ background: colors.warning, color: 'black' }}
-                      />
+                      <Alert severity="info" sx={{ marginTop: 2 }}>
+                        <Typography variant="caption">
+                          <strong>Improvement tip:</strong> {skill.improvement}
+                        </Typography>
+                      </Alert>
+                    </CardContent>
+                  </MetricCard>
+                ))
+              ) : (
+                <MetricCard gradient="linear-gradient(135deg, #ecfdf5, #d1fae5)">
+                  <CardContent sx={{ padding: '16px' }}>
+                    <Box display="flex" alignItems="center" gap={2}>
+                      <FiCheckCircle size={20} color={colors.success} />
+                      <Typography variant="body2" color="text.secondary">
+                        Good job! No course scores below 65%. Keep up the excellent work!
+                      </Typography>
                     </Box>
-                    <Typography variant="body2" color="text.secondary" sx={{ marginBottom: 1 }}>
-                      {skill.reason}
-                    </Typography>
-                    <Alert severity="info" sx={{ marginTop: 2 }}>
-                      <Typography variant="caption">
-                        <strong>Improvement tip:</strong> {skill.improvement}
-                      </Typography>
-                    </Alert>
                   </CardContent>
                 </MetricCard>
-              ))}
+              )}
             </Grid>
           </Grid>
 
@@ -396,22 +501,35 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
               <FaRegLightbulb size={20} />
               Recommended Skills to Learn
             </SectionTitle>
-            <Box display="flex" gap={1} flexWrap="wrap">
-              {skillAnalysis?.recommendedSkills.map((skill: string, index: number) => (
-                <Chip
-                  key={index}
-                  label={skill}
-                  icon={<FaRegLightbulb size={16} />}
-                  sx={{
-                    background: `linear-gradient(45deg, ${colors.primary}, ${colors.secondary})`,
-                    color: 'white',
-                    '&:hover': {
-                      background: `linear-gradient(45deg, ${colors.secondary}, ${colors.primary})`,
-                    }
-                  }}
-                />
-              ))}
-            </Box>
+            {skillAnalysis?.recommendedSkills && skillAnalysis.recommendedSkills.length > 0 ? (
+              <Box display="flex" gap={1} flexWrap="wrap">
+                {skillAnalysis.recommendedSkills.map((skill: string, index: number) => (
+                  <Chip
+                    key={index}
+                    label={skill}
+                    icon={<FaRegLightbulb size={16} />}
+                    sx={{
+                      background: `linear-gradient(45deg, ${colors.primary}, ${colors.secondary})`,
+                      color: 'white',
+                      fontSize: '1rem',
+                      padding: '2.5vh 0.5rem',
+                      height: '4vh',
+                      '&:hover': {
+                        background: `linear-gradient(45deg, ${colors.secondary}, ${colors.primary})`,
+                      }
+                    }}
+                  />
+                ))}
+              </Box>
+            ) : (
+              <MetricCard>
+                <CardContent sx={{ padding: '16px' }}>
+                  <Typography variant="body2" color="text.secondary" textAlign="center">
+                    No specific recommendations at this time. Keep exploring new skills!
+                  </Typography>
+                </CardContent>
+                </MetricCard>
+            )}
           </SectionContainer>
         </CardContent>
       )}
