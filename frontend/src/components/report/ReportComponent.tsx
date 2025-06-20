@@ -160,7 +160,7 @@ const ReportComponent: React.FC = () => {
         setActualHoursThisWeek(actualHours as number);
         
       } catch (error) {
-        console.error('❌ Error fetching report data:', error);
+        console.error('Error fetching report data:', error);
         setError(error instanceof Error ? error.message : 'Failed to load report data');
       } finally {
         setLoading(false);

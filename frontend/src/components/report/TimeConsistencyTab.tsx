@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Typography,
   Box,
@@ -6,6 +6,10 @@ import {
   Alert,
   CardContent,
   Grid,
+  Tooltip,
+  IconButton,
+  Popover,
+  Paper,
 } from '@mui/material';
 import {
   BarChart,
@@ -13,7 +17,7 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
+  Tooltip as RechartsTooltip,
   Legend,
   ResponsiveContainer,
   LineChart,
@@ -25,6 +29,7 @@ import {
   FiTarget,
   FiZap,
   FiCalendar,
+  FiInfo,
 } from 'react-icons/fi';
 import { FaRegLightbulb } from "react-icons/fa";
 import {
@@ -60,6 +65,70 @@ interface TimeConsistencyTabProps {
   actualHoursThisWeek: number;
 }
 
+interface InfoPopupProps {
+  title: string;
+  description: string;
+  calculation: string;
+  anchorEl: HTMLElement | null;
+  onClose: () => void;
+}
+
+const InfoPopup: React.FC<InfoPopupProps> = ({ 
+  title, 
+  description, 
+  calculation, 
+  anchorEl, 
+  onClose 
+}) => {
+  const open = Boolean(anchorEl);
+
+  return (
+    <Popover
+      open={open}
+      anchorEl={anchorEl}
+      onClose={onClose}
+      anchorOrigin={{
+        vertical: 'bottom',
+        horizontal: 'center',
+      }}
+      transformOrigin={{
+        vertical: 'top',
+        horizontal: 'center',
+      }}
+      sx={{
+        '& .MuiPopover-paper': {
+          maxWidth: 320,
+          padding: 2,
+          borderRadius: '12px',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+        }
+      }}
+    >
+      <Paper elevation={0}>
+        <Typography variant="subtitle1" fontWeight="bold" sx={{ marginBottom: 1, color: colors.primary }}>
+          {title}
+        </Typography>
+        <Typography variant="body2" sx={{ marginBottom: 2, color: 'text.secondary' }}>
+          {description}
+        </Typography>
+        <Box sx={{ 
+          backgroundColor: colors.gray[50], 
+          padding: 1.5, 
+          borderRadius: '8px',
+          border: `1px solid ${colors.gray[200]}`
+        }}>
+          <Typography variant="caption" fontWeight="bold" sx={{ display: 'block', marginBottom: 0.5 }}>
+            How it's calculated:
+          </Typography>
+          <Typography variant="caption" sx={{ color: 'text.secondary', lineHeight: 1.4 }}>
+            {calculation}
+          </Typography>
+        </Box>
+      </Paper>
+    </Popover>
+  );
+};
+
 const TimeConsistencyTab: React.FC<TimeConsistencyTabProps> = ({
   timeManagement,
   consistency,
@@ -67,6 +136,24 @@ const TimeConsistencyTab: React.FC<TimeConsistencyTabProps> = ({
   customTooltip: CustomTooltip,
   actualHoursThisWeek,
 }) => {
+  const [learningPaceAnchor, setLearningPaceAnchor] = useState<HTMLElement | null>(null);
+  const [optimalHoursAnchor, setOptimalHoursAnchor] = useState<HTMLElement | null>(null);
+
+  const handleLearningPaceClick = (event: React.MouseEvent<HTMLElement>) => {
+    setLearningPaceAnchor(event.currentTarget);
+  };
+
+  const handleOptimalHoursClick = (event: React.MouseEvent<HTMLElement>) => {
+    setOptimalHoursAnchor(event.currentTarget);
+  };
+
+  const handleCloseLearningPace = () => {
+    setLearningPaceAnchor(null);
+  };
+
+  const handleCloseOptimalHours = () => {
+    setOptimalHoursAnchor(null);
+  };
 
   // Prepare chart data using the prop value
   const timeData = [
@@ -107,7 +194,7 @@ const TimeConsistencyTab: React.FC<TimeConsistencyTabProps> = ({
                 <CartesianGrid strokeDasharray="3 3" stroke={colors.gray[200]} />
                 <XAxis dataKey="name" />
                 <YAxis />
-                <Tooltip content={<CustomTooltip />} />
+                <RechartsTooltip content={<CustomTooltip />} />
                 <Legend />
                 <Bar dataKey="hours" fill={colors.primary} radius={[4, 4, 0, 0]} />
               </BarChart>
@@ -140,11 +227,29 @@ const TimeConsistencyTab: React.FC<TimeConsistencyTabProps> = ({
             </MetricCard>
 
             <MetricCard>
-              <CardContent sx={{ textAlign: 'center' }}>
+              <CardContent sx={{ textAlign: 'center', position: 'relative' }}>
                 <FiTarget size={32} color={colors.warning} />
-                <Typography variant="h5" fontWeight="bold" sx={{ marginTop: 1 }}>
-                  {timeManagement?.timeAnalysis.optimalHoursPerWeek}h
-                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5 }}>
+                  <Typography variant="h5" fontWeight="bold" sx={{ marginTop: 1 }}>
+                    {timeManagement?.timeAnalysis.optimalHoursPerWeek}h
+                  </Typography>
+                  <Tooltip title="Click for calculation details">
+                    <IconButton 
+                      size="small" 
+                      onClick={handleOptimalHoursClick}
+                      sx={{ 
+                        marginTop: 0.5,
+                        '&:hover': { 
+                          backgroundColor: 'rgba(0,0,0,0.04)',
+                          transform: 'scale(1.1)'
+                        },
+                        transition: 'all 0.2s ease'
+                      }}
+                    >
+                      <FiInfo size={16} color={colors.info} />
+                    </IconButton>
+                  </Tooltip>
+                </Box>
                 <Typography variant="caption" color="text.secondary">
                   Optimal Weekly Target
                 </Typography>
@@ -152,17 +257,52 @@ const TimeConsistencyTab: React.FC<TimeConsistencyTabProps> = ({
             </MetricCard>
 
             <MetricCard>
-              <CardContent sx={{ textAlign: 'center' }}>
+              <CardContent sx={{ textAlign: 'center', position: 'relative' }}>
                 <FiActivity size={32} color={colors.info} />
-                <Typography variant="h5" fontWeight="bold" sx={{ marginTop: 1 }}>
-                  {timeManagement?.timeAnalysis.learningPace}
-                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5 }}>
+                  <Typography variant="h5" fontWeight="bold" sx={{ marginTop: 1 }}>
+                    {timeManagement?.timeAnalysis.learningPace}
+                  </Typography>
+                  <Tooltip title="Click for calculation details">
+                    <IconButton 
+                      size="small" 
+                      onClick={handleLearningPaceClick}
+                      sx={{ 
+                        marginTop: 0.5,
+                        '&:hover': { 
+                          backgroundColor: 'rgba(0,0,0,0.04)',
+                          transform: 'scale(1.1)'
+                        },
+                        transition: 'all 0.2s ease'
+                      }}
+                    >
+                      <FiInfo size={16} color={colors.info} />
+                    </IconButton>
+                  </Tooltip>
+                </Box>
                 <Typography variant="caption" color="text.secondary">
                   Learning Pace
                 </Typography>
               </CardContent>
             </MetricCard>
           </StatsGrid>
+
+          {/* Info Popups */}
+          <InfoPopup
+            title="Learning Pace Calculation"
+            description="Your learning pace is determined by how effectively you complete enrolled courses."
+            calculation="Based on completion rate: Fast (≥80%), Moderate (50-79%), Slow (<50%). Completion rate = (completed courses ÷ total enrolled courses) × 100%"
+            anchorEl={learningPaceAnchor}
+            onClose={handleCloseLearningPace}
+          />
+
+          <InfoPopup
+            title="Optimal Hours Calculation"
+            description="Recommended weekly study hours based on your current performance and completion rate."
+            calculation="High performers (≥80% completion): +2 hours (max 15h). Low performers (<50%): -2 hours (min 3h). Moderate (50-79%): maintain current target."
+            anchorEl={optimalHoursAnchor}
+            onClose={handleCloseOptimalHours}
+          />
 
           <Grid container spacing={3}>
             <Grid size={{ xs: 12, md: 6 }}>
@@ -245,7 +385,7 @@ const TimeConsistencyTab: React.FC<TimeConsistencyTabProps> = ({
                 <CartesianGrid strokeDasharray="3 3" stroke={colors.gray[200]} />
                 <XAxis dataKey="week" />
                 <YAxis />
-                <Tooltip content={<CustomTooltip />} />
+                <RechartsTooltip content={<CustomTooltip />} />
                 <Legend />
                 <Line type="monotone" dataKey="streak" stroke={colors.warning} strokeWidth={3} dot={{ fill: colors.warning, strokeWidth: 2, r: 6 }} />
                 <Line type="monotone" dataKey="goals" stroke={colors.success} strokeWidth={3} dot={{ fill: colors.success, strokeWidth: 2, r: 6 }} />
