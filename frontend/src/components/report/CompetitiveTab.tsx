@@ -210,7 +210,6 @@ const CompetitiveTab: React.FC<CompetitiveTabProps> = ({
             </MetricCard>
           </SectionContainer>
 
-          {/* Insights and Motivation */}
           <Grid container spacing={3}>
             <Grid size={{ xs: 12, md: 6 }}>
               <SectionTitle>Competitive Insights</SectionTitle>

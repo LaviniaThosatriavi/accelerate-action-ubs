@@ -213,9 +213,6 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                       progress={hoursProgress} 
                       color={colors.warning} 
                     />
-                    <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem', marginTop: 0.5 }}>
-                      Live API data
-                    </Typography>
                   </CardContent>
                 </MetricCard>
               </Grid>

@@ -32,7 +32,6 @@ public class ReportAnalyticsService {
     @Autowired
     private CourseRepository courseRepository;
     
-    // Basic Performance Metrics
     public Map<String, Object> getBasicMetrics(User user) {
         Map<String, Object> metrics = new HashMap<>();
         

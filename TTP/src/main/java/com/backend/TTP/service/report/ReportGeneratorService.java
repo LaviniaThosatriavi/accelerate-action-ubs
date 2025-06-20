@@ -1,4 +1,3 @@
-// service/report/ReportGeneratorService.java
 package com.backend.TTP.service.report;
 
 import com.backend.TTP.dto.LeaderboardResponse;
@@ -7,6 +6,7 @@ import com.backend.TTP.dto.report.*;
 import com.backend.TTP.model.*;
 import com.backend.TTP.repository.*;
 import com.backend.TTP.service.AchievementService;
+import com.backend.TTP.service.EnrolledCourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,6 +32,9 @@ public class ReportGeneratorService {
     
     @Autowired
     private CourseRepository courseRepository;
+    
+    @Autowired
+    private EnrolledCourseService enrolledCourseService;
     
     public LearningOverviewReport generateOverviewReport(User user) {
         Map<String, Object> basicMetrics = analyticsService.getBasicMetrics(user);
@@ -149,12 +152,12 @@ public class ReportGeneratorService {
     public TimeManagementReport generateTimeManagementReport(User user) {
         Map<String, Object> basicMetrics = analyticsService.getBasicMetrics(user);
         
+        // Get actual hours from the new API endpoint
+        Integer actualHours = enrolledCourseService.getTotalHoursThisWeek(user);
         Integer plannedHours = (Integer) basicMetrics.get("targetHoursPerWeek");
-        Integer actualHours = (Integer) basicMetrics.get("hoursThisWeek");
         
         TimeManagementReport.TimeAnalysis analysis = new TimeManagementReport.TimeAnalysis();
         analysis.setPlannedHoursPerWeek(plannedHours);
-        analysis.setActualHoursThisWeek(actualHours);
         
         // Calculate utilization rate
         double utilizationRate = plannedHours > 0 ? (actualHours * 100.0 / plannedHours) : 0.0;
@@ -172,10 +175,10 @@ public class ReportGeneratorService {
         
         analysis.setHasOverdueDeadlines(checkOverdueDeadlines(user));
         
-        List<String> insights = generateTimeInsights(analysis);
+        List<String> insights = generateTimeInsights(analysis, actualHours);
         List<String> tips = generateOptimizationTips(analysis);
         
-        String summary = generateTimeSummary(analysis);
+        String summary = generateTimeSummary(analysis, actualHours);
         
         TimeManagementReport report = new TimeManagementReport();
         report.setSummary(summary);
@@ -201,7 +204,7 @@ public class ReportGeneratorService {
         
         metrics.setPointsThisWeek((Integer) competitiveMetrics.get("dailyPoints"));
         metrics.setPointsToNextRank(calculatePointsToNextRank(user, rank));
-        metrics.setTrendDirection("Stable"); // Could be enhanced with historical data
+        metrics.setTrendDirection("Stable"); 
         metrics.setBadgeLevel((String) basicMetrics.get("currentBadgeLevel"));
         metrics.setPointsToNextBadge(calculatePointsToNextBadge(basicMetrics));
         
@@ -282,9 +285,9 @@ public class ReportGeneratorService {
             metrics.getConsistencyLevel(), metrics.getCurrentLoginStreak(), metrics.getGoalCompletionRate());
     }
     
-    private String generateTimeSummary(TimeManagementReport.TimeAnalysis analysis) {
+    private String generateTimeSummary(TimeManagementReport.TimeAnalysis analysis, Integer actualHours) {
         return String.format("You've studied %d hours this week out of %d planned (%.1f%% utilization). Recommendation: %s your study time.",
-            analysis.getActualHoursThisWeek(), analysis.getPlannedHoursPerWeek(), 
+            actualHours, analysis.getPlannedHoursPerWeek(), 
             analysis.getTimeUtilizationRate(), analysis.getRecommendation());
     }
     
@@ -427,7 +430,7 @@ public class ReportGeneratorService {
                                course.getTargetCompletionDate().isBefore(today));
     }
     
-    private List<String> generateTimeInsights(TimeManagementReport.TimeAnalysis analysis) {
+    private List<String> generateTimeInsights(TimeManagementReport.TimeAnalysis analysis, Integer actualHours) {
         List<String> insights = new ArrayList<>();
         
         if (analysis.getTimeUtilizationRate() < 70) {
@@ -544,13 +547,30 @@ public class ReportGeneratorService {
     private List<String> generateMotivationalMessages(CompetitiveReport.CompetitiveMetrics metrics) {
         List<String> messages = new ArrayList<>();
         
-        messages.add("Keep up the momentum - every point counts!");
+        // Check if user is MASTER with maximum achievement
+        boolean isMasterAtTop = "MASTER".equals(metrics.getBadgeLevel()) && 
+                               metrics.getPointsToNextBadge() == 0 && 
+                               metrics.getCurrentRank() <= 3;
+        
+        if (isMasterAtTop) {
+            // Special message for top Masters
+            if (metrics.getCurrentRank() == 1) {
+                messages.add("Excellent work maintaining your #1 position - you're the ultimate learning champion!");
+            } else {
+                messages.add("Outstanding performance! Keep defending your top " + metrics.getCurrentRank() + " position!");
+            }
+        } else {
+            // Standard momentum message for all other users
+            messages.add("Keep up the momentum - every point counts!");
+        }
         
         if (metrics.getPointsToNextBadge() > 0) {
             String nextBadge = getNextBadgeName(metrics.getBadgeLevel());
             messages.add("You're " + metrics.getPointsToNextBadge() + " points away from " + nextBadge + " level!");
         } else {
-            messages.add("Congratulations! You've reached the highest badge level - MASTER!");
+            if (!isMasterAtTop) {
+                messages.add("Congratulations! You've reached the highest badge level - MASTER!");
+            }
         }
         
         if (metrics.getCurrentRank() > 50) {

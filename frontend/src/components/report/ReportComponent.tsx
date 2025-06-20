@@ -110,7 +110,7 @@ const ReportComponent: React.FC = () => {
       const data: unknown = await response.json();
       return data;
     } catch (error) {
-      console.error(`❌ Error fetching ${url}:`, error);
+      console.error(`Error fetching ${url}:`, error);
       throw error;
     }
   }, []);
@@ -121,7 +121,7 @@ const ReportComponent: React.FC = () => {
       const hours = await fetchWithAuth('/api/enrolled-courses/total-hours-this-week');
       setActualHoursThisWeek(hours as number);
     } catch (error) {
-      console.error('❌ Refresh failed:', error);
+      console.error('Refresh failed:', error);
     }
   }, [fetchWithAuth]);
 
@@ -185,7 +185,6 @@ const ReportComponent: React.FC = () => {
     setActiveTab(newValue);
   };
 
-  // Custom tooltip component
   const CustomTooltip = ({ active, payload, label }: {
     active?: boolean;
     payload?: Array<{
