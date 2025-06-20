@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
   Typography,
   Box,
-  Chip,
   Alert,
   CardContent,
   Grid,
@@ -28,7 +27,6 @@ import {
   FiActivity,
   FiTarget,
   FiZap,
-  FiCalendar,
   FiInfo,
 } from 'react-icons/fi';
 import { FaRegLightbulb } from "react-icons/fa";
@@ -404,7 +402,7 @@ const TimeConsistencyTab: React.FC<TimeConsistencyTabProps> = ({
                       {consistency?.metrics.currentLoginStreak}
                     </Typography>
                     <Typography variant="body1" color="red" sx={{ marginBottom: 0.5 }}>
-                      Current Streak
+                      Current Login Streak
                     </Typography>
                   </Box>
                 </Box>
@@ -425,31 +423,6 @@ const TimeConsistencyTab: React.FC<TimeConsistencyTabProps> = ({
                     <Typography variant="caption" color={colors.success}>
                       {consistency?.metrics.goalsCompletedThisWeek}/{consistency?.metrics.totalGoalsThisWeek} this week
                     </Typography>
-                  </Box>
-                </Box>
-              </CardContent>
-            </MetricCard>
-
-            <MetricCard alignItems gradient={`linear-gradient(135deg, ${colors.info}, #1d4ed8)`}>
-              <CardContent sx={{ padding: '16px !important' }}>
-                <Box display="flex" alignItems="center" gap={2}>
-                  <FiCalendar size={48} color="blue" />
-                  <Box display="flex" flexDirection="column" alignItems="flex-start">
-                    <Typography variant="h3" fontWeight="bold" color="blue" lineHeight={1}>
-                      {consistency?.metrics.averageStudySessionsPerWeek}
-                    </Typography>
-                    <Typography variant="body1" color="blue" sx={{ marginBottom: 1 }}>
-                      Sessions/Week
-                    </Typography>
-                    <Chip 
-                      label={consistency?.metrics.consistencyLevel}
-                      size="small"
-                      sx={{ 
-                        background: 'rgba(255,255,255,0.2)', 
-                        color: 'blue',
-                        fontWeight: 'bold'
-                      }}
-                    />
                   </Box>
                 </Box>
               </CardContent>

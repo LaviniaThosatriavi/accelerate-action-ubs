@@ -79,11 +79,5 @@ public class ConsistencyReport {
                 allowableValues = {"Excellent", "Good", "Fair", "Needs Improvement"},
                 accessMode = Schema.AccessMode.READ_ONLY)
         private String consistencyLevel; // "Excellent", "Good", "Fair", "Needs Improvement"
-        
-        @Schema(description = "Average number of study sessions per week", 
-                example = "6", 
-                minimum = "0",
-                accessMode = Schema.AccessMode.READ_ONLY)
-        private Integer averageStudySessionsPerWeek;
     }
 }

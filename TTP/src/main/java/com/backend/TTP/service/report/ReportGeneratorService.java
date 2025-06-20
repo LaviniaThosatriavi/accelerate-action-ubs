@@ -128,7 +128,6 @@ public class ReportGeneratorService {
         metrics.setGoalCompletionRate((Double) goalMetrics.get("goalCompletionRate"));
         metrics.setGoalsCompletedThisWeek((Integer) goalMetrics.get("completedGoalsThisWeek"));
         metrics.setTotalGoalsThisWeek((Integer) goalMetrics.get("totalGoalsThisWeek"));
-        metrics.setAverageStudySessionsPerWeek(0); // Removed as requested
         
         // Determine consistency level
         String consistencyLevel = determineConsistencyLevel(metrics);
@@ -204,7 +203,6 @@ public class ReportGeneratorService {
         
         metrics.setPointsThisWeek((Integer) competitiveMetrics.get("dailyPoints"));
         metrics.setPointsToNextRank(calculatePointsToNextRank(user, rank));
-        metrics.setTrendDirection("Stable"); 
         metrics.setBadgeLevel((String) basicMetrics.get("currentBadgeLevel"));
         metrics.setPointsToNextBadge(calculatePointsToNextBadge(basicMetrics));
         

@@ -110,27 +110,11 @@ const CompetitiveTab: React.FC<CompetitiveTabProps> = ({
             <Grid size={{ xs: 12, md: 6 }}>
               <RankCard>
                 <CardContent sx={{ textAlign: 'center', position: 'relative', zIndex: 1 }}>
-                  <Box position="relative" display="inline-block" sx={{ marginBottom: 2 }}>
-                    <FiUsers size={64} color="black" />
-                    {competitive?.metrics.trendDirection === 'Rising' && (
-                      <FiTrendingUp 
-                        size={24} 
-                        color={colors.success} 
-                        style={{ 
-                          position: 'absolute', 
-                          top: -8, 
-                          right: -8,
-                          background: 'white',
-                          borderRadius: '50%',
-                          padding: '2px'
-                        }} 
-                      />
-                    )}
-                  </Box>
-                  <Typography variant="h2" fontWeight="bold" color="white">
+                  <FiUsers size={64} color="black"/>
+                  <Typography variant="h2" fontWeight="bold" color="red">
                     #{competitive?.metrics.currentRank}
                   </Typography>
-                  <Typography variant="h6" color="black" sx={{ marginBottom: 1 }}>
+                  <Typography variant="h6" color="black" sx={{ marginTop:0 }}>
                     Current Rank
                   </Typography>
                   <Typography variant="body2" color="black">
@@ -139,7 +123,7 @@ const CompetitiveTab: React.FC<CompetitiveTabProps> = ({
                   <Chip 
                     label={competitive?.metrics.percentile}
                     sx={{ 
-                      marginTop: 2,
+                      marginTop: 0,
                       background: 'rgba(255,255,255,0.2)', 
                       color: 'black',
                       fontWeight: 'bold'
@@ -238,7 +222,7 @@ const CompetitiveTab: React.FC<CompetitiveTabProps> = ({
                     background: 'linear-gradient(135deg, #ecfdf5, #d1fae5)'
                   }}
                 >
-                  <Typography variant="body2" fontWeight="500">
+                  <Typography textAlign="left" variant="body2" fontWeight="500">
                     {message}
                   </Typography>
                 </Alert>

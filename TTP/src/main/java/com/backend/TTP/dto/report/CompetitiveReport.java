@@ -71,13 +71,7 @@ public class CompetitiveReport {
                 minimum = "0",
                 accessMode = Schema.AccessMode.READ_ONLY)
         private Integer pointsToNextRank;
-        
-        @Schema(description = "Direction of rank movement trend", 
-                example = "Rising",
-                allowableValues = {"Rising", "Falling", "Stable"},
-                accessMode = Schema.AccessMode.READ_ONLY)
-        private String trendDirection; // "Rising", "Falling", "Stable"
-        
+
         @Schema(description = "Current badge level achieved", 
                 example = "SILVER",
                 allowableValues = {"BEGINNER", "BRONZE", "SILVER", "GOLD", "PLATINUM", "DIAMOND"},

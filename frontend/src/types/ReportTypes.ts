@@ -76,7 +76,6 @@ export interface ConsistencyMetrics {
     goalsCompletedThisWeek: number;
     totalGoalsThisWeek: number;
     consistencyLevel: string;
-    averageStudySessionsPerWeek: number;
 }
 
 export interface ConsistencyData {
@@ -93,7 +92,6 @@ export interface CompetitiveMetrics {
     percentile: string;
     pointsThisWeek: number;
     pointsToNextRank: number;
-    trendDirection: string;
     badgeLevel: string;
     pointsToNextBadge: number;
 }
