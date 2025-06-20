@@ -257,7 +257,7 @@ const TimeConsistencyTab: React.FC<TimeConsistencyTabProps> = ({
           <StatsGrid>
             <MetricCard alignItems gradient={`linear-gradient(135deg, ${colors.warning}, #d97706)`}>
               <CardContent sx={{ padding: '16px !important' }}>
-                <Box display="flex" alignItems="center" gap={2}>
+                <Box display="flex" alignItems="center" gap={2} marginTop="2vh">
                   <IoMdFlame size={48} color="red" />
                   <Box display="flex" flexDirection="column" alignItems="flex-start">
                     <Typography variant="h3" fontWeight="bold" color="red" lineHeight={1}>
@@ -266,9 +266,6 @@ const TimeConsistencyTab: React.FC<TimeConsistencyTabProps> = ({
                     <Typography variant="body1" color="red" sx={{ marginBottom: 0.5 }}>
                       Current Streak
                     </Typography>
-                    <Typography variant="caption" color="red">
-                      Best: {consistency?.metrics.longestLoginStreak} days
-                    </Typography>
                   </Box>
                 </Box>
               </CardContent>
@@ -276,7 +273,7 @@ const TimeConsistencyTab: React.FC<TimeConsistencyTabProps> = ({
 
             <MetricCard alignItems>
               <CardContent sx={{ padding: '16px !important' }}>
-                <Box display="flex" alignItems="center" gap={2}>
+                <Box display="flex" alignItems="center" gap={2} marginTop="1vh">
                   <FiTarget size={48} color={colors.success} />
                   <Box display="flex" flexDirection="column" alignItems="flex-start">
                     <Typography variant="h3" fontWeight="bold" color={colors.success} lineHeight={1}>
