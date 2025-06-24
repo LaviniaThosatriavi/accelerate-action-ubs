@@ -469,7 +469,6 @@ export const Achievements: React.FC = () => {
         </ModalOverlay>
       )}
 
-      {/* Leaderboard Modal */}
       {showLeaderboard && leaderboard && (
         <ModalOverlay onClick={() => setShowLeaderboard(false)}>
           <ModalContent onClick={(e) => e.stopPropagation()}>
