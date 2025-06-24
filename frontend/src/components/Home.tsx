@@ -23,13 +23,13 @@ const SearchContainer = styled.form`
 `;
 
 const SearchInput = styled.input`
-  padding: 12px 20px;
+  padding: 1vh 2vw;
   width: 95%;
   background-color: white;
   border:none;
   color: black;
   border-radius: 25px;
-  font-size: 16px;
+  font-size: clamp(0.8rem, 4vw, 1rem);
   outline: none;
   transition: all 0.3s ease;
 
@@ -42,11 +42,15 @@ const NewsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 25px;
-  padding: 0 20px;
   overflow-y: auto;
 
   @media (max-width: 768px) {
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  }
+
+  @media (max-width: 400px) {
+    grid-template-columns: 1fr; /* Single column */
+    gap: 15px;
   }
 `;
 
@@ -56,7 +60,7 @@ const NewsCard = styled.div`
   border-radius: 10px;
   padding: 15px;
   cursor: pointer;
-  min-height: 250px;
+  min-height: 100px;
   display: flex;
   flex-direction: column;
   transition: transform 0.2s, box-shadow 0.2s;
@@ -72,21 +76,20 @@ const NewsImage = styled.img`
   height: 150px;
   object-fit: cover;
   border-radius: 5px;
-  margin-bottom: 10px;
   border: 1px solid #ddd;
 `;
 
 const NewsTitle = styled.h3`
   color: black;
-  font-size: 1.1rem;
-  margin-bottom: 10px;
+  font-size: clamp(0.95rem, 2vw, 1.1rem);
+  margin-bottom: 0;
   flex-grow: 1;
   line-height: 1.4;
 `;
 
 const NewsDescription = styled.p`
   color: #444;
-  font-size: 0.9rem;
+  font-size: clamp(0.8rem, 2vw, 0.9rem);
   margin-bottom: 10px;
   line-height: 1.4;
 `;
@@ -95,7 +98,8 @@ const ReadMore = styled.button`
   background-color: #ff0000;
   color: white;
   border: none;
-  padding: 8px 15px;
+  padding: 0.8vh 1.2vw;
+  font-size: clamp(0.7rem, 2vw, 1rem);
   border-radius: 5px;
   cursor: pointer;
   align-self: flex-start;
