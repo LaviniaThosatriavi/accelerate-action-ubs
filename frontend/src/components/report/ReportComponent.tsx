@@ -225,14 +225,25 @@ const ReportComponent: React.FC = () => {
             borderRadius: '12px' 
           }}
         >
-          <Typography variant="h6" fontWeight="bold">
+          <Typography 
+            variant="h6" 
+            color="text.secondary"
+            sx={{ fontSize: 'clamp(1rem, 2.5vw, 1.25rem)' }} 
+          >
             Failed to Load Report
           </Typography>
-          <Typography variant="body2">
+          <Typography 
+            variant="body2" 
+            sx={{ fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }} 
+          >
             {error}
           </Typography>
           <Box sx={{ marginTop: 2 }}>
-            <Typography variant="body2" color="text.secondary">
+            <Typography 
+              variant="body2" 
+              color="text.secondary"
+              sx={{ fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }}
+            >
               Please check your internet connection and try refreshing the page.
             </Typography>
           </Box>
@@ -246,7 +257,11 @@ const ReportComponent: React.FC = () => {
       <ReportContainer>
         <LoadingContainer>
           <CircularProgress size={60} sx={{ color: colors.primary }} />
-          <Typography variant="h6" color="text.secondary">
+          <Typography 
+            variant="h6" 
+            color="text.secondary"
+            sx={{ fontSize: 'clamp(1rem, 2.5vw, 1.25rem)' }} 
+          >
             Loading your learning analytics...
           </Typography>
         </LoadingContainer>
@@ -257,72 +272,127 @@ const ReportComponent: React.FC = () => {
   return (
     <ReportContainer>
       <HeaderCard>
-        <CardContent sx={{ padding: '32px' }}>
-          <Box display="flex" alignItems="center" justifyContent="space-between" sx={{ marginBottom: 3 }}>
+        <CardContent sx={{ padding: '4vh 3vw' }}>
+          <Box 
+            display="flex" 
+            alignItems="center" 
+            justifyContent="space-between" 
+            sx={{ 
+              marginBottom: 3,
+              '@media (max-width: 768px)': {
+                flexDirection: 'column',
+                alignItems: 'stretch',
+                gap: 2
+              }
+            }}
+          >
             <Box display="flex" alignItems="center" gap={2}>
               <Avatar
                 sx={{
-                  width: 64,
-                  height: 64,
+                  width: 'clamp(30px, 2vw, 70px)',
+                  height: 'clamp(30px, 2vw, 70px)',
                   background: `linear-gradient(135deg, ${getBadgeColor(quickInsights?.currentBadgeLevel || 'SILVER')}, ${colors.secondary})`,
-                  fontSize: '24px',
+                  fontSize: 'clamp(14px, 3vw, 20px)',
                   fontWeight: 'bold'
                 }}
               >
                 {quickInsights?.username?.[0]?.toUpperCase() || 'U'}
               </Avatar>
               <Box>
-                <Typography variant="h4" fontWeight="bold" color="primary">
+                <Typography 
+                  variant="h4" 
+                  fontWeight="bold" 
+                  color="primary"
+                  sx={{ fontSize: 'clamp(1.25rem, 4vw, 1.8rem)' }} 
+                >
                   Welcome back, {quickInsights?.username || 'User'}!
                 </Typography>
-                <Typography variant="h6" color="text.secondary">
+                <Typography 
+                  variant="h6" 
+                  color="text.secondary"
+                  sx={{ fontSize: 'clamp(0.8rem, 2.5vw, 1.25rem)' }}
+                >
                   Learning Performance Dashboard
                 </Typography>
               </Box>
             </Box>
-            <Box display="flex" alignItems="center" gap={2}>
+            
+            <Box 
+              display="flex" 
+              alignItems="center" 
+              gap={2}
+              sx={{
+                '@media (max-width: 768px)': {
+                  justifyContent: 'flex-start',
+                  margin: 0,
+                  gap: 0.2
+                }
+              }}
+            >
               <IconButton
                 onClick={refreshHours}
                 sx={{
                   background: 'rgba(255,255,255,0.1)',
                   '&:hover': {
                     background: 'rgba(255,255,255,0.2)'
+                  },
+                  '& svg': {
+                    fontSize: 'clamp(15px, 2vw, 20px)'
                   }
                 }}
                 title="Refresh hours data"
               >
-                <FiRefreshCw size={20} />
+                <FiRefreshCw />
               </IconButton>
               <Chip
-                icon={<IoMdFlame size={16} />}
+                icon={
+                  <IoMdFlame 
+                    style={{ fontSize: 'clamp(12px, 2vw, 16px)' }} 
+                  />
+                }
                 label={`${quickInsights?.loginStreak || 0} Day Streak`}
                 sx={{
                   background: `linear-gradient(45deg, ${colors.warning}, #ee5a52)`,
                   color: 'white',
-                  fontSize: '16px',
-                  padding: '8px 16px',
-                  height: '40px'
+                  fontSize: 'clamp(12px, 2vw, 16px)',
+                  padding: '0.5vh 0.5vw',
+                  gap: 'clamp(0px, 2vw, 8px)'
                 }}
               />
               <Chip
-                icon={<IoMdMedal size={16} />}
+                icon={
+                  <IoMdMedal 
+                    style={{ fontSize: 'clamp(12px, 2vw, 16px)' }} 
+                  />
+                }
                 label={quickInsights?.currentBadgeLevel || 'SILVER'}
                 sx={{
                   background: getBadgeColor(quickInsights?.currentBadgeLevel || 'SILVER'),
                   color: 'white',
-                  fontSize: '14px'
+                  fontSize: 'clamp(10px, 2vw, 14px)',
+                  gap: 'clamp(0px, 2vw, 8px)'
                 }}
               />
             </Box>
           </Box>
-          
+      
           <StatsGrid>
             <MetricCard center gradient={`linear-gradient(135deg, ${colors.primary}, ${colors.secondary})`}>
               <CardContent>
-                <Typography variant="h3" fontWeight="bold" color="black" marginBottom="0.5vh">
+                <Typography 
+                  variant="h3" 
+                  fontWeight="bold" 
+                  color="black" 
+                  marginBottom="0.5vh"
+                  sx={{ fontSize: 'clamp(1.5rem, 5vw, 3rem)' }} 
+                >
                   {quickInsights?.completionRate || 0}%
                 </Typography>
-                <Typography variant="body2" color="black">
+                <Typography 
+                  variant="body2" 
+                  color="black"
+                  sx={{ fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }} 
+                >
                   Completion Rate
                 </Typography>
               </CardContent>
@@ -330,10 +400,20 @@ const ReportComponent: React.FC = () => {
             
             <MetricCard center gradient={`linear-gradient(135deg, ${colors.success}, #059669)`}>
               <CardContent>
-                <Typography variant="h3" fontWeight="bold" color="black">
+                <Typography 
+                  variant="h3" 
+                  fontWeight="bold" 
+                  color="black" 
+                  marginBottom="0.5vh"
+                  sx={{ fontSize: 'clamp(1.5rem, 5vw, 3rem)' }} 
+                >
                   {quickInsights?.averageScore || 0}%
                 </Typography>
-                <Typography variant="body2" color="black">
+                <Typography 
+                  variant="body2" 
+                  color="black"
+                  sx={{ fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }} 
+                >
                   Average Score
                 </Typography>
               </CardContent>
@@ -341,10 +421,20 @@ const ReportComponent: React.FC = () => {
 
             <MetricCard center gradient={`linear-gradient(135deg, ${colors.warning}, #d97706)`}>
               <CardContent>
-                <Typography variant="h3" fontWeight="bold" color="black">
+                <Typography 
+                  variant="h3" 
+                  fontWeight="bold" 
+                  color="black" 
+                  marginBottom="0.5vh"
+                  sx={{ fontSize: 'clamp(1.5rem, 5vw, 3rem)' }}
+                >
                   {overviewData?.performance.totalCourses || 0}
                 </Typography>
-                <Typography variant="body2" color="black">
+                <Typography 
+                  variant="body2" 
+                  color="black"
+                  sx={{ fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }} 
+                >
                   Total Courses
                 </Typography>
               </CardContent>
@@ -352,10 +442,20 @@ const ReportComponent: React.FC = () => {
 
             <MetricCard center gradient={`linear-gradient(135deg, ${colors.info}, #1d4ed8)`}>
               <CardContent>
-                <Typography variant="h3" fontWeight="bold" color="black">
+                <Typography 
+                  variant="h3" 
+                  fontWeight="bold" 
+                  color="black" 
+                  marginBottom="0.5vh"
+                  sx={{ fontSize: 'clamp(1.5rem, 5vw, 3rem)' }} 
+                >
                   {actualHoursThisWeek}h
                 </Typography>
-                <Typography variant="body2" color="black">
+                <Typography 
+                  variant="body2" 
+                  color="black"
+                  sx={{ fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }} 
+                >
                   Hours This Week
                 </Typography>
               </CardContent>
@@ -373,10 +473,18 @@ const ReportComponent: React.FC = () => {
                   border: 'none'
                 }}
               >
-                <Typography variant="subtitle1" fontWeight="bold">
+               <Typography 
+                  variant="subtitle1" 
+                  fontWeight="bold"
+                  sx={{ fontSize: 'clamp(0.875rem, 2.5vw, 1rem)' }} 
+                >
                   Top Strength
                 </Typography>
-                <Typography variant="body2">
+                <Typography 
+                  variant="body2" 
+                  color="black"
+                  sx={{ fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }} 
+                >
                   {quickInsights?.topStrength}
                 </Typography>
               </Alert>
@@ -391,10 +499,18 @@ const ReportComponent: React.FC = () => {
                   border: 'none'
                 }}
               >
-                <Typography variant="subtitle1" fontWeight="bold">
+                <Typography 
+                  variant="subtitle1" 
+                  fontWeight="bold"
+                  sx={{ fontSize: 'clamp(0.875rem, 2.5vw, 1rem)' }} 
+                >
                   Top Recommendation
                 </Typography>
-                <Typography variant="body2">
+                <Typography 
+                  variant="body2" 
+                  color="black"
+                  sx={{ fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }} 
+                >
                   {quickInsights?.topRecommendation}
                 </Typography>
               </Alert>

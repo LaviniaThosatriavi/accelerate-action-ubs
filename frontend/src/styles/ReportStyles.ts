@@ -180,23 +180,23 @@ export const InsightCard = styled(Card) <{ variant?: 'success' | 'warning' | 'in
     border-radius: 12px;
     margin: 8px 0;
     border: 1px solid ${props => {
-        switch (props.variant) {
-            case 'success': return '#d1fae5';
-            case 'warning': return '#fef3c7';
-            case 'info': return '#dbeafe';
-            case 'error': return '#fee2e2';
-            default: return '#e2e8f0';
-        }
-    }};
+    switch (props.variant) {
+      case 'success': return '#d1fae5';
+      case 'warning': return '#fef3c7';
+      case 'info': return '#dbeafe';
+      case 'error': return '#fee2e2';
+      default: return '#e2e8f0';
+    }
+  }};
     background: ${props => {
-        switch (props.variant) {
-            case 'success': return 'linear-gradient(135deg, #ecfdf5, #d1fae5)';
-            case 'warning': return 'linear-gradient(135deg, #fffbeb, #fef3c7)';
-            case 'info': return 'linear-gradient(135deg, #eff6ff, #dbeafe)';
-            case 'error': return 'linear-gradient(135deg, #fef2f2, #fee2e2)';
-            default: return 'linear-gradient(135deg, #f8fafc, #e2e8f0)';
-        }
-    }};
+    switch (props.variant) {
+      case 'success': return 'linear-gradient(135deg, #ecfdf5, #d1fae5)';
+      case 'warning': return 'linear-gradient(135deg, #fffbeb, #fef3c7)';
+      case 'info': return 'linear-gradient(135deg, #eff6ff, #dbeafe)';
+      case 'error': return 'linear-gradient(135deg, #fef2f2, #fee2e2)';
+      default: return 'linear-gradient(135deg, #f8fafc, #e2e8f0)';
+    }
+  }};
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     animation: ${slideIn} 0.4s ease-out;
 `;
@@ -212,12 +212,12 @@ export const SkillBadge = styled.div<{ level: 'high' | 'medium' | 'low' }>`
     font-size: 12px;
     font-weight: 600;
     background: ${props => {
-        switch (props.level) {
-            case 'high': return 'linear-gradient(135deg, #10b981, #059669)';
-            case 'medium': return 'linear-gradient(135deg, #f59e0b, #d97706)';
-            case 'low': return 'linear-gradient(135deg, #ef4444, #dc2626)';
-        }
-    }};
+    switch (props.level) {
+      case 'high': return 'linear-gradient(135deg, #10b981, #059669)';
+      case 'medium': return 'linear-gradient(135deg, #f59e0b, #d97706)';
+      case 'low': return 'linear-gradient(135deg, #ef4444, #dc2626)';
+    }
+  }};
     color: white;
     display: inline-flex;
     align-items: center;
@@ -244,10 +244,22 @@ export const RankCard = styled(Card)`
 
 export const StatsGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   grid-auto-rows: 150px; 
-  gap: 3rem;
-  margin-bottom: 24px;
+  gap: clamp(0.75rem, 2vw, 3rem);
+  margin-bottom: 2vh;
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    grid-auto-rows: 120px;
+    gap: clamp(0.5rem, 2vw, 1rem);
+  }
+
+  @media (max-width: 400px) {
+    grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: 100px;
+    gap: 0.5rem;
+  }
 `;
 
 export const SectionContainer = styled.div`
@@ -275,22 +287,22 @@ export const LoadingContainer = styled.div`
 
 // Color Palette
 export const colors = {
-    primary: '#667eea',
-    secondary: '#764ba2',
-    success: '#10b981',
-    warning: '#f59e0b',
-    error: '#ef4444',
-    info: '#3b82f6',
-    gray: {
-        50: '#f8fafc',
-        100: '#f1f5f9',
-        200: '#e2e8f0',
-        300: '#cbd5e1',
-        400: '#94a3b8',
-        500: '#64748b',
-        600: '#475569',
-        700: '#334155',
-        800: '#1e293b',
-        900: '#0f172a',
-    }
+  primary: '#667eea',
+  secondary: '#764ba2',
+  success: '#10b981',
+  warning: '#f59e0b',
+  error: '#ef4444',
+  info: '#3b82f6',
+  gray: {
+    50: '#f8fafc',
+    100: '#f1f5f9',
+    200: '#e2e8f0',
+    300: '#cbd5e1',
+    400: '#94a3b8',
+    500: '#64748b',
+    600: '#475569',
+    700: '#334155',
+    800: '#1e293b',
+    900: '#0f172a',
+  }
 };
