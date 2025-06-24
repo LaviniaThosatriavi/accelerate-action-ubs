@@ -10,8 +10,8 @@ interface SidebarProps {
 }
 
 const SidebarContainer = styled.div<{ isOpen: boolean }>`
-  width: ${(props) => (props.isOpen ? "250px" : "0")};
-  height: calc(100vh - 14vh);
+  width: ${(props) => (props.isOpen ? "15%" : "0")};
+  height: 100%;
   transition: width 0.3s ease;
   background-color: #f8f9fa;
   display: flex;
@@ -23,11 +23,12 @@ const SidebarContainer = styled.div<{ isOpen: boolean }>`
 `;
 
 const SidebarItem = styled.div`
-  margin-bottom: 1rem;
+  margin-top: 2vh;
+  margin-bottom: 2vh;
   display: flex;
   align-items: center;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: clamp(0.8rem, 2vw, 1.2rem);
   color: #333;
 
   &:hover {
@@ -36,19 +37,30 @@ const SidebarItem = styled.div`
 `;
 
 const IconWrapper = styled.div`
-  margin-right: 0.5rem;
+  margin-right: clamp(0.2rem, 1vw, 0.5rem);
   display: flex;
   align-items: center;
   justify-content: center;
+
+  svg {
+    width: clamp(12px, 3vw, 22px); /* Icon size: 16px to 24px */
+    height: clamp(12px, 3vw, 22px);
+  }
 `;
 
 const SubHeading = styled.div<{ active?: boolean }>`
-  font-size: 1.2rem;
+  font-size: clamp(0.75rem, 2vw, 1.4rem);
   font-weight: bold;
-  margin-top: 2rem;
+  margin-top: 4vh;
   color: ${props => props.active ? '#db2b45' : '#555'};
   cursor: pointer;
   transition: color 0.2s ease;
+  
+  white-space: normal; // Allow wrapping 
+  word-wrap: break-word; // Break long words 
+  overflow-wrap: break-word; 
+  line-height: 1.3; // Comfortable line spacing 
+  max-width: 100%; 
 
   &:hover {
     color: #db2b45;
@@ -57,11 +69,12 @@ const SubHeading = styled.div<{ active?: boolean }>`
 
 const CloseButton = styled.div`
   margin-top: auto;
-  padding: 1rem;
+  margin-bottom: 3rem;
   display: flex;
   align-items: center;
+  justify-content: center;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: clamp(0.8rem, 2.5vw, 1.2rem);
   color: #333;
 
   &:hover {
@@ -80,6 +93,7 @@ const ReopenButton = styled.div`
   padding: 0.5rem;
   border-radius: 0 5px 5px 0;
   box-shadow: 2px 0px 5px rgba(0, 0, 0, 0.1);
+  color: #333;
 
   &:hover {
     background-color: #db2b45;
@@ -101,7 +115,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
       <SidebarContainer isOpen={isOpen}>
         <SidebarItem onClick={() => navigate("/home")}>
           <IconWrapper>
-            <MdHome size={20} />
+            <MdHome />
           </IconWrapper>
           Home
         </SidebarItem>
@@ -133,7 +147,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
         
         <CloseButton onClick={onToggle}>
           <IconWrapper>
-            <HiOutlineChevronDoubleLeft size={20} />
+            <HiOutlineChevronDoubleLeft  />
           </IconWrapper>
           {isOpen ? "Close" : ""}
         </CloseButton>

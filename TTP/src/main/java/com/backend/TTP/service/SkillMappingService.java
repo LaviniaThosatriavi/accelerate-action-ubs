@@ -31,7 +31,7 @@ public class SkillMappingService {
 
     public SkillMappingService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
-        this.youtubeApiKey = "AIzaSyD55X2dxm5vgh6XWf5EffTIMhj2SZNxIME";
+        this.youtubeApiKey = "";
     }
 
     @PostConstruct
