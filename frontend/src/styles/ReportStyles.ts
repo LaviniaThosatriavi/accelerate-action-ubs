@@ -256,9 +256,9 @@ export const StatsGrid = styled.div`
   }
 
   @media (max-width: 400px) {
-    grid-template-columns: repeat(2, 1fr);
-    grid-auto-rows: 100px;
-    gap: 0.5rem;
+    grid-template-columns: 1fr;
+    grid-auto-rows: auto;
+    gap: clamp(0.5rem, 2vw, 1rem);
   }
 `;
 

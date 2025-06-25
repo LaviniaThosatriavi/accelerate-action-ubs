@@ -530,8 +530,14 @@ const ReportComponent: React.FC = () => {
             '& .MuiTab-root': {
               color: 'rgba(255,255,255,0.7)',
               fontWeight: 'bold',
+              fontSize: 'clamp(0.6rem, 2vw, 0.9rem)',
+              minWidth: 'clamp(40px, 2vw, 180px)',
+              gap: '1vh',
               '&.Mui-selected': {
                 color: 'white',
+              },
+              '& svg': {
+                fontSize: 'clamp(16px, 2.5vw, 20px)',
               }
             },
             '& .MuiTabs-indicator': {
@@ -541,11 +547,11 @@ const ReportComponent: React.FC = () => {
             }
           }}
         >
-          <Tab icon={<IoBarChartSharp size={20} />} label="Overview" />
-          <Tab icon={<LuBrainCircuit size={20} />} label="Skills Analysis" />
-          <Tab icon={<FiClock size={20} />} label="Time Management" />
-          <Tab icon={<FiActivity size={20} />} label="Consistency" />
-          <Tab icon={<FiUsers size={20} />} label="Competitive" />
+          <Tab icon={<IoBarChartSharp />} label="Overview" />
+          <Tab icon={<LuBrainCircuit />} label="Skills Analysis" />
+          <Tab icon={<FiClock />} label="Time Management" />
+          <Tab icon={<FiActivity />} label="Consistency" />
+          <Tab icon={<FiUsers />} label="Competitive" />
         </Tabs>
 
         <OverviewTab
