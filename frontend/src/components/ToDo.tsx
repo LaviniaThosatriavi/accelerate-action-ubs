@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 import { format } from 'date-fns';
 import Calendar from '../components/Calendar';
@@ -10,107 +10,167 @@ import { TodoService } from '../service/ToDoService';
 const PageContainer = styled.div`
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
   background-color: #f8f9fa;
-  padding: 20px;
-  gap: 5vh;
+  padding: clamp(15px, 3vw, 20px);
+  gap: clamp(2vh, 3vw, 5vh);
+  min-height: 100vh;
+
+  @media (max-width: 768px) {
+    gap: clamp(20px, 4vw, 30px);
+    padding: clamp(10px, 2.5vw, 15px);
+  }
 `;
 
 const TopSection = styled.div`
   display: flex;
   height: 85vh;
-  margin-bottom: 5vh;
+  min-height: 500px;
+  gap: clamp(15px, 3vw, 20px);
   
   @media (max-width: 768px) {
     flex-direction: column;
-    gap: 20px;
+    height: auto;
+    min-height: unset;
+    gap: clamp(20px, 4vw, 30px);
   }
 `;
 
 const LeftSection = styled.div`
   flex: 1;
-  margin-right: 20px;
   
   @media (max-width: 768px) {
-    margin-right: 0;
-    margin-bottom: 20px;
+    width: 100%;
   }
 `;
 
 const RightSection = styled.div`
   flex: 1;
+  
+  @media (max-width: 768px) {
+    width: 100%;
+  }
 `;
 
 const CompletedTasksSection = styled.div`
   background-color: white;
-  border-radius: 8px;
-  padding: 20px;
+  border-radius: clamp(6px, 1.5vw, 8px);
+  padding: clamp(15px, 3vw, 20px);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  margin-top: clamp(20px, 4vw, 30px);
+  
+  @media (max-width: 768px) {
+    margin-top: 0;
+  }
 `;
 
 const TodayGoalsSection = styled.div`
   background-color: white;
-  border-radius: 8px;
-  padding: 20px;
+  border-radius: clamp(6px, 1.5vw, 8px);
+  padding: clamp(15px, 3vw, 20px);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   height: 100%;
   overflow-y: auto;
+  min-height: 400px;
+  
+  @media (max-width: 768px) {
+    height: auto;
+    min-height: 300px;
+    max-height: 80vh;
+  }
 `;
 
 const SectionTitle = styled.h2`
   color: #3367d6;
   margin-top: 0;
-  margin-bottom: 20px;
+  margin-bottom: clamp(15px, 3vw, 20px);
   font-weight: 500;
+  font-size: clamp(1.25rem, 3vw, 1.5rem);
 `;
 
 const NewGoalForm = styled.form`
-  margin-bottom: 20px;
+  margin-bottom: clamp(15px, 3vw, 20px);
   display: grid;
-  grid-template-columns: 1fr 120px 150px;
-  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: clamp(10px, 2vw, 15px);
+  
+  @media (max-width: 1200px) {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  }
+  
+  @media (max-width: 900px) {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
   
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
+    gap: clamp(12px, 3vw, 15px);
+  }
+  
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+    gap: clamp(10px, 2.5vw, 12px);
   }
 `;
 
 const InputGroup = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: clamp(3px, 1vw, 5px);
+  min-width: 0; 
 `;
 
 const Label = styled.label`
-  font-size: 12px;
+  font-size: clamp(10px, 2vw, 12px);
   color: #5f6368;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 const Input = styled.input`
-  padding: 10px 15px;
-  border-radius: 4px;
+  padding: clamp(8px, 2vw, 10px) clamp(12px, 3vw, 15px);
+  border-radius: clamp(3px, 1vw, 4px);
   border: 1px solid #3367d6;
-  font-size: 14px;
+  font-size: clamp(12px, 2.5vw, 14px);
   background-color: white;
   color: black;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
   
   &:focus {
     outline: none;
     border-color: #4285f4;
+    box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
+  }
+
+  &::placeholder {
+    font-size: clamp(11px, 2.2vw, 13px);
+    color: #9aa0a6;
   }
 `;
 
 const Select = styled.select`
-  padding: 10px 15px;
-  border-radius: 4px;
+  padding: clamp(8px, 2vw, 10px) clamp(12px, 3vw, 15px);
+  border-radius: clamp(3px, 1vw, 4px);
   border: 1px solid #3367d6;
-  font-size: 1.2rem;
+  font-size: clamp(12px, 2.5vw, 14px);
   background-color: white;
   color: black;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
   
   &:focus {
     outline: none;
     border-color: #4285f4;
+    box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
+  }
+
+  option {
+    font-size: clamp(11px, 2.2vw, 13px);
+    padding: 5px;
   }
 `;
 
@@ -118,80 +178,124 @@ const Button = styled.button`
   background-color: #4285f4;
   color: white;
   border: none;
-  border-radius: 4px;
-  padding: 10px 15px;
+  border-radius: clamp(3px, 1vw, 4px);
+  padding: clamp(10px, 2.5vw, 12px) clamp(15px, 4vw, 18px);
   cursor: pointer;
-  font-size: 1.2rem;
-  font-weight: 500;
-  transition: background-color 0.2s;
+  font-size: clamp(12px, 2.5vw, 14px);
+  font-weight: 600;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  min-height: clamp(40px, 8vw, 48px);
   
   &:hover {
     background-color: #3367d6;
+    transform: translateY(-1px);
+  }
+  
+  &:active {
+    transform: translateY(0);
   }
   
   &:disabled {
     background-color: #dadce0;
     cursor: not-allowed;
+    transform: none;
+  }
+
+  @media (max-width: 768px) {
+    margin-top: clamp(10px, 3vw, 15px);
+    padding: clamp(12px, 3vw, 15px);
+    font-size: clamp(14px, 3vw, 16px);
   }
 `;
 
 const NumberedList = styled.ol`
-  padding-left: 20px;
+  padding-left: clamp(15px, 3vw, 20px);
+  margin: clamp(10px, 2vw, 15px) 0;
+  
+  li {
+    margin-bottom: clamp(8px, 2vw, 12px);
+  }
 `;
 
 const CompleteTaskForm = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr auto;
-  gap: 10px;
-  margin-bottom: 15px;
+  grid-template-columns: 2fr 1fr auto;
+  gap: clamp(10px, 2vw, 15px);
+  margin-bottom: clamp(12px, 3vw, 15px);
+  align-items: start;
   
-  @media (max-width: 768px) {
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(12px, 3vw, 15px);
+    
+    & > button {
+      grid-column: 1 / -1;
+      justify-self: stretch;
+      margin-top: clamp(10px, 2vw, 12px);
+    }
+  }
+  
+  @media (max-width: 600px) {
     grid-template-columns: 1fr;
+    gap: clamp(10px, 3vw, 12px);
   }
 `;
 
 const MultiSelect = styled.select`
-  padding: 10px;
-  border-radius: 4px;
+  padding: clamp(8px, 2vw, 10px);
+  border-radius: clamp(3px, 1vw, 4px);
   border: 1px solid #3367d6;
   background-color: white;
   color: black;
-  font-size: 1.2rem;
-  white-space: normal; /* Allow text wrapping */
-  word-wrap: break-word; /* Break long words */
-  word-break: break-word; 
-  max-width: 100%; /* Ensure it doesn't exceed container width */
+  font-size: clamp(12px, 2.5vw, 14px);
+  white-space: normal;
+  word-wrap: break-word;
+  word-break: break-word;
+  max-width: 100%;
+  min-height: clamp(80px, 15vw, 120px);
   
   &:focus {
     outline: none;
     border-color: #4285f4;
+    box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
   }
   
   option {
     white-space: normal;
     word-wrap: break-word;
-    padding: 5px;
+    padding: clamp(3px, 1vw, 5px);
+    font-size: clamp(11px, 2.2vw, 13px);
+    line-height: 1.3;
+  }
+
+  @media (max-width: 600px) {
+    min-height: clamp(60px, 12vw, 100px);
   }
 `;
 
 const CompletedTasksList = styled.div`
-  margin-top: 20px;
+  margin-top: clamp(15px, 3vw, 20px);
 `;
 
 const CompletedTitle = styled.h3`
   color: #2d9249;
+  font-size: clamp(1rem, 2.5vw, 1.25rem);
+  margin-bottom: clamp(10px, 2vw, 15px);
 `;
 
 const EmptyState = styled.div`
   text-align: center;
   color: #5f6368;
-  padding: 30px 0;
+  padding: clamp(20px, 5vw, 30px) 0;
+  font-size: clamp(0.875rem, 2vw, 1rem);
 `;
 
 const LoadingIndicator = styled.div`
   text-align: center;
   color: #4285f4;
-  padding: 20px;
+  padding: clamp(15px, 3vw, 20px);
+  font-size: clamp(0.875rem, 2vw, 1rem);
 `;
 
 const ToDo: React.FC = () => {
@@ -217,12 +321,7 @@ const ToDo: React.FC = () => {
   
   const [isLoading, setIsLoading] = useState<boolean>(false);
   
-  useEffect(() => {
-    console.log("ToDo component mounted");
-    fetchData();
-  }, []);
-  
-  const fetchData = async (): Promise<void> => {
+  const fetchData = useCallback(async (): Promise<void> => {
     try {
       setIsLoading(true);
       await Promise.all([
@@ -236,7 +335,12 @@ const ToDo: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    console.log("ToDo component mounted");
+    fetchData();
+  }, [fetchData]);
   
   const fetchAllTodayGoals = async (): Promise<void> => {
     try {

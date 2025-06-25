@@ -5,62 +5,88 @@ import axios from 'axios';
 
 const CalendarContainer = styled.div`
   background-color: white;
-  border-radius: 8px;
+  border-radius: clamp(6px, 1.5vw, 8px);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  padding: 20px;
+  padding: clamp(15px, 3vw, 20px);
   height: 100%;
   display: flex;
   flex-direction: column;
+  min-height: clamp(400px, 60vh, 600px);
+  
+  @media (max-width: 768px) {
+    min-height: clamp(350px, 50vh, 500px);
+  }
 `;
 
 const CalendarHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: clamp(15px, 3vw, 20px);
 `;
 
 const MonthTitle = styled.h2`
   color: #3367d6;
   margin: 0;
   font-weight: 500;
+  font-size: clamp(1.125rem, 3vw, 1.5rem);
+  text-align: center;
+  flex: 1;
+  
+  @media (max-width: 480px) {
+    font-size: clamp(1rem, 4vw, 1.25rem);
+  }
 `;
 
 const NavigationButton = styled.button`
   background-color: #f1f3f4;
   border: none;
   color: #3367d6;
-  width: 36px;
-  height: 36px;
+  width: clamp(32px, 6vw, 40px);
+  height: clamp(32px, 6vw, 40px);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
+  font-size: clamp(14px, 2.5vw, 18px);
+  font-weight: bold;
   
   &:hover {
     background-color: #dadce0;
+    transform: scale(1.05);
+  }
+  
+  &:active {
+    transform: scale(0.95);
   }
 `;
 
 const WeekdaysRow = styled.div`
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  margin-bottom: 10px;
+  margin-bottom: clamp(8px, 2vw, 12px);
+  gap: clamp(2px, 1vw, 4px);
 `;
 
 const Weekday = styled.div`
   text-align: center;
   font-weight: 500;
   color: #5f6368;
-  font-size: 14px;
+  font-size: clamp(11px, 2.2vw, 14px);
+  padding: clamp(4px, 1vw, 6px);
+  
+  @media (max-width: 480px) {
+    font-size: clamp(10px, 2vw, 12px);
+  }
 `;
 
 const DaysGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 8px;
+  gap: clamp(4px, 1.5vw, 8px);
+  flex-grow: 1;
 `;
 
 interface DayProps {
@@ -72,12 +98,12 @@ interface DayProps {
 
 const Day = styled.div<DayProps>`
   aspect-ratio: 1;
-  border-radius: 8px;
+  border-radius: clamp(6px, 1.5vw, 8px);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 5px;
+  padding: clamp(3px, 1vw, 5px);
   cursor: pointer;
   background-color: ${props => 
     props.$isSelected ? '#e8f0fe' : 
@@ -86,49 +112,105 @@ const Day = styled.div<DayProps>`
     !props.$isCurrentMonth ? '#dadce0' : 
     props.$isToday ? '#3367d6' : 'black'};
   position: relative;
+  font-size: clamp(12px, 2.5vw, 16px);
+  font-weight: ${props => props.$isToday ? 'bold' : 'normal'};
+  transition: all 0.2s ease;
+  min-height: clamp(32px, 6vw, 48px);
   
   &:hover {
     background-color: #f1f3f4;
+    transform: scale(1.05);
+  }
+  
+  &:active {
+    transform: scale(0.95);
+  }
+  
+  @media (max-width: 480px) {
+    font-size: clamp(10px, 2.2vw, 14px);
+    min-height: clamp(28px, 5vw, 40px);
   }
 `;
 
 const EventMarker = styled.span`
   color: #db2b45;
   font-weight: bold;
-  font-size: 14px;
+  font-size: clamp(12px, 3vw, 16px);
   position: absolute;
-  bottom: 2px;
+  bottom: clamp(1px, 0.5vw, 3px);
+  
+  @media (max-width: 480px) {
+    font-size: clamp(10px, 2.5vw, 14px);
+  }
 `;
 
 const EventsDetails = styled.div`
-  margin-top: 20px;
-  padding-top: 15px;
+  margin-top: clamp(15px, 3vw, 20px);
+  padding-top: clamp(12px, 2.5vw, 15px);
   border-top: 1px solid #dadce0;
   flex-grow: 1;
   overflow-y: auto;
+  min-height: 0;
 `;
 
 const EventTitle = styled.h3`
-    color: black;
-    margin-top: 0;
+  color: black;
+  margin-top: 0;
+  margin-bottom: clamp(10px, 2vw, 15px);
+  font-size: clamp(0.9rem, 2.5vw, 1.125rem);
+  line-height: 1.3;
+  
+  @media (max-width: 480px) {
+    font-size: clamp(0.8rem, 2.2vw, 1rem);
+  }
 `;
 
 const EventItem = styled.div`
-  padding: 10px;
-  margin-bottom: 8px;
-  border-radius: 4px;
+  padding: clamp(8px, 2vw, 10px);
+  margin-bottom: clamp(6px, 1.5vw, 8px);
+  border-radius: clamp(3px, 1vw, 4px);
   background-color: #f1f3f4;
-  border-left: 3px solid #db2b45;
+  border-left: clamp(2px, 0.5vw, 3px) solid #db2b45;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background-color: #e8eaed;
+    transform: translateX(2px);
+  }
   
   h4 {
-    margin: 0 0 5px 0;
+    margin: 0 0 clamp(3px, 1vw, 5px) 0;
     color: #3367d6;
+    font-size: clamp(0.8rem, 2.2vw, 1rem);
+    line-height: 1.3;
   }
   
   p {
     margin: 0;
-    font-size: 14px;
+    font-size: clamp(0.75rem, 2vw, 0.875rem);
     color: #5f6368;
+    line-height: 1.4;
+    
+    &:not(:last-child) {
+      margin-bottom: clamp(2px, 0.5vw, 4px);
+    }
+    
+    strong {
+      font-weight: 600;
+      color: #202124;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    padding: clamp(6px, 1.5vw, 8px);
+    
+    h4 {
+      font-size: clamp(0.75rem, 2vw, 0.9rem);
+    }
+    
+    p {
+      font-size: clamp(0.7rem, 1.8vw, 0.8rem);
+    }
   }
 `;
 
@@ -136,6 +218,35 @@ const NoEventsMessage = styled.p`
   text-align: center;
   color: #5f6368;
   font-style: italic;
+  font-size: clamp(0.8rem, 2vw, 0.9rem);
+  padding: clamp(15px, 3vw, 20px);
+  margin: 0;
+  
+  @media (max-width: 480px) {
+    font-size: clamp(0.75rem, 1.8vw, 0.85rem);
+    padding: clamp(12px, 2.5vw, 15px);
+  }
+`;
+
+// Loading state component
+const LoadingContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: clamp(100px, 20vh, 150px);
+  color: #3367d6;
+  font-size: clamp(0.8rem, 2vw, 1rem);
+`;
+
+// Error state component
+const ErrorMessage = styled.div`
+  text-align: center;
+  color: #db2b45;
+  font-size: clamp(0.8rem, 2vw, 0.9rem);
+  padding: clamp(10px, 2vw, 15px);
+  background-color: #fdf2f2;
+  border-radius: clamp(4px, 1vw, 6px);
+  margin: clamp(10px, 2vw, 15px) 0;
 `;
 
 interface CalendarEvent {
@@ -163,6 +274,8 @@ const Calendar: React.FC<CalendarProps> = ({ onDateSelect, events: propEvents })
   const [calendarDays, setCalendarDays] = useState<Date[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [adjacentMonthsData, setAdjacentMonthsData] = useState<{ [key: string]: CalendarMonthData }>({});
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
   const getAuthHeader = useCallback(() => {
     const token = localStorage.getItem('token');
@@ -181,7 +294,8 @@ const Calendar: React.FC<CalendarProps> = ({ onDateSelect, events: propEvents })
     try {
       const response = await axios.get<CalendarMonthData>(url, { headers });
       return response.data;
-    } catch {
+    } catch (err) {
+      console.error('Error fetching calendar data:', err);
       return null;
     }
   }, [getAuthHeader]);
@@ -190,6 +304,9 @@ const Calendar: React.FC<CalendarProps> = ({ onDateSelect, events: propEvents })
     const currentMonth = date;
     const prevMonth = subMonths(date, 1);
     const nextMonth = addMonths(date, 1);
+
+    setIsLoading(true);
+    setError(null);
 
     try {
       const [currentData, prevData, nextData] = await Promise.all([
@@ -209,8 +326,11 @@ const Calendar: React.FC<CalendarProps> = ({ onDateSelect, events: propEvents })
       });
       
       setAdjacentMonthsData(allMonthsData);
-    } catch {
-      // Handle error silently or add proper error handling
+    } catch (err) {
+      setError('Failed to load calendar data');
+      console.error('Error fetching calendar data:', err);
+    } finally {
+      setIsLoading(false);
     }
   }, [fetchCalendarData]);
 
@@ -292,16 +412,24 @@ const Calendar: React.FC<CalendarProps> = ({ onDateSelect, events: propEvents })
   const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const selectedDateEvents = getEventsForSelectedDate();
 
+  if (error) {
+    return (
+      <CalendarContainer>
+        <ErrorMessage>{error}</ErrorMessage>
+      </CalendarContainer>
+    );
+  }
+
   return (
     <CalendarContainer>
       <div>
         <CalendarHeader>
           <NavigationButton onClick={() => handleMonthChange('prev')}>
-            &lt;
+            ‹
           </NavigationButton>
           <MonthTitle>{format(currentDate, 'MMMM yyyy')}</MonthTitle>
           <NavigationButton onClick={() => handleMonthChange('next')}>
-            &gt;
+            ›
           </NavigationButton>
         </CalendarHeader>
 
@@ -311,26 +439,30 @@ const Calendar: React.FC<CalendarProps> = ({ onDateSelect, events: propEvents })
           ))}
         </WeekdaysRow>
 
-        <DaysGrid>
-          {calendarDays.map(day => {
-            const hasEvents = hasEventsOnDate(day);
-            const isCurrentMonth = isSameMonth(day, currentDate);
-            
-            return (
-              <Day
-                key={day.toString()}
-                $isCurrentMonth={isCurrentMonth}
-                $isToday={isSameDay(day, new Date())}
-                $hasEvents={hasEvents}
-                $isSelected={isSameDay(day, selectedDate)}
-                onClick={() => handleDateClick(day)}
-              >
-                {format(day, 'd')}
-                {hasEvents && <EventMarker>•</EventMarker>}
-              </Day>
-            );
-          })}
-        </DaysGrid>
+        {isLoading ? (
+          <LoadingContainer>Loading calendar...</LoadingContainer>
+        ) : (
+          <DaysGrid>
+            {calendarDays.map(day => {
+              const hasEvents = hasEventsOnDate(day);
+              const isCurrentMonth = isSameMonth(day, currentDate);
+              
+              return (
+                <Day
+                  key={day.toString()}
+                  $isCurrentMonth={isCurrentMonth}
+                  $isToday={isSameDay(day, new Date())}
+                  $hasEvents={hasEvents}
+                  $isSelected={isSameDay(day, selectedDate)}
+                  onClick={() => handleDateClick(day)}
+                >
+                  {format(day, 'd')}
+                  {hasEvents && <EventMarker>•</EventMarker>}
+                </Day>
+              );
+            })}
+          </DaysGrid>
+        )}
       </div>
 
       <EventsDetails>
