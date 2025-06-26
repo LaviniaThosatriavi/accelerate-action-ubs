@@ -17,6 +17,7 @@ import { MdLeaderboard } from 'react-icons/md';
 import { IoMdInformationCircleOutline } from 'react-icons/io';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
+import { API_BASE_URL } from '../config/api';
 
 import type { AchievementProfile, Badge, LeaderboardData, LeaderboardResponse, LeaderboardUser } from '../types/AchievementsTypes';
 import {
@@ -105,8 +106,6 @@ export const Achievements: React.FC = () => {
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
   const [loading, setLoading] = useState(true);
-
-  const API_BASE_URL = 'http://localhost:8080';
   
   const fetchAchievementProfile = async () => {
     try {

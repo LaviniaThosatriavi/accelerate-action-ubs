@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, startOfWeek, endOfWeek } from 'date-fns';
 import axios from 'axios';
+import { API_BASE_URL } from '../config/api';
 
 const CalendarContainer = styled.div`
   background-color: white;
@@ -293,7 +294,7 @@ const Calendar: React.FC<CalendarProps> = ({ onDateSelect, events: propEvents })
   const fetchCalendarData = useCallback(async (date: Date): Promise<CalendarMonthData | null> => {
     const year = date.getFullYear();
     const month = date.getMonth() + 1;
-    const url = `/api/calendar/month?year=${year}&month=${month}`;
+    const url = `${API_BASE_URL}/api/calendar/month?year=${year}&month=${month}`;
     
     const headers = getAuthHeader();
     

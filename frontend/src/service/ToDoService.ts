@@ -1,7 +1,8 @@
 import axios, { type AxiosResponse } from 'axios';
 import type { Goal, CalendarMonth, EnrolledCourse, ProgressUpdateRequest } from '../types/ToDosTypes';
+import { API_BASE_URL } from '../config/api';
 
-const API_URL = 'http://localhost:8080/api';
+const API_URL = `${API_BASE_URL}/api`;
 
 const getAuthHeader = (): { Authorization: string } => {
     const token = localStorage.getItem('token');

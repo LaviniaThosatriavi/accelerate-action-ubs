@@ -3,6 +3,7 @@ import axios, { AxiosError } from 'axios';
 import styled from 'styled-components';
 import { useLocation, useNavigate } from 'react-router-dom';
 import type { NewsItem } from '../types/NewsItem';
+import { API_BASE_URL } from '../config/api';
 
 const HomeContainer = styled.div`
   display: flex;
@@ -150,7 +151,7 @@ const Home = () => {
         setLoading(true);
         try {
           console.log('Fetching trending news...');
-          const response = await axios.get<NewsItem[]>('/api/news/trending');
+          const response = await axios.get<NewsItem[]>(`${API_BASE_URL}/api/news/trending`);
           console.log('Trending news response:', response.data);
           setNews(response.data.slice(0, 9));
           setError('');
@@ -189,7 +190,7 @@ const Home = () => {
         try {
           console.log(`Searching for "${query}"...`);
           const response = await axios.get<NewsItem[]>(
-            `/api/news/search?q=${encodeURIComponent(query)}`
+            `${API_BASE_URL}/api/news/search?q=${encodeURIComponent(query)}`
           );
           console.log('Search results:', response.data);
           setNews(response.data);

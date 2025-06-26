@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useWeeklyHours } from './WeeklyHoursContext';
+import { API_BASE_URL } from '../config/api';
 import type { EnrollmentStats, ProgressUpdateData, CourseScore, CourseScoreRequest } from '../types/MiddleSectionTypes';
 import type { EnrolledCourse } from '../types/ToDosTypes';
 import { ActionButton, ButtonGroup, CancelButton, CourseActions, CourseCard, CourseContainer, CourseDetails, CourseHeader, CourseProgress, CourseTitle, DetailItem, DetailLabel, DetailValue, EmptyState, FormGroup, HelpText, Input, Label, Modal, ModalContent, ModalTitle, OpenLinkButton, PlatformBadge, ProgressBar, ProgressContainer, ProgressFill, ProgressTitle, ScoreBadge, ScoreButton, ScoreDisplay, Section, StatCard, StatLabel, StatsContainer, StatusIndicator, StatValue, SubmitButton, Tab, TabContainer, TimeStatus, Title, WeeklyHoursContainer, WeeklyHoursContent, WeeklyHoursLabel, WeeklyHoursValue } from '../styles/MiddleSectionStyles';
@@ -51,20 +52,21 @@ const MiddleSection: React.FC = () => {
                     Authorization: `Bearer ${token}`
                 };
                 
-                const coursesResponse = await axios.get('/api/enrolled-courses', { headers });
+                // Update all API calls to use full URL
+                const coursesResponse = await axios.get(`${API_BASE_URL}/api/enrolled-courses`, { headers });
                 setEnrolledCourses(coursesResponse.data);
                 setFilteredCourses(coursesResponse.data);
                 
-                const statsResponse = await axios.get('/api/enrolled-courses/stats', { headers });
+                const statsResponse = await axios.get(`${API_BASE_URL}/api/enrolled-courses/stats`, { headers });
                 setStats(statsResponse.data);
                 
-                const weeklyHoursResponse = await axios.get('/api/enrolled-courses/total-hours-this-week', { headers });
+                const weeklyHoursResponse = await axios.get(`${API_BASE_URL}/api/enrolled-courses/total-hours-this-week`, { headers });
                 updateWeeklyHours(weeklyHoursResponse.data);
 
-                const timeResponse = await axios.get('/api/enrolled-courses/has-available-time', { headers });
+                const timeResponse = await axios.get(`${API_BASE_URL}/api/enrolled-courses/has-available-time`, { headers });
                 setHasAvailableTime(timeResponse.data);
 
-                const scoresResponse = await axios.get('/api/course-scores/user-scores', { headers });
+                const scoresResponse = await axios.get(`${API_BASE_URL}/api/course-scores/user-scores`, { headers });
                 
                 const scoresMap = new Map<number, CourseScore>();
                 scoresResponse.data.forEach((score: CourseScore) => {
@@ -151,7 +153,7 @@ const MiddleSection: React.FC = () => {
         e.preventDefault();
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.put('/api/enrolled-courses/progress', progressData, {
+            const response = await axios.put(`${API_BASE_URL}/api/enrolled-courses/progress`, progressData, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -167,19 +169,19 @@ const MiddleSection: React.FC = () => {
             );
             
             // Refresh stats
-            const statsResponse = await axios.get('/api/enrolled-courses/stats', {
+            const statsResponse = await axios.get(`${API_BASE_URL}/api/enrolled-courses/stats`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setStats(statsResponse.data);
             
             // Refresh weekly hours after progress update
-            const weeklyHoursResponse = await axios.get('/api/enrolled-courses/total-hours-this-week', {
+            const weeklyHoursResponse = await axios.get(`${API_BASE_URL}/api/enrolled-courses/total-hours-this-week`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             updateWeeklyHours(weeklyHoursResponse.data);
             
             // Check if user still has available time
-            const timeResponse = await axios.get('/api/enrolled-courses/has-available-time', {
+            const timeResponse = await axios.get(`${API_BASE_URL}/api/enrolled-courses/has-available-time`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setHasAvailableTime(timeResponse.data);
@@ -197,7 +199,7 @@ const MiddleSection: React.FC = () => {
         try {
             const token = localStorage.getItem('token');
             
-            const response = await axios.post('/api/course-scores', scoreData, {
+            const response = await axios.post(`${API_BASE_URL}/api/course-scores`, scoreData, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     'Content-Type': 'application/json'

@@ -1,4 +1,3 @@
-// src/components/ProgressUpdateModal.tsx
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import type { EnrolledCourse } from '../types/ToDosTypes';

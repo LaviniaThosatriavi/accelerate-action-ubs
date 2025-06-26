@@ -5,6 +5,7 @@ import { FaUser, FaRoad, FaEdit, FaPlusCircle, FaCode, FaGithub, FaDatabase } fr
 import ReactMarkdown from 'react-markdown';
 import MiddleSection from './MiddleSection';
 import RightSection from './RightSection';
+import { API_BASE_URL } from '../config/api';
 
 interface Profile {
   id?: number;
@@ -599,8 +600,7 @@ const CoursePlanner = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [useCustomCareerStage, setUseCustomCareerStage] = useState(false);
-  const API_BASE_URL = 'http://localhost:8080'; 
-
+  
   const api = axios.create({
     baseURL: API_BASE_URL,
     withCredentials: true

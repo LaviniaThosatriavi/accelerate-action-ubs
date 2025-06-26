@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
+import { API_BASE_URL } from '../config/api';
 
 const Section = styled.div`
   flex: 1;
@@ -251,7 +252,7 @@ const RightSection: React.FC = () => {
         try {
             setLoading(true);
             const token = localStorage.getItem('token');
-            const response = await axios.get('/api/course-references', {
+            const response = await axios.get(`${API_BASE_URL}/api/course-references`, {
             headers: {
                 Authorization: `Bearer ${token}`
             }
@@ -280,7 +281,7 @@ const RightSection: React.FC = () => {
         e.preventDefault();
         try {
         const token = localStorage.getItem('token');
-        await axios.post('/api/enrolled-courses/enroll-external', formData, {
+        await axios.post(`${API_BASE_URL}/api/enrolled-courses/enroll-external`, formData, {
             headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json'
@@ -309,7 +310,7 @@ const RightSection: React.FC = () => {
         try {
         setLoading(true);
         const token = localStorage.getItem('token');
-        const response = await axios.get('/api/course-references', {
+        const response = await axios.get(`${API_BASE_URL}/api/course-references`, {
             headers: {
             Authorization: `Bearer ${token}`
             }
