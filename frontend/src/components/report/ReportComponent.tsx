@@ -47,7 +47,6 @@ import {
 import OverviewTab from './OverviewTab';
 import TimeConsistencyTab from './TimeConsistencyTab';
 import CompetitiveTab from './CompetitiveTab';
-import { API_BASE_URL } from '../../config/api';
 
 const ReportComponent: React.FC = () => {
   const [activeTab, setActiveTab] = useState<number>(0);
@@ -85,7 +84,6 @@ const ReportComponent: React.FC = () => {
     return options;
   };
 
-  // Enhanced fetch function with error handling
   const fetchWithAuth = useCallback(async (url: string): Promise<unknown> => {
     try {
       const token = localStorage.getItem('token');
@@ -94,7 +92,8 @@ const ReportComponent: React.FC = () => {
         throw new Error('No authorization token found');
       }
 
-      const response = await fetch(`${API_BASE_URL}${url}`, createFetchOptions());
+      // Remove the ${API_BASE_URL} from here - it's already in the url parameter
+      const response = await fetch(url, createFetchOptions());
       
       if (!response.ok) {
         if (response.status === 401) {
@@ -119,7 +118,7 @@ const ReportComponent: React.FC = () => {
   // Refresh hours data function
   const refreshHours = useCallback(async (): Promise<void> => {
     try {
-      const hours = await fetchWithAuth(`${API_BASE_URL}/api/enrolled-courses/total-hours-this-week`);
+      const hours = await fetchWithAuth(`/api/enrolled-courses/total-hours-this-week`);
       setActualHoursThisWeek(hours as number);
     } catch (error) {
       console.error('Refresh failed:', error);
@@ -143,13 +142,13 @@ const ReportComponent: React.FC = () => {
           competitiveData,
           actualHours
         ] = await Promise.all([
-          fetchWithAuth(`${API_BASE_URL}/api/reports/quick-insights`),
-          fetchWithAuth(`${API_BASE_URL}/api/reports/overview`),
-          fetchWithAuth(`${API_BASE_URL}/api/reports/skills`),
-          fetchWithAuth(`${API_BASE_URL}/api/reports/time-management`),
-          fetchWithAuth(`${API_BASE_URL}/api/reports/consistency`),
-          fetchWithAuth(`${API_BASE_URL}/api/reports/competitive`),
-          fetchWithAuth(`${API_BASE_URL}/api/enrolled-courses/total-hours-this-week`)
+          fetchWithAuth(`/api/reports/quick-insights`),
+          fetchWithAuth(`/api/reports/overview`),
+          fetchWithAuth(`/api/reports/skills`),
+          fetchWithAuth(`/api/reports/time-management`),
+          fetchWithAuth(`/api/reports/consistency`),
+          fetchWithAuth(`/api/reports/competitive`),
+          fetchWithAuth(`/api/enrolled-courses/total-hours-this-week`)
         ]);
         
         setQuickInsights(quickInsightsData as QuickInsights);

@@ -4,7 +4,8 @@ import { useWeeklyHours } from './WeeklyHoursContext';
 import { API_BASE_URL } from '../config/api';
 import type { EnrollmentStats, ProgressUpdateData, CourseScore, CourseScoreRequest } from '../types/MiddleSectionTypes';
 import type { EnrolledCourse } from '../types/ToDosTypes';
-import { ActionButton, ButtonGroup, CancelButton, CourseActions, CourseCard, CourseContainer, CourseDetails, CourseHeader, CourseProgress, CourseTitle, DetailItem, DetailLabel, DetailValue, EmptyState, FormGroup, HelpText, Input, Label, Modal, ModalContent, ModalTitle, OpenLinkButton, PlatformBadge, ProgressBar, ProgressContainer, ProgressFill, ProgressTitle, ScoreBadge, ScoreButton, ScoreDisplay, Section, StatCard, StatLabel, StatsContainer, StatusIndicator, StatValue, SubmitButton, Tab, TabContainer, TimeStatus, Title, WeeklyHoursContainer, WeeklyHoursContent, WeeklyHoursLabel, WeeklyHoursValue } from '../styles/MiddleSectionStyles';
+import { ActionButton, ButtonGroup, CancelButton, CourseActions, CourseCard, CourseContainer, CourseDetails, CourseHeader, CourseProgress, CourseTitle, DetailItem, DetailLabel, DetailValue, EmptyState, FormGroup, HelpText, Input, Label, Modal, ModalContent, ModalTitle, OpenLinkButton, PlatformBadge, ProgressBar, ProgressContainer, ProgressFill, ProgressTitle, ScoreBadge, ScoreButton, ScoreDisplay, StatCard, StatLabel, StatsContainer, StatusIndicator, StatValue, SubmitButton, Tab, TabContainer, TimeStatus, Title, WeeklyHoursContainer, WeeklyHoursContent, WeeklyHoursLabel, WeeklyHoursValue } from '../styles/MiddleSectionStyles';
+import { Section } from './CoursePlanner';
 
 const MiddleSection: React.FC = () => {
     const { setWeeklyHours } = useWeeklyHours();

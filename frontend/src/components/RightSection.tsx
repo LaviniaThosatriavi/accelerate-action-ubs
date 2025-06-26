@@ -2,24 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
 import { API_BASE_URL } from '../config/api';
-
-const Section = styled.div`
-  flex: 1;
-  border: 1px solid #ddd;
-  border-radius: clamp(4px, 1vw, 8px);
-  padding: clamp(0.5rem, 2vw, 1rem) clamp(0.75rem, 2.5vw, 1.5rem);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  overflow-y: auto;
-  min-height: 0;
-  background-color: white;
-  max-width: 100%;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-  
-  @media (max-width: 768px) {
-    padding: clamp(0.5rem, 3vw, 1rem);
-  }
-`;
+import { Section } from './CoursePlanner';
 
 const Title = styled.h1`
   color: black;
@@ -33,15 +16,15 @@ const Title = styled.h1`
 const RegenerateButton = styled.button`
   background-color: #4285f4;
   color: white;
-  padding: clamp(0.5rem, 1.4vw, 0.75rem) clamp(0.75rem, 2.5vw, 1.5rem);
+  padding: 1vh clamp(0.75rem, 2.5vw, 1.5rem);
   border: none;
   border-radius: clamp(2px, 0.8vw, 4px);
   cursor: pointer;
-  font-size: clamp(0.8rem, 1.6vw, 0.9rem);
+  font-size: clamp(0.7rem, 1.6vw, 0.9rem);
   transition: background-color 0.2s;
   word-wrap: break-word;
   overflow-wrap: break-word;
-  margin-bottom: clamp(0.75rem, 1.5vh, 1rem);
+  margin-bottom: 1vh;
   
   &:hover {
     background-color: #357abd;
@@ -53,11 +36,10 @@ const RegenerateButton = styled.button`
 `;
 
 const CategoryTitle = styled.h2`
-  font-size: clamp(1.1rem, 2.2vw, 1.25rem);
-  margin-bottom: clamp(0.5rem, 1.8vh, 1rem);
+  font-size: clamp(0.85rem, 2.2vw, 1.25rem);
   color: black;
+  margin-top: 0;
   border-bottom: 2px solid #f0f0f0;
-  padding-bottom: clamp(0.25rem, 1vh, 0.5rem);
   word-wrap: break-word;
   overflow-wrap: break-word;
   max-width: 100%;
@@ -67,12 +49,12 @@ const LinkButton = styled.a`
   display: inline-block;
   background-color: #db2b45;
   color: white;
-  padding: clamp(0.4rem, 1vw, 0.5rem) clamp(0.5rem, 1.8vw, 1rem);
+  padding: 1vh clamp(0.5rem, 1.8vw, 1rem);
   border-radius: clamp(2px, 0.8vw, 4px);
   text-decoration: none;
-  margin-right: clamp(0.3rem, 1vw, 0.5rem);
-  margin-bottom: clamp(0.3rem, 1vh, 0.5rem);
-  font-size: clamp(0.8rem, 1.6vw, 0.9rem);
+  margin-bottom: 1vh;
+  font-size: clamp(0.7rem, 1.6vw, 0.9rem);
+  margin-right: 1vw;
   transition: background-color 0.2s;
   word-wrap: break-word;
   overflow-wrap: break-word;
@@ -87,10 +69,10 @@ const LinkButton = styled.a`
 `;
 
 const VideoContainer = styled.div`
-  margin-top: clamp(0.5rem, 1.8vh, 1rem);
+  margin-top: 0.2vh;
   display: flex;
   flex-wrap: wrap;
-  gap: clamp(0.3rem, 1vw, 0.5rem);
+  gap: 0.5vw;
   max-width: 100%;
 `;
 
@@ -98,7 +80,7 @@ const EnrollButton = styled.button`
   display: block;
   width: 100%;
   padding: clamp(0.5rem, 1.4vw, 0.75rem);
-  margin-top: clamp(0.75rem, 2.5vh, 1.5rem);
+  margin-top: 1vh;
   background-color: #34a853;
   color: white;
   border: none;
@@ -106,7 +88,7 @@ const EnrollButton = styled.button`
   font-weight: bold;
   cursor: pointer;
   transition: background-color 0.2s;
-  font-size: clamp(0.875rem, 1.2vw, 1rem);
+  font-size: clamp(0.75rem, 1.2vw, 1rem);
   word-wrap: break-word;
   overflow-wrap: break-word;
   box-sizing: border-box;
@@ -146,23 +128,23 @@ const ModalContent = styled.div`
 
 const ModalTitle = styled.h2`
   color: black;
-  font-size: clamp(1.1rem, 2.2vw, 1.25rem);
+  font-size: clamp(0.9rem, 2.2vw, 1.25rem);
   word-wrap: break-word;
   overflow-wrap: break-word;
   max-width: 100%;
-  margin-bottom: clamp(0.75rem, 1.5vh, 1rem);
+  margin-bottom: 1.5vh;
 `;
 
 const FormGroup = styled.div`
-  margin-bottom: clamp(0.5rem, 1.8vh, 1rem);
+  margin-bottom: 1vh;
 `;
 
 const Label = styled.label`
   display: block;
-  margin-bottom: clamp(0.25rem, 1vh, 0.5rem);
+  margin-bottom: 0.5vh;
   font-weight: 500;
   color: black;
-  font-size: clamp(0.875rem, 1.2vw, 1rem);
+  font-size: clamp(0.75rem, 1.2vw, 0.9rem);
   word-wrap: break-word;
   overflow-wrap: break-word;
 `;
@@ -174,7 +156,7 @@ const Input = styled.input`
   border-radius: clamp(2px, 0.8vw, 4px);
   background-color: white;
   color: black;
-  font-size: clamp(0.875rem, 1.2vw, 1rem);
+  font-size: clamp(0.75rem, 1.2vw, 0.9rem);
   box-sizing: border-box;
   
   &:focus {
@@ -186,8 +168,8 @@ const Input = styled.input`
 const ButtonGroup = styled.div`
   display: flex;
   justify-content: flex-end;
-  gap: clamp(0.25rem, 1vw, 0.5rem);
-  margin-top: clamp(0.75rem, 2.5vh, 1.5rem);
+  gap: 1vw;
+  margin-top: 1.5vh;
   flex-wrap: wrap;
 `;
 
@@ -198,7 +180,7 @@ const SubmitButton = styled.button`
   border: none;
   border-radius: clamp(2px, 0.8vw, 4px);
   cursor: pointer;
-  font-size: clamp(0.875rem, 1.2vw, 1rem);
+  font-size: clamp(0.8rem, 1.2vw, 1rem);
   
   &:hover {
     background-color: #2d9249;

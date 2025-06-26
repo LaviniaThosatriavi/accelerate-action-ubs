@@ -37,7 +37,7 @@ const CoursePlannerContainer = styled.div`
   }
 `;
 
-const Section = styled.div`
+export const Section = styled.div`
   flex: 1;
   border: 1px solid #ddd;
   border-radius: clamp(4px, 1vw, 8px);
@@ -49,6 +49,10 @@ const Section = styled.div`
   max-width: 100%;
   word-wrap: break-word;
   overflow-wrap: break-word;
+
+  @media (max-width: 768px) {
+    max-height: 70vh;
+  }
 `;
 
 const LeftSection = styled(Section)`
@@ -59,14 +63,15 @@ const LeftSection = styled(Section)`
 `;
 
 const ActionButton = styled.button`
-  padding: clamp(0.5rem, 1.5vw, 0.75rem) clamp(0.75rem, 2vw, 1.25rem);
+  padding: 1vh clamp(0.75rem, 2vw, 1.25rem);
   margin: 0 auto;
+  margin-top: 1vh;
   background-color: #db2b45;
   color: white;
   border: none;
   border-radius: clamp(3px, 0.5vw, 5px);
   cursor: pointer;
-  font-size: clamp(0.875rem, 1.2vw, 1rem);
+  font-size: clamp(0.7rem, 1.2vw, 1rem);
   transition: all 0.2s;
   display: flex;
   align-items: center;
@@ -265,9 +270,8 @@ const TabContainer = styled.div`
 
 const TabHeader = styled.div`
   display: flex;
-  border-bottom: 1px solid #ddd;
-  margin-bottom: clamp(1vh, 2vh, 2vh);
-  gap: clamp(0.5vw, 1vw, 1vw);
+  margin-bottom: 0.3vh;
+  gap: clamp(0.2vw, 1vw, 1vw);
   position: sticky;
   top: 0;
   background-color: white;
@@ -289,11 +293,10 @@ const TabButton = styled.button<TabButtonProps>`
   background-color: ${props => props.$active ? '#db2b45' : 'white'};
   color: ${props => props.$active ? 'white' : '#333'};
   border: none;
-  border-top-left-radius: ${props => props.$active ? 'clamp(3px, 0.8vw, 6px)' : '0'};
-  border-top-right-radius: ${props => props.$active ? 'clamp(3px, 0.8vw, 6px)' : '0'};
+  border-radius: 5px;
   cursor: pointer;
   font-weight: 500;
-  font-size: clamp(0.875rem, 1.2vw, 1rem);
+  font-size: clamp(0.8rem, 1.2vw, 1rem);
   border-bottom: ${props => props.$active ? 'none' : '1px solid #ddd'};
   transition: all 0.2s;
   display: flex;
@@ -339,16 +342,20 @@ const ProfileCard = styled.div`
   padding: clamp(0.75rem, 2vw, 1.2rem);
   height: 70%;
   margin-top: clamp(1vh, 2vh, 2vh);
-  margin-bottom: clamp(2vh, 4vh, 4vh);
+  margin-bottom: clamp(1vh, 4vh, 4vh);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   overflow-y: auto;
   word-wrap: break-word;
   overflow-wrap: break-word;
+
+  @media (max-width: 768px) {
+  margin-bottom: 1vh;
+  }
 `;
 
 const ProfileCardTitle = styled.h3`
   margin-top: 0;
-  margin-bottom: clamp(0.5rem, 1vh, 1rem);
+  margin-bottom: 1vh;
   color: #333;
   display: flex;
   align-items: center;
@@ -363,11 +370,10 @@ const ProfileCardTitle = styled.h3`
 `;
 
 const ProfileCardContent = styled.div`
-  margin-top: clamp(0.5rem, 1vh, 1rem);
 `;
 
 const ProfileItem = styled.div`
-  margin-bottom: clamp(0.25rem, 1vh, 0.5rem);
+  margin-bottom: 1vh;
   word-wrap: break-word;
   overflow-wrap: break-word;
 `;
@@ -375,7 +381,7 @@ const ProfileItem = styled.div`
 const ProfileLabel = styled.span`
   font-weight: 600;
   color: #555;
-  font-size: clamp(0.875rem, 1.2vw, 1.5rem) !important;
+  font-size: clamp(0.8rem, 1.2vw, 1.5rem);
   display: inline-block;
 `;
 
@@ -383,7 +389,7 @@ const ProfileValue = styled.span`
   margin-left: clamp(0.25rem, 0.5vw, 0.5rem);
   color: black;
   line-height: clamp(1.4, 2vh, 2rem);
-  font-size: clamp(0.875rem, 1.2vw, 1.5rem) !important;
+  font-size: clamp(0.75rem, 1.2vw, 1.3rem);
   word-wrap: break-word;
   overflow-wrap: break-word;
 `;
@@ -392,7 +398,7 @@ const SkillsList = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: clamp(4px, 1vw, 8px);
-  margin-top: clamp(0.25rem, 1vh, 0.5rem);
+  margin-top: 0.5vh;
 `;
 
 const SkillTag = styled.span`
@@ -400,7 +406,7 @@ const SkillTag = styled.span`
   color: white;
   padding: clamp(2px, 0.5vw, 4px) clamp(6px, 1.5vw, 10px);
   border-radius: clamp(10px, 2vw, 20px);
-  font-size: clamp(0.75rem, 1vw, 0.85rem);
+  font-size: clamp(0.65rem, 1vw, 0.85rem);
   display: flex;
   align-items: center;
   gap: clamp(3px, 0.8vw, 5px);
@@ -443,7 +449,7 @@ const EmptyStateIcon = styled.div`
 const LearningPathContent = styled.div`
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   line-height: 1.6;
-  font-size: clamp(0.875rem, 1.2vw, 1rem);
+  font-size: clamp(0.8rem, 1.2vw, 1rem);
   word-wrap: break-word;
   overflow-wrap: break-word;
   max-width: 100%;
@@ -460,13 +466,13 @@ const LearningPathContent = styled.div`
   }
   
   h2 {
-    font-size: clamp(1rem, 1.5vw, 1.25rem);
+    font-size: clamp(0.75rem, 1.5vw, 1rem);
     border-bottom: 1px solid #eee;
-    padding-bottom: clamp(0.25rem, 0.5vh, 0.5rem);
+    padding-bottom: 0.2vh;
   }
   
   h3 {
-    font-size: clamp(1rem, 1.3vw, 1.15rem);
+    font-size: clamp(0.75rem, 1.3vw, 0.95rem);
   }
     color: #3367d6;}
   
@@ -488,15 +494,17 @@ const LearningPathContent = styled.div`
   
   li {
     color: black;
+    font-size: clamp(0.65rem, 2vw, 0.85rem);
     margin-bottom: clamp(0.25rem, 0.5vh, 0.5rem);
     word-wrap: break-word;
     overflow-wrap: break-word;
   }
   
   p {
-    margin: clamp(0.5rem, 1vh, 1rem) 0;
+    margin: 1vh 0;
     word-wrap: break-word;
     overflow-wrap: break-word;
+    font-size: clamp(0.7rem, 2vw, 0.9rem);
   }
   
   strong {

@@ -1,23 +1,5 @@
 import styled from 'styled-components';
 
-export const Section = styled.div`
-  flex: 1;
-  border: 1px solid #ddd;
-  border-radius: clamp(4px, 1vw, 8px);
-  padding: clamp(0.5rem, 2vw, 1rem) clamp(0.75rem, 2.5vw, 1.5rem);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  overflow-y: auto;
-  min-height: 0;
-  background-color: white;
-  max-width: 100%;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-
-  @media (max-width: 768px) {
-    padding: clamp(0.5rem, 3vw, 1rem);
-  }
-`;
-
 export const Title = styled.h1`
   color: black;
   font-size: clamp(1rem, 2vw, 1.2rem);
