@@ -12,7 +12,7 @@ export const Title = styled.h1`
 export const TabContainer = styled.div`
   display: flex;
   border-bottom: 1px solid #ddd;
-  margin-bottom: clamp(0.75rem, 2.5vh, 1.5rem);
+  margin-bottom: 1.5vh;
   width: 100%;
   flex-wrap: wrap;
   
@@ -55,7 +55,7 @@ export const StatsContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
-  margin-bottom: clamp(0.75rem, 2.5vh, 1.5rem);
+  margin-bottom: 1vh;
   max-width: 100%;
 `;
 
@@ -98,7 +98,7 @@ export const WeeklyHoursContainer = styled.div`
   background-color: #f8f9fa;
   border-radius: clamp(4px, 1vw, 8px);
   padding: 0rem clamp(0.75rem, 2.5vw, 1.5rem);
-  margin-bottom: clamp(0.75rem, 2.5vh, 1.5rem);
+  margin-bottom: 1.5vh;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   display: flex;
   align-items: center;
@@ -148,7 +148,7 @@ export const ProgressContainer = styled.div`
   background-color: #f8f9fa;
   border-radius: clamp(4px, 1vw, 8px);
   padding: clamp(0.75rem, 2.5vw, 1.5rem);
-  margin-bottom: clamp(0.75rem, 2.5vh, 1.5rem);
+  margin-bottom: 3vh;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   max-width: 100%;
   word-wrap: break-word;
@@ -157,8 +157,8 @@ export const ProgressContainer = styled.div`
 
 export const ProgressTitle = styled.h3`
   color: black;
-  margin-top: 0px;
-  font-size: clamp(1rem, 1.8vw, 1.125rem);
+  margin: 0;
+  font-size: clamp(0.9rem, 1.8vw, 1.125rem);
   word-wrap: break-word;
   overflow-wrap: break-word;
   max-width: 100%;
@@ -168,7 +168,7 @@ export const ProgressBar = styled.div`
   height: clamp(0.6rem, 1.4vw, 0.75rem);
   background-color: #e6e6e6;
   border-radius: clamp(0.3rem, 0.8vw, 0.5rem);
-  margin: clamp(0.25rem, 1vh, 0.5rem) 0 clamp(0.5rem, 1.8vh, 1rem) 0;
+  margin: 1vh auto;
   overflow: hidden;
   max-width: 100%;
 `;
@@ -182,8 +182,8 @@ export const ProgressFill = styled.div<{ percentage: number }>`
 `;
 
 export const TimeStatus = styled.div<{ available: boolean }>`
-  margin-top: clamp(0.5rem, 1.8vh, 1rem);
-  padding: clamp(0.5rem, 1.4vw, 0.75rem);
+  margin-top: 0.5vh;
+  padding: 1vh 1vw;
   background-color: ${props => props.available ? '#e6f4ea' : '#fce8e6'};
   border-radius: clamp(2px, 0.8vw, 4px);
   display: flex;
@@ -191,7 +191,7 @@ export const TimeStatus = styled.div<{ available: boolean }>`
   gap: clamp(0.25rem, 1vw, 0.5rem);
   color: ${props => props.available ? '#34a853' : '#ea4335'};
   font-weight: 500;
-  font-size: clamp(0.875rem, 1.2vw, 1rem);
+  font-size: clamp(0.8rem, 1.2vw, 1rem);
   word-wrap: break-word;
   overflow-wrap: break-word;
   max-width: 100%;

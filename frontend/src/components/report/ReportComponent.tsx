@@ -47,6 +47,7 @@ import {
 import OverviewTab from './OverviewTab';
 import TimeConsistencyTab from './TimeConsistencyTab';
 import CompetitiveTab from './CompetitiveTab';
+import { API_BASE_URL } from '../../config/api';
 
 const ReportComponent: React.FC = () => {
   const [activeTab, setActiveTab] = useState<number>(0);
@@ -85,54 +86,55 @@ const ReportComponent: React.FC = () => {
   };
 
   const fetchWithAuth = useCallback(async (url: string): Promise<unknown> => {
-    try {
-      const token = localStorage.getItem('token');
-      
-      if (!token) {
-        throw new Error('No authorization token found');
-      }
-
-      // Remove the ${API_BASE_URL} from here - it's already in the url parameter
-      const response = await fetch(url, createFetchOptions());
-      
-      if (!response.ok) {
-        if (response.status === 401) {
-          throw new Error('Unauthorized - Please log in again');
-        } else if (response.status === 403) {
-          throw new Error('Forbidden - You don\'t have permission to access this resource');
-        } else if (response.status === 404) {
-          throw new Error('Resource not found');
-        } else {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      try {
+        const token = localStorage.getItem('token');
+        
+        if (!token) {
+          throw new Error('No authorization token found');
         }
+
+        const fullUrl = `${API_BASE_URL}${url}`;
+        console.log('Fetching from:', fullUrl); // Debug log
+        
+        const response = await fetch(fullUrl, createFetchOptions());
+        
+        if (!response.ok) {
+          if (response.status === 401) {
+            throw new Error('Unauthorized - Please log in again');
+          } else if (response.status === 403) {
+            throw new Error('Forbidden - You don\'t have permission to access this resource');
+          } else if (response.status === 404) {
+            throw new Error('Resource not found');
+          } else {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+        }
+
+        const data: unknown = await response.json();
+        return data;
+      } catch (error) {
+        console.error(`Error fetching ${url}:`, error);
+        throw error;
       }
+    }, []);
 
-      const data: unknown = await response.json();
-      return data;
-    } catch (error) {
-      console.error(`Error fetching ${url}:`, error);
-      throw error;
-    }
-  }, []);
+    const refreshHours = useCallback(async (): Promise<void> => {
+      try {
+        const hours = await fetchWithAuth(`/api/enrolled-courses/total-hours-this-week`);
+        setActualHoursThisWeek(hours as number);
+      } catch (error) {
+        console.error('Refresh failed:', error);
+      }
+    }, [fetchWithAuth]);
 
-  // Refresh hours data function
-  const refreshHours = useCallback(async (): Promise<void> => {
-    try {
-      const hours = await fetchWithAuth(`/api/enrolled-courses/total-hours-this-week`);
-      setActualHoursThisWeek(hours as number);
-    } catch (error) {
-      console.error('Refresh failed:', error);
-    }
-  }, [fetchWithAuth]);
-
-  // Fetch data on component mount
   useEffect(() => {
     const fetchReportData = async (): Promise<void> => {
       try {
         setLoading(true);
         setError(null);
         
-        // Fetch all data with proper authentication
+        console.log('Using API_BASE_URL:', API_BASE_URL); // Debug log
+        
         const [
           quickInsightsData,
           overviewData,
