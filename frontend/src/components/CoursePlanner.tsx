@@ -18,64 +18,68 @@ interface Profile {
 const CoursePlannerContainer = styled.div`
   background-color: #f8f8f8;
   width: 100%;
-  height: 100%;
-  padding: 2rem;
+  height: 100vh;
+  padding: clamp(0.5rem, 2vw, 2rem);
   display: flex;
   flex-direction: row;
-  gap: 2rem;
+  gap: clamp(0.25rem, 1vw, 2rem);
   overflow: hidden;
   box-sizing: border-box;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: clamp(0.875rem, 1vw, 1rem);
   
   @media (max-width: 768px) {
     flex-direction: column;
-    padding: 1rem;
-    gap: 1rem;
+    height: auto;
+    min-height: 100vh;
+    gap: clamp(0.5rem, 2vw, 1rem);
   }
 `;
 
 const Section = styled.div`
   flex: 1;
   border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 1.5rem;
+  border-radius: clamp(4px, 1vw, 8px);
+  padding: clamp(0.75rem, 2vw, 1.5rem);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   overflow-y: auto;
   min-height: 0;
   background-color: white;
-  
-  @media (max-width: 768px) {
-    padding: 1rem;
-  }
+  max-width: 100%;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 `;
 
 const LeftSection = styled(Section)`
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: clamp(0.75rem, 2vh, 1.5rem);
   min-height: 0;
-  padding: 1.5rem;
 `;
 
 const ActionButton = styled.button`
-  padding: 0.75rem 1.25rem;
+  padding: clamp(0.5rem, 1.5vw, 0.75rem) clamp(0.75rem, 2vw, 1.25rem);
   margin: 0 auto;
   background-color: #db2b45;
   color: white;
   border: none;
-  border-radius: 5px;
+  border-radius: clamp(3px, 0.5vw, 5px);
   cursor: pointer;
-  font-size: 1rem;
+  font-size: clamp(0.875rem, 1.2vw, 1rem);
   transition: all 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: clamp(4px, 1vw, 8px);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 
   &:hover {
     background-color: #bf243a;
-    transform: translateY(-2px);
+    transform: translateY(-1px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
   }
 
@@ -84,44 +88,29 @@ const ActionButton = styled.button`
   }
   
   @media (max-width: 768px) {
-    font-size: 0.9rem;
-    padding: 0.6rem 1rem;
-  }
-`;
-
-const ProfileModal = styled.div`
-  position: fixed;
-  top: 54%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: white;
-  padding: 2.5rem;
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-  z-index: 1000;
-  width: 450px;
-  max-width: 90vw;
-  
-  @media (max-width: 768px) {
-    padding: 1.5rem;
-    width: 90%;
+    white-space: normal;
+    text-align: center;
   }
 `;
 
 const ModalHeader = styled.div`
   display: flex;
   align-items: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: clamp(0.75rem, 2vh, 1.5rem);
   
   h3 {
     margin: 0;
-    font-size: 1.5rem;
+    font-size: clamp(1.1rem, 2.5vw, 1.5rem);
     color: #333;
+    word-wrap: break-word;
+    flex: 1;
   }
   
   svg {
-    margin-right: 10px;
+    margin-right: clamp(5px, 1vw, 10px);
     color: #db2b45;
+    font-size: clamp(1rem, 2vw, 1.2rem);
+    flex-shrink: 0;
   }
 `;
 
@@ -136,25 +125,45 @@ const ModalOverlay = styled.div`
   backdrop-filter: blur(3px);
 `;
 
+const ProfileModal = styled.div`
+  position: fixed;
+  top: calc(50% + 5vh);
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: clamp(1rem, 3vw, 2.5rem);
+  border-radius: clamp(8px, 1.5vw, 12px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  width: clamp(300px, 90vw, 450px);
+  max-height: 80vh;
+  overflow-y: auto;
+  box-sizing: border-box;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+`;
+
 const FormGroup = styled.div`
-  margin-bottom: 1.5rem;
+  margin-bottom: clamp(0.75rem, 2vh, 1.5rem);
 `;
 
 const Label = styled.label`
   display: block;
-  margin-bottom: 0.5rem;
+  margin-bottom: clamp(0.25rem, 1vh, 0.5rem);
   font-weight: 600;
   color: #333;
+  font-size: clamp(0.875rem, 1.2vw, 1rem);
+  word-wrap: break-word;
 `;
 
 const Input = styled.input`
   width: 100%;
-  padding: 0.75rem;
+  padding: clamp(0.5rem, 1.5vw, 0.75rem);
   border: 1px solid #db2b45;
   background-color: white;
   color: black;
-  border-radius: 6px;
-  font-size: 1rem;
+  border-radius: clamp(3px, 0.8vw, 6px);
+  font-size: clamp(0.875rem, 1.2vw, 1rem);
   transition: border 0.2s;
   box-sizing: border-box;
   
@@ -167,16 +176,17 @@ const Input = styled.input`
 
 const Select = styled.select`
   width: 100%;
-  padding: 0.75rem;
+  padding: clamp(0.5rem, 1.5vw, 0.75rem);
   border: 1px solid #db2b45;
   background-color: white;
   color: black;
-  border-radius: 6px;
-  font-size: 1rem;
+  border-radius: clamp(3px, 0.8vw, 6px);
+  font-size: clamp(0.875rem, 1.2vw, 1rem);
   appearance: none;
   background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill="none" d="M0 0h24v24H0z"/><path d="M12 15l-5-5h10l-5 5z"/></svg>');
   background-repeat: no-repeat;
-  background-position: right 10px center;
+  background-position: right clamp(5px, 1vw, 10px) center;
+  background-size: clamp(16px, 2vw, 20px);
   box-sizing: border-box;
   
   &:focus {
@@ -188,14 +198,17 @@ const Select = styled.select`
 
 const TextArea = styled.textarea`
   width: 100%;
-  padding: 0.75rem;
+  padding: clamp(0.5rem, 1.5vw, 0.75rem);
   border: 1px solid #db2b45;
   background-color: white;
   color: black;
-  font-size: 1rem;
+  font-size: clamp(0.875rem, 1.2vw, 1rem);
   resize: vertical;
-  min-height: 100px;
+  min-height: clamp(80px, 15vh, 100px);
   box-sizing: border-box;
+  border-radius: clamp(3px, 0.8vw, 6px);
+  font-family: inherit;
+  line-height: 1.4;
   
   &:focus {
     border-color: #db2b45;
@@ -207,18 +220,20 @@ const TextArea = styled.textarea`
 const ButtonGroup = styled.div`
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
-  margin-top: 1.5rem;
+  gap: clamp(5px, 1vw, 10px);
+  margin-top: clamp(0.75rem, 2vh, 1.5rem);
+  flex-wrap: wrap;
 `;
 
 const CancelButton = styled.button`
-  padding: 0.75rem 1.5rem;
+  padding: clamp(0.5rem, 1.5vw, 0.75rem) clamp(0.75rem, 2vw, 1.5rem);
   background-color: #f1f1f1;
   color: #333;
   border: none;
-  border-radius: 6px;
+  border-radius: clamp(3px, 0.8vw, 6px);
   cursor: pointer;
   font-weight: 500;
+  font-size: clamp(0.875rem, 1.2vw, 1rem);
   
   &:hover {
     background-color: #e0e0e0;
@@ -226,13 +241,14 @@ const CancelButton = styled.button`
 `;
 
 const SubmitButton = styled.button`
-  padding: 0.75rem 1.5rem;
+  padding: clamp(0.5rem, 1.5vw, 0.75rem) clamp(0.75rem, 2vw, 1.5rem);
   background-color: #db2b45;
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: clamp(3px, 0.8vw, 6px);
   cursor: pointer;
   font-weight: 500;
+  font-size: clamp(0.875rem, 1.2vw, 1rem);
   
   &:hover {
     background-color: #bf243a;
@@ -243,113 +259,159 @@ const TabContainer = styled.div`
   display: flex;
   flex-direction: column;
   height: 100%;
+  min-height: 0;
 `;
 
 const TabHeader = styled.div`
   display: flex;
   border-bottom: 1px solid #ddd;
-  margin-bottom: 2vh;
-  gap: 1vw;
+  margin-bottom: clamp(1vh, 2vh, 2vh);
+  gap: clamp(0.5vw, 1vw, 1vw);
   position: sticky;
   top: 0;
   background-color: white;
   z-index: 10;
+  flex-wrap: nowrap;
   
   @media (max-width: 768px) {
-    flex-direction: row;
     width: 100%;
+    gap: 0;
   }
 `;
 
 interface TabButtonProps {
-  $active: boolean;  // Use $ prefix for transient props
+  $active: boolean;
 }
 
 const TabButton = styled.button<TabButtonProps>`
-  padding: 0.75rem 1.5rem;
+  padding: clamp(0.5rem, 1.5vw, 0.75rem) clamp(0.75rem, 2vw, 1.5rem);
   background-color: ${props => props.$active ? '#db2b45' : 'white'};
   color: ${props => props.$active ? 'white' : '#333'};
   border: none;
-  border-top-left-radius: ${props => props.$active ? '6px' : '0'};
-  border-top-right-radius: ${props => props.$active ? '6px' : '0'};
+  border-top-left-radius: ${props => props.$active ? 'clamp(3px, 0.8vw, 6px)' : '0'};
+  border-top-right-radius: ${props => props.$active ? 'clamp(3px, 0.8vw, 6px)' : '0'};
   cursor: pointer;
   font-weight: 500;
+  font-size: clamp(0.875rem, 1.2vw, 1rem);
   border-bottom: ${props => props.$active ? 'none' : '1px solid #ddd'};
   transition: all 0.2s;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: clamp(4px, 1vw, 8px);
   flex: 1;
   justify-content: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
   
   &:hover {
     background-color: ${props => props.$active ? '#bf243a' : '#f5f5f5'};
   }
   
-  @media (max-width: 768px) {
-    padding: 0.6rem 1rem;
-    font-size: 0.9rem;
+  svg {
+    font-size: clamp(0.875rem, 1.2vw, 1rem);
+    flex-shrink: 0;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: clamp(0.75rem, 3vw, 0.875rem);
+    padding: clamp(0.4rem, 2vw, 0.6rem) clamp(0.5rem, 3vw, 1rem);
+    
+    svg {
+      font-size: clamp(0.75rem, 3vw, 0.875rem);
+    }
   }
 `;
 
 const TabContent = styled.div`
   flex: 1;
   overflow: auto;
+  min-height: 0;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 `;
 
 const ProfileCard = styled.div`
   background-color: #f9f9f9;
-  border-radius: 8px;
-  padding: 1.2rem;
+  border-radius: clamp(4px, 1vw, 8px);
+  padding: clamp(0.75rem, 2vw, 1.2rem);
   height: 70%;
-  margin-top: 2vh;
-  margin-bottom: 4vh;
+  margin-top: clamp(1vh, 2vh, 2vh);
+  margin-bottom: clamp(2vh, 4vh, 4vh);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  overflow-y: auto;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 `;
 
 const ProfileCardTitle = styled.h3`
   margin-top: 0;
+  margin-bottom: clamp(0.5rem, 1vh, 1rem);
   color: #333;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: clamp(4px, 1vw, 8px);
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  word-wrap: break-word;
+  
+  svg {
+    font-size: clamp(1rem, 2vw, 1.2rem);
+    flex-shrink: 0;
+  }
 `;
 
 const ProfileCardContent = styled.div`
-  margin-top: 1rem;
+  margin-top: clamp(0.5rem, 1vh, 1rem);
 `;
 
 const ProfileItem = styled.div`
-  margin-bottom: 0.5rem;
+  margin-bottom: clamp(0.25rem, 1vh, 0.5rem);
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 `;
 
 const ProfileLabel = styled.span`
   font-weight: 600;
   color: #555;
+  font-size: clamp(0.875rem, 1.2vw, 1.5rem) !important;
+  display: inline-block;
 `;
 
 const ProfileValue = styled.span`
-  margin-left: 0.5rem;
+  margin-left: clamp(0.25rem, 0.5vw, 0.5rem);
   color: black;
- line-height: 2rem;
+  line-height: clamp(1.4, 2vh, 2rem);
+  font-size: clamp(0.875rem, 1.2vw, 1.5rem) !important;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 `;
 
 const SkillsList = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 0.5rem;
+  gap: clamp(4px, 1vw, 8px);
+  margin-top: clamp(0.25rem, 1vh, 0.5rem);
 `;
 
 const SkillTag = styled.span`
   background-color: #db2b45;
   color: white;
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 0.85rem;
+  padding: clamp(2px, 0.5vw, 4px) clamp(6px, 1.5vw, 10px);
+  border-radius: clamp(10px, 2vw, 20px);
+  font-size: clamp(0.75rem, 1vw, 0.85rem);
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: clamp(3px, 0.8vw, 5px);
+  white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  
+  svg {
+    font-size: clamp(0.7rem, 1vw, 0.8rem);
+    flex-shrink: 0;
+  }
 `;
 
 const EmptyState = styled.div`
@@ -358,93 +420,160 @@ const EmptyState = styled.div`
   align-items: center;
   justify-content: center;
   height: 100%;
-  padding: 2rem;
+  padding: clamp(1rem, 3vw, 2rem);
   text-align: center;
   color: #666;
+  min-height: 200px;
   
-  @media (max-width: 768px) {
-    padding: 1rem;
+  p {
+    font-size: clamp(0.875rem, 1.2vw, 1rem);
+    margin: clamp(0.5rem, 1vh, 1rem) 0;
+    word-wrap: break-word;
+    max-width: 100%;
   }
 `;
 
 const EmptyStateIcon = styled.div`
-  font-size: 3rem;
-  margin-bottom: 1rem;
+  font-size: clamp(2rem, 5vw, 3rem);
+  margin-bottom: clamp(0.5rem, 1vh, 1rem);
   color: #db2b45;
 `;
 
 const LearningPathContent = styled.div`
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   line-height: 1.6;
+  font-size: clamp(0.875rem, 1.2vw, 1rem);
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
   
   h1, h2, h3, h4, h5, h6 {
     color: #333;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    margin: clamp(0.5rem, 1vh, 1rem) 0;
   }
   
   h1 {
-  display: none;
+    display: none;
   }
   
   h2 {
-    font-size: 1rem;
+    font-size: clamp(1rem, 1.5vw, 1.25rem);
     border-bottom: 1px solid #eee;
+    padding-bottom: clamp(0.25rem, 0.5vh, 0.5rem);
   }
   
   h3 {
-    font-size: 1.25rem;
-    
+    font-size: clamp(1rem, 1.3vw, 1.15rem);
   }
   
-  color: #4285f4;}
   a {
     color: #3367d6;
     text-decoration: none;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
     
     &:hover {
       text-decoration: underline;
     }
   }
   
-  ul {
-    padding-left: 1.5rem;
+  ul, ol {
+    padding-left: clamp(1rem, 2vw, 1.5rem);
+    margin: clamp(0.5rem, 1vh, 1rem) 0;
   }
   
   li {
-  color: black;
+    color: black;
+    margin-bottom: clamp(0.25rem, 0.5vh, 0.5rem);
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+  
+  p {
+    margin: clamp(0.5rem, 1vh, 1rem) 0;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
   
   strong {
     color: #333;
+    font-weight: 600;
   }
   
   hr {
     border: none;
     border-top: 1px solid #eee;
-    margin: 1rem 0;
+    margin: clamp(0.5rem, 1vh, 1rem) 0;
   }
   
-  @media (max-width: 768px) {
-    h1 {
-      font-size: 1.5rem;
-    }
+  code {
+    background-color: #f5f5f5;
+    padding: clamp(1px, 0.2vw, 2px) clamp(2px, 0.5vw, 4px);
+    border-radius: clamp(2px, 0.5vw, 3px);
+    font-size: clamp(0.8rem, 1.1vw, 0.9rem);
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+  
+  pre {
+    background-color: #f5f5f5;
+    padding: clamp(0.5rem, 1vw, 1rem);
+    border-radius: clamp(3px, 0.8vw, 6px);
+    overflow-x: auto;
+    font-size: clamp(0.8rem, 1.1vw, 0.9rem);
     
-    h2 {
-      font-size: 1.25rem;
+    code {
+      background: none;
+      padding: 0;
     }
+  }
+  
+  blockquote {
+    border-left: clamp(2px, 0.5vw, 4px) solid #db2b45;
+    margin: clamp(0.5rem, 1vh, 1rem) 0;
+    padding-left: clamp(0.5rem, 1vw, 1rem);
+    color: #666;
+    font-style: italic;
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: clamp(0.5rem, 1vh, 1rem) 0;
+    font-size: clamp(0.8rem, 1.1vw, 0.9rem);
+    overflow-x: auto;
+    display: block;
+    white-space: nowrap;
     
-    h3 {
-      font-size: 1.1rem;
+    @media (max-width: 768px) {
+      display: block;
+      overflow-x: auto;
+      white-space: nowrap;
     }
+  }
+  
+  th, td {
+    border: 1px solid #ddd;
+    padding: clamp(0.25rem, 1vw, 0.5rem);
+    text-align: left;
+    word-wrap: break-word;
+  }
+  
+  th {
+    background-color: #f5f5f5;
+    font-weight: 600;
   }
 `;
 
 const CareerStageInput = styled.input`
   width: 100%;
-  padding: 0.75rem;
+  padding: clamp(0.5rem, 1.5vw, 0.75rem);
   border: 1px solid #ddd;
-  border-radius: 6px;
-  font-size: 1rem;
-  margin-top: 0.5rem;
+  border-radius: clamp(3px, 0.8vw, 6px);
+  font-size: clamp(0.875rem, 1.2vw, 1rem);
+  margin-top: clamp(0.25rem, 1vh, 0.5rem);
   transition: border 0.2s;
   box-sizing: border-box;
   
@@ -454,6 +583,7 @@ const CareerStageInput = styled.input`
     box-shadow: 0 0 0 2px rgba(219, 43, 69, 0.2);
   }
 `;
+
 
 const CoursePlanner = () => {
   const [activeTab, setActiveTab] = useState<'profile' | 'learningPath'>('profile');
