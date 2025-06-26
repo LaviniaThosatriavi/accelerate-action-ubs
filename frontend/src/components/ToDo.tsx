@@ -23,9 +23,8 @@ const PageContainer = styled.div`
 
 const TopSection = styled.div`
   display: flex;
-  height: 85vh;
   min-height: 500px;
-  gap: clamp(15px, 3vw, 20px);
+  gap: 1vw;
   
   @media (max-width: 768px) {
     flex-direction: column;
@@ -45,6 +44,8 @@ const LeftSection = styled.div`
 
 const RightSection = styled.div`
   flex: 1;
+  min-width: 0;
+  max-width: 100%;
   
   @media (max-width: 768px) {
     width: 100%;
@@ -69,8 +70,11 @@ const TodayGoalsSection = styled.div`
   padding: clamp(15px, 3vw, 20px);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   height: 100%;
+  width: 100%;
+  max-width: 100%;
   overflow-y: auto;
   min-height: 400px;
+  box-sizing: border-box;
   
   @media (max-width: 768px) {
     height: auto;

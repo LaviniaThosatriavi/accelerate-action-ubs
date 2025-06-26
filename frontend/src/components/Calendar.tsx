@@ -7,14 +7,20 @@ const CalendarContainer = styled.div`
   background-color: white;
   border-radius: clamp(6px, 1.5vw, 8px);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  padding: clamp(15px, 3vw, 20px);
+  padding: clamp(8px, 2vw, 20px);
   height: 100%;
+  width: 100%;
+  max-width: 100%;
   display: flex;
   flex-direction: column;
-  min-height: clamp(400px, 60vh, 600px);
+  min-height: clamp(300px, 50vh, 600px);
+  box-sizing: border-box;
+  overflow: hidden;
   
   @media (max-width: 768px) {
+    width: 100%;
     min-height: clamp(350px, 50vh, 500px);
+    padding: clamp(15px, 3vw, 20px);
   }
 `;
 
@@ -66,26 +72,26 @@ const NavigationButton = styled.button`
 const WeekdaysRow = styled.div`
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  margin-bottom: clamp(8px, 2vw, 12px);
-  gap: clamp(2px, 1vw, 4px);
+  margin-bottom: clamp(4px, 1vw, 8px);
+  gap: clamp(1px, 0.5vw, 2px);
 `;
 
 const Weekday = styled.div`
   text-align: center;
   font-weight: 500;
   color: #5f6368;
-  font-size: clamp(11px, 2.2vw, 14px);
-  padding: clamp(4px, 1vw, 6px);
+  font-size: clamp(10px, 2.2vw, 14px);
+  padding: clamp(1px, 0.5vw, 3px);
   
   @media (max-width: 480px) {
-    font-size: clamp(10px, 2vw, 12px);
+    font-size: clamp(9px, 2vw, 12px);
   }
 `;
 
 const DaysGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: clamp(4px, 1.5vw, 8px);
+  gap: clamp(1px, 0.8vw, 4px);
   flex-grow: 1;
 `;
 
@@ -98,12 +104,12 @@ interface DayProps {
 
 const Day = styled.div<DayProps>`
   aspect-ratio: 1;
-  border-radius: clamp(6px, 1.5vw, 8px);
+  border-radius: clamp(3px, 0.8vw, 6px);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: clamp(3px, 1vw, 5px);
+  padding: clamp(1px, 0.5vw, 3px);
   cursor: pointer;
   background-color: ${props => 
     props.$isSelected ? '#e8f0fe' : 
@@ -115,7 +121,7 @@ const Day = styled.div<DayProps>`
   font-size: clamp(12px, 2.5vw, 16px);
   font-weight: ${props => props.$isToday ? 'bold' : 'normal'};
   transition: all 0.2s ease;
-  min-height: clamp(32px, 6vw, 48px);
+  min-height: clamp(24px, 4vw, 40px);
   
   &:hover {
     background-color: #f1f3f4;
@@ -128,7 +134,7 @@ const Day = styled.div<DayProps>`
   
   @media (max-width: 480px) {
     font-size: clamp(10px, 2.2vw, 14px);
-    min-height: clamp(28px, 5vw, 40px);
+    min-height: clamp(20px, 3.5vw, 32px);
   }
 `;
 
