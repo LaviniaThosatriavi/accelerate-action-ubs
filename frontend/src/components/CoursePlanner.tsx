@@ -468,6 +468,7 @@ const LearningPathContent = styled.div`
   h3 {
     font-size: clamp(1rem, 1.3vw, 1.15rem);
   }
+    color: #3367d6;}
   
   a {
     color: #3367d6;
