@@ -13,7 +13,7 @@ const LoginContainer = styled.div`
   padding: clamp(1rem, 3vw, 2rem);
   box-sizing: border-box;
 
-  @media (max-height: 600px) {
+  @media (max-height: 700px) {
     min-height: 100vh;
     align-items: flex-start;
     padding-top: clamp(1rem, 5vh, 3rem);
