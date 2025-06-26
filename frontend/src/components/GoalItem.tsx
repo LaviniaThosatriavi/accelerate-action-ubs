@@ -28,10 +28,10 @@ const GoalItemContainer = styled.div<GoalItemContainerProps>`
 `;
 
 const GoalTitle = styled.h3`
-  margin: 0 0 clamp(6px, 1.5vw, 8px) 0;
+  margin: 0 0 clamp(4px, 1.5vw, 8px) 0;
   color: #3367d6;
   font-weight: 500;
-  font-size: clamp(14px, 3vw, 16px);
+  font-size: clamp(0.8rem, 2vw, 1.1rem);
   display: flex;
   align-items: center;
   line-height: 1.3;
@@ -40,18 +40,18 @@ const GoalTitle = styled.h3`
   @media (max-width: 600px) {
     flex-direction: column;
     align-items: flex-start;
-    gap: clamp(4px, 1vw, 6px);
+    gap: clamp(2px, 1vw, 4px);
   }
   
   @media (max-width: 480px) {
-    font-size: clamp(13px, 2.8vw, 15px);
+    font-size: clamp(0.85rem, 2vw, 1rem);
   }
 `;
 
 const GoalDescription = styled.p`
   margin: 0;
   color: #5f6368;
-  font-size: clamp(12px, 2.5vw, 14px);
+  font-size: clamp(0.7rem, 2vw, 0.9rem);
   line-height: 1.4;
   word-wrap: break-word;
   
@@ -65,18 +65,14 @@ const GoalMeta = styled.div`
   justify-content: space-between;
   align-items: center;
   margin-top: clamp(8px, 2vw, 10px);
-  font-size: clamp(10px, 2.2vw, 12px);
+  font-size: clamp(0.65rem, 2vw, 0.85rem);
   color: #5f6368;
-  gap: clamp(8px, 2vw, 12px);
+  gap: clamp(6px, 2vw, 12px);
   
   @media (max-width: 600px) {
     flex-direction: column;
     align-items: flex-start;
-    gap: clamp(6px, 1.5vw, 8px);
-  }
-  
-  @media (max-width: 480px) {
-    font-size: clamp(9px, 2vw, 11px);
+    gap: clamp(4px, 1.5vw, 6px);
   }
 `;
 
