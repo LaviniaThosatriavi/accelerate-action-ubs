@@ -91,10 +91,27 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        // Allow your frontend origin
-        config.setAllowedOriginPatterns(List.of("http://localhost:5173", "http://localhost:3000")); 
+        
+        // Get frontend URL from environment variable or use defaults
+        String frontendUrl = System.getenv("FRONTEND_URL");
+        
+        if (frontendUrl != null && !frontendUrl.isEmpty()) {
+            // Production: Use environment variable + localhost for development
+            config.setAllowedOriginPatterns(List.of(
+                "http://localhost:5173", 
+                "http://localhost:3000",
+                frontendUrl
+            ));
+        } else {
+            // Development: Use localhost only
+            config.setAllowedOriginPatterns(List.of(
+                "http://localhost:5173", 
+                "http://localhost:3000"
+            ));
+        }
+        
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-        config.setAllowedHeaders(List.of("*")); // Allow all headers
+        config.setAllowedHeaders(List.of("*"));
         config.setExposedHeaders(List.of("Authorization", "Content-Type"));
         config.setAllowCredentials(true);
         config.setMaxAge(3600L);
