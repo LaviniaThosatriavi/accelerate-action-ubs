@@ -29,9 +29,10 @@ public class SkillMappingService {
     // Cache for YouTube API responses to avoid rate limiting and improve performance
     private Map<String, List<VideoResource>> videoCache = new ConcurrentHashMap<>();
 
-    public SkillMappingService(RestTemplate restTemplate) {
+    public SkillMappingService(RestTemplate restTemplate, 
+                              @Value("${youtube.api.key:}") String youtubeApiKey) {
         this.restTemplate = restTemplate;
-        this.youtubeApiKey = "";
+        this.youtubeApiKey = youtubeApiKey;
     }
 
     @PostConstruct
